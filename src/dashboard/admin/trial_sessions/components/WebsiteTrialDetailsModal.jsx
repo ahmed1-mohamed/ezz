@@ -108,6 +108,7 @@ export default function WebsiteTrialDetailsModal({
   const countryFlag = countryObj.flag || ''
   const applicantCurriculum = resolveText(current.curriculum?.name || current.curriculumName || current.curriculum, isRtl) || '-'
   const applicantEmail = current.email || '-'
+  const parentEmail = current.parentEmail || current.parent?.email || current.parent_email || null
   const applicantPhone = current.phone || '-'
   const phoneClean = applicantPhone.replace(/\s+/g, '')
   const whatsappDigits = applicantPhone.replace(/\D/g, '')
@@ -225,10 +226,21 @@ export default function WebsiteTrialDetailsModal({
               <div className="flex items-center justify-between pt-1">
                 <span className="text-slate-400 flex items-center gap-1">
                   <Mail size={13} />
-                  <span>{isRtl ? 'البريد الإلكتروني:' : 'Email:'}</span>
+                  <span>{isRtl ? 'بريد الطالب:' : 'Student Email:'}</span>
                 </span>
                 <a href={`mailto:${applicantEmail}`} className="font-mono text-slate-700 dark:text-slate-300 hover:text-[#005953] transition-colors">
                   {applicantEmail}
+                </a>
+              </div>
+            )}
+            {parentEmail && parentEmail !== '-' && (
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-slate-400 flex items-center gap-1">
+                  <Mail size={13} />
+                  <span>{isRtl ? 'بريد ولي الأمر:' : 'Parent Email:'}</span>
+                </span>
+                <a href={`mailto:${parentEmail}`} className="font-mono text-slate-700 dark:text-slate-300 hover:text-[#005953] transition-colors">
+                  {parentEmail}
                 </a>
               </div>
             )}

@@ -21,6 +21,7 @@ export default function TrialSession() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    parentEmail: '',
     country: '',
     phone: '',
     curriculum: '',
@@ -129,16 +130,19 @@ export default function TrialSession() {
   const validateForm = useCallback(() => {
     const nextErrors = {}
     if (!formData.name.trim() || formData.name.trim().length < 3) {
-      nextErrors.name = t('trialSessionLanding.form.errors.nameRequired', 'الاسم الكامل مطلوب (3 أحرف على الأقل)')
+      nextErrors.name = t('trialSessionLanding.form.errors.nameRequired', 'اسم الطالب مطلوب (3 أحرف على الأقل)')
     }
     if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
-      nextErrors.email = t('trialSessionLanding.form.errors.emailInvalid', 'يرجى إدخال بريد إلكتروني صحيح')
+      nextErrors.email = t('trialSessionLanding.form.errors.emailInvalid', 'يرجى إدخال بريد إلكتروني صحيح للطالب')
+    }
+    if (!formData.parentEmail.trim() || !/\S+@\S+\.\S+/.test(formData.parentEmail)) {
+      nextErrors.parentEmail = t('trialSessionLanding.form.errors.parentEmailInvalid', 'يرجى إدخال بريد إلكتروني صحيح لولي الأمر')
     }
     if (!formData.country) {
       nextErrors.country = t('trialSessionLanding.form.errors.countryRequired', 'يرجى اختيار الدولة')
     }
     if (!formData.phone.trim() || formData.phone.trim().length < 6) {
-      nextErrors.phone = t('trialSessionLanding.form.errors.phoneRequired', 'رقم الهاتف مطلوب')
+      nextErrors.phone = t('trialSessionLanding.form.errors.phoneRequired', 'رقم هاتف ولي الأمر مطلوب')
     }
     if (!formData.curriculum) {
       nextErrors.curriculum = t('trialSessionLanding.form.errors.curriculumRequired', 'يرجى اختيار المنهج الدراسي المراد تجربته')
@@ -178,6 +182,7 @@ export default function TrialSession() {
     const payload = {
       name: formData.name.trim(),
       email: formData.email.trim(),
+      parentEmail: formData.parentEmail.trim(),
       country: countryId,
       phone: formData.phone.trim(),
       curriculum: currId,
@@ -208,6 +213,7 @@ export default function TrialSession() {
       setFormData({
         name: '',
         email: '',
+        parentEmail: '',
         country: defaultC?.id || defaultC?._id || '',
         phone: '',
         curriculum: '',

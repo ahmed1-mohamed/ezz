@@ -7,6 +7,8 @@ import {
   XCircle,
   MessageCircle,
   Calendar,
+  Mail,
+  Phone,
 } from 'lucide-react'
 
 const DAY_LABELS = {
@@ -108,13 +110,13 @@ export default function WebsiteTrialSessionsTable({
         <table className="w-full text-xs">
           <thead>
             <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold">
-              <th className="py-4 px-4">{isRtl ? 'مقدم الطلب' : 'Applicant'}</th>
-              <th className="py-4 px-4">{isRtl ? 'بيانات التواصل' : 'Contact'}</th>
+              <th className="py-4 px-4">{isRtl ? 'الطالب' : 'Student'}</th>
+              <th className="py-4 px-4">{isRtl ? 'بريد الطالب' : 'Student Email'}</th>
+              <th className="py-4 px-4">{isRtl ? 'بيانات ولي الأمر' : 'Parent Contact'}</th>
               <th className="py-4 px-4">{isRtl ? 'المنهج الدراسي' : 'Curriculum'}</th>
               <th className="py-4 px-4">{isRtl ? 'الموعد المفضل' : 'Preferred Slot'}</th>
               <th className="py-4 px-4">{isRtl ? 'تاريخ الطلب' : 'Request Date'}</th>
               <th className="py-4 px-4">{isRtl ? 'الحالة' : 'Status'}</th>
-              <th className="py-4 px-4">{isRtl ? 'الطالب المرتبط' : 'Linked Student'}</th>
               <th className="py-4 px-4 text-center">{isRtl ? 'الإجراءات' : 'Actions'}</th>
             </tr>
           </thead>
@@ -130,6 +132,7 @@ export default function WebsiteTrialSessionsTable({
               const whatsappDigits = phone.replace(/\D/g, '')
               const whatsappUrl = whatsappDigits ? `https://wa.me/${whatsappDigits}` : ''
               const email = item.email || '-'
+              const parentEmail = item.parentEmail || item.parent?.email || null
               const currName = resolveText(item.curriculum?.name || item.curriculumName || item.curriculum, isRtl) || '-'
               const dayKey = String(item.preferredDay || '').toLowerCase()
               const dayStr = DAY_LABELS[dayKey] ? (isRtl ? DAY_LABELS[dayKey].ar : DAY_LABELS[dayKey].en) : (item.preferredDay || '-')
@@ -137,8 +140,6 @@ export default function WebsiteTrialSessionsTable({
               const timeStr = TIME_LABELS[timeKey] ? (isRtl ? TIME_LABELS[timeKey].ar : TIME_LABELS[timeKey].en) : (item.preferredTime || '-')
               const statusRaw = String(item.status || 'pending').toLowerCase()
               const isPending = statusRaw === 'pending'
-              const linkedStu = item.student || item.studentId || null
-              const linkedStuName = typeof linkedStu === 'object' ? resolveText(linkedStu?.name, isRtl) : null
               return (
                 <tr key={reqId} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
                   <td className="py-4 px-4">
@@ -163,8 +164,25 @@ export default function WebsiteTrialSessionsTable({
                     </div>
                   </td>
                   <td className="py-4 px-4">
-                    <div className="space-y-1">
+                    {email && email !== '-' ? (
+                      <div className="flex items-center gap-1.5 font-mono text-slate-700 dark:text-slate-300">
+                        <Mail size={13} className="text-teal-600 dark:text-teal-400 shrink-0" />
+                        <a
+                          href={`mailto:${email}`}
+                          className="hover:text-[#005953] dark:hover:text-emerald-400 transition-colors truncate max-w-[170px]"
+                          title={email}
+                        >
+                          {email}
+                        </a>
+                      </div>
+                    ) : (
+                      <span className="text-slate-400">-</span>
+                    )}
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
+                        <Phone size={13} className="text-slate-400 shrink-0" />
                         <span className="font-mono font-bold text-slate-700 dark:text-slate-300" dir="ltr">{phone}</span>
                         {whatsappUrl && (
                           <a
@@ -178,10 +196,19 @@ export default function WebsiteTrialSessionsTable({
                           </a>
                         )}
                       </div>
-                      {email && email !== '-' && (
-                        <div className="text-[11px] text-slate-400 font-mono truncate max-w-[160px]">
-                          {email}
+                      {parentEmail && parentEmail !== '-' ? (
+                        <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-600 dark:text-slate-400">
+                          <Mail size={12} className="text-indigo-500 shrink-0" />
+                          <a
+                            href={`mailto:${parentEmail}`}
+                            className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors truncate max-w-[170px]"
+                            title={parentEmail}
+                          >
+                            {parentEmail}
+                          </a>
                         </div>
+                      ) : (
+                        <span className="text-[11px] text-slate-400 block">{isRtl ? 'لا يوجد بريد' : 'No email'}</span>
                       )}
                     </div>
                   </td>
@@ -199,15 +226,6 @@ export default function WebsiteTrialSessionsTable({
                   </td>
                   <td className="py-4 px-4">
                     {renderStatus(statusRaw)}
-                  </td>
-                  <td className="py-4 px-4">
-                    {linkedStuName ? (
-                      <span className="font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-xl inline-block border border-emerald-200/50">
-                        {linkedStuName}
-                      </span>
-                    ) : (
-                      <span className="text-slate-400">-</span>
-                    )}
                   </td>
                   <td className="py-4 px-4">
                     <div className="flex items-center justify-center gap-1.5">

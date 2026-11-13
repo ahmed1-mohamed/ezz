@@ -68,7 +68,7 @@ function parseDialCodeAndPhone(rawPhone, countryList = []) {
   return { dialCode: DEFAULT_DIAL_CODE, phoneVal: cleaned.replace(/^0+/, '') };
 }
 
-function resolveParentCountry(rawCountry, phone, dialCode, countryList = []) {
+function resolveParentCountry(rawCountry, countryList = []) {
   if (!Array.isArray(countryList) || countryList.length === 0) return '';
   if (typeof rawCountry === 'object' && rawCountry !== null) {
     const directId = rawCountry.id || rawCountry._id;
@@ -99,30 +99,6 @@ function resolveParentCountry(rawCountry, phone, dialCode, countryList = []) {
         (ce && (cleanStr.toLowerCase().includes(ce) || ce.includes(cleanStr.toLowerCase())));
     });
     if (nameMatch) return nameMatch.id || nameMatch._id;
-  }
-  const testDial = dialCode || '';
-  if (testDial) {
-    const dialMatch = countryList.find((c) => (c.dialCode || c.phoneCode) === testDial);
-    if (dialMatch) return dialMatch.id || dialMatch._id;
-  }
-  if (phone) {
-    const cleanPhone = String(phone).trim();
-    const sorted = [...countryList]
-      .filter((c) => c.dialCode || c.phoneCode)
-      .sort((a, b) => String(b.dialCode || b.phoneCode).length - String(a.dialCode || a.phoneCode).length);
-    for (const c of sorted) {
-      const code = String(c.dialCode || c.phoneCode).trim();
-      if (code && cleanPhone.startsWith(code)) {
-        return c.id || c._id;
-      }
-    }
-    const phoneWithPlus = cleanPhone.startsWith('+') ? cleanPhone : `+${cleanPhone}`;
-    for (const c of sorted) {
-      const code = String(c.dialCode || c.phoneCode).trim();
-      if (code && phoneWithPlus.startsWith(code)) {
-        return c.id || c._id;
-      }
-    }
   }
   return '';
 }
@@ -187,8 +163,6 @@ export default function ParentSettings() {
           const parsedPhone = parseDialCodeAndPhone(activeProfile.phone, normalizedCountries);
           const mappedCountry = resolveParentCountry(
             activeProfile.country || activeProfile.countryId,
-            activeProfile.phone,
-            parsedPhone.dialCode,
             normalizedCountries
           );
           setSelectedDialCode(parsedPhone.dialCode);
@@ -218,20 +192,9 @@ export default function ParentSettings() {
   }, [user, isRtl]);
   const handleCountryChange = (countryId) => {
     setProfileForm((prev) => ({ ...prev, country: countryId }));
-    const matched = apiCountries.find((c) => (c.id || c._id) === countryId);
-    if (matched && (matched.dialCode || matched.phoneCode)) {
-      setSelectedDialCode(matched.dialCode || matched.phoneCode);
-    }
   };
   const handleDialCodeChange = (dialCode) => {
     setSelectedDialCode(dialCode);
-    const currentCountry = apiCountries.find((c) => (c.id || c._id) === profileForm.country);
-    if (!currentCountry || (currentCountry.dialCode !== dialCode && currentCountry.phoneCode !== dialCode)) {
-      const matched = apiCountries.find((c) => (c.dialCode || c.phoneCode) === dialCode);
-      if (matched) {
-        setProfileForm((prev) => ({ ...prev, country: matched.id || matched._id }));
-      }
-    }
   };
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];

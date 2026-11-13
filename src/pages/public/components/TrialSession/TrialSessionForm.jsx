@@ -111,7 +111,7 @@ export default memo(function TrialSessionForm({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="space-y-1.5">
               <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                {t('trialSessionLanding.form.fullName', 'الاسم الكامل')} *
+                {t('trialSessionLanding.form.studentName', 'اسم الطالب بالكامل')} *
               </label>
               <div className="relative">
                 <input
@@ -132,7 +132,7 @@ export default memo(function TrialSessionForm({
             </div>
             <div className="space-y-1.5">
               <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                {t('trialSessionLanding.form.email', 'البريد الإلكتروني')} *
+                {t('trialSessionLanding.form.studentEmail', 'البريد الإلكتروني للطالب')} *
               </label>
               <div className="relative">
                 <input
@@ -141,7 +141,7 @@ export default memo(function TrialSessionForm({
                   onChange={(e) => onInputChange('email', e.target.value)}
                   required
                   dir="ltr"
-                  placeholder={t('trialSessionLanding.form.emailPlaceholder', 'example@email.com')}
+                  placeholder={t('trialSessionLanding.form.studentEmailPlaceholder', 'student@example.com')}
                   className={`w-full px-4 py-3 sm:py-3.5 ps-11 rounded-2xl border text-xs sm:text-sm font-medium bg-slate-50/50 dark:bg-slate-800 text-slate-900 dark:text-white transition-all focus:ring-2 focus:ring-[#00695C] focus:outline-hidden ${
                     errors.email ? 'border-rose-400 bg-rose-50/30' : 'border-slate-200 dark:border-slate-700'
                   }`}
@@ -151,6 +151,43 @@ export default memo(function TrialSessionForm({
                 </div>
               </div>
               {errors.email && <p className="text-[11px] font-bold text-rose-500 mt-1">{errors.email}</p>}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="space-y-1.5">
+              <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
+                {t('trialSessionLanding.form.parentEmail', 'البريد الإلكتروني لولي الأمر')} *
+              </label>
+              <div className="relative">
+                <input
+                  type="email"
+                  value={formData.parentEmail || ''}
+                  onChange={(e) => onInputChange('parentEmail', e.target.value)}
+                  required
+                  dir="ltr"
+                  placeholder={t('trialSessionLanding.form.parentEmailPlaceholder', 'parent@example.com')}
+                  className={`w-full px-4 py-3 sm:py-3.5 ps-11 rounded-2xl border text-xs sm:text-sm font-medium bg-slate-50/50 dark:bg-slate-800 text-slate-900 dark:text-white transition-all focus:ring-2 focus:ring-[#00695C] focus:outline-hidden ${
+                    errors.parentEmail ? 'border-rose-400 bg-rose-50/30' : 'border-slate-200 dark:border-slate-700'
+                  }`}
+                />
+                <div className="absolute inset-y-0 start-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Mail size={18} />
+                </div>
+              </div>
+              {errors.parentEmail && <p className="text-[11px] font-bold text-rose-500 mt-1">{errors.parentEmail}</p>}
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
+                {t('trialSessionLanding.form.phone', 'رقم هاتف ولي الأمر')} *
+              </label>
+              <CountryPhoneInput
+                hideLabel
+                value={formData.phone}
+                onChange={onPhoneChange}
+                error={errors.phone}
+                defaultCountry={selectedCountryCode}
+                placeholder={t('trialSessionLanding.form.phonePlaceholder', '50 123 4567')}
+              />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -189,55 +226,6 @@ export default memo(function TrialSessionForm({
             </div>
             <div className="space-y-1.5">
               <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                {t('trialSessionLanding.form.phone', 'رقم الهاتف')} *
-              </label>
-              <CountryPhoneInput
-                hideLabel
-                value={formData.phone}
-                onChange={onPhoneChange}
-                error={errors.phone}
-                defaultCountry={selectedCountryCode}
-                placeholder={t('trialSessionLanding.form.phonePlaceholder', '50 123 4567')}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div className="space-y-1.5">
-              <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                {t('trialSessionLanding.form.curriculum', 'المنهج الدراسي المراد تجربته')} *
-              </label>
-              <div className="relative">
-                <select
-                  value={formData.curriculum}
-                  onChange={(e) => onInputChange('curriculum', e.target.value)}
-                  required
-                  className={`w-full px-4 py-3 sm:py-3.5 ps-11 pe-10 rounded-2xl border text-xs sm:text-sm font-medium bg-slate-50/50 dark:bg-slate-800 text-slate-900 dark:text-white transition-all appearance-none cursor-pointer focus:ring-2 focus:ring-[#00695C] focus:outline-hidden ${
-                    errors.curriculum ? 'border-rose-400 bg-rose-50/30' : 'border-slate-200 dark:border-slate-700'
-                  }`}
-                >
-                  <option value="">{t('trialSessionLanding.form.selectCurriculum', '-- اختر المنهج --')}</option>
-                  {curriculaList.map((curr) => {
-                    const displayName = isRtl
-                      ? (curr.titleAr || curr.name || curr.titleEn || '')
-                      : (curr.titleEn || curr.name || curr.titleAr || '')
-                    return (
-                      <option key={curr.id} value={curr.id}>
-                        {displayName}
-                      </option>
-                    )
-                  })}
-                </select>
-                <div className="absolute inset-y-0 start-3.5 flex items-center pointer-events-none text-slate-400">
-                  <BookOpen size={18} />
-                </div>
-                <div className="absolute inset-y-0 end-3.5 flex items-center pointer-events-none text-slate-400">
-                  <ChevronDown size={18} />
-                </div>
-              </div>
-              {errors.curriculum && <p className="text-[11px] font-bold text-rose-500 mt-1">{errors.curriculum}</p>}
-            </div>
-            <div className="space-y-1.5">
-              <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
                 {t('trialSessionLanding.form.studentAge', 'عمر الطالب')} *
               </label>
               <div className="relative">
@@ -259,6 +247,40 @@ export default memo(function TrialSessionForm({
               </div>
               {errors.studentAge && <p className="text-[11px] font-bold text-rose-500 mt-1">{errors.studentAge}</p>}
             </div>
+          </div>
+          <div className="space-y-1.5">
+            <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
+              {t('trialSessionLanding.form.curriculum', 'المنهج الدراسي المراد تجربته')} *
+            </label>
+            <div className="relative">
+              <select
+                value={formData.curriculum}
+                onChange={(e) => onInputChange('curriculum', e.target.value)}
+                required
+                className={`w-full px-4 py-3 sm:py-3.5 ps-11 pe-10 rounded-2xl border text-xs sm:text-sm font-medium bg-slate-50/50 dark:bg-slate-800 text-slate-900 dark:text-white transition-all appearance-none cursor-pointer focus:ring-2 focus:ring-[#00695C] focus:outline-hidden ${
+                  errors.curriculum ? 'border-rose-400 bg-rose-50/30' : 'border-slate-200 dark:border-slate-700'
+                }`}
+              >
+                <option value="">{t('trialSessionLanding.form.selectCurriculum', '-- اختر المنهج --')}</option>
+                {curriculaList.map((curr) => {
+                  const displayName = isRtl
+                    ? (curr.titleAr || curr.name || curr.titleEn || '')
+                    : (curr.titleEn || curr.name || curr.titleAr || '')
+                  return (
+                    <option key={curr.id} value={curr.id}>
+                      {displayName}
+                    </option>
+                  )
+                })}
+              </select>
+              <div className="absolute inset-y-0 start-3.5 flex items-center pointer-events-none text-slate-400">
+                <BookOpen size={18} />
+              </div>
+              <div className="absolute inset-y-0 end-3.5 flex items-center pointer-events-none text-slate-400">
+                <ChevronDown size={18} />
+              </div>
+            </div>
+            {errors.curriculum && <p className="text-[11px] font-bold text-rose-500 mt-1">{errors.curriculum}</p>}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="space-y-1.5">

@@ -68,6 +68,7 @@ export default function CreateHomework() {
   const [documentFile, setDocumentFile] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const videoInputRef = useRef(null);
   const documentInputRef = useRef(null);
   const { data: activeGroupsRes } = useQuery({
@@ -88,8 +89,8 @@ export default function CreateHomework() {
   const handleVideoChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 50 * 1024 * 1024) {
-      toast.error('حجم الفيديو يجب ألا يتجاوز 50 ميغابايت');
+    if (file.size > 100 * 1024 * 1024) {
+      toast.error(t('teacherHomework.errMaxVideoSize', 'حجم الفيديو يجب ألا يتجاوز 100 ميغابايت'));
       return;
     }
     setMediaFile(file);
@@ -158,6 +159,7 @@ export default function CreateHomework() {
       }
     }
     setIsSubmitting(true);
+    setUploadProgress(0);
     try {
       const cleanQuestions = questions.map((q) => {
         const qText = (q.questionText || q.question || '').trim();
@@ -198,7 +200,22 @@ export default function CreateHomework() {
           payload.append('document', documentFile);
         }
         if (cleanQuestions.length > 0) {
-          payload.append('questions', JSON.stringify(cleanQuestions));
+          cleanQuestions.forEach((q, idx) => {
+            payload.append(`questions[${idx}][type]`, q.type);
+            payload.append(`questions[${idx}][questionText]`, q.questionText);
+            payload.append(`questions[${idx}][points]`, String(q.points));
+            if (q.type === 'multiple_choice' && Array.isArray(q.options)) {
+              q.options.forEach((opt, oIdx) => {
+                const optStr = String(opt ?? '').trim();
+                if (optStr) {
+                  payload.append(`questions[${idx}][options][${oIdx}]`, optStr);
+                }
+              });
+              if (q.correctOptionIndex !== undefined && q.correctOptionIndex !== null) {
+                payload.append(`questions[${idx}][correctOptionIndex]`, String(q.correctOptionIndex));
+              }
+            }
+          });
         }
       } else {
         payload = {
@@ -206,11 +223,14 @@ export default function CreateHomework() {
           description: description.trim(),
           deadline,
           group: selectedGroupId,
-          questions: cleanQuestions,
         };
+        if (cleanQuestions.length > 0) {
+          payload.questions = cleanQuestions;
+        }
       }
-      const res = await teacherHomeworkApi.createHomework(payload);
+      const res = await teacherHomeworkApi.createHomework(payload, (pct) => setUploadProgress(pct));
       setIsSubmitting(false);
+      setUploadProgress(0);
       if (res.success) {
         toast.success(t('teacherHomework.publishedSuccess', 'تم نشر الواجب المدرسي بنجاح وإشعار جميع طلاب المجموعة'));
         navigate('/dashboard/teacher/homework/submissions');
@@ -220,6 +240,7 @@ export default function CreateHomework() {
       }
     } catch {
       setIsSubmitting(false);
+      setUploadProgress(0);
       toast.error(t('teacherHomework.uploadError', 'حدث خطأ أثناء رفع ونشر الواجب'));
     }
   };
@@ -422,7 +443,7 @@ export default function CreateHomework() {
                       {t('teacherHomework.uploadVideo', 'رفع فيديو توضيحي')}
                     </h4>
                     <p className="text-xs text-slate-400 font-semibold">
-                      {t('teacherHomework.maxVideoSize', 'حتى 50 ميغابايت - MP4, MOV')}
+                      {t('teacherHomework.maxVideoSize', 'حتى 100 ميغابايت - MP4, MOV')}
                     </p>
                   </div>
                 </div>
@@ -518,7 +539,21 @@ export default function CreateHomework() {
           )}
         </div>
       </div>
-      <div className="flex justify-end pt-2">
+      <div className="flex flex-col sm:flex-row items-center justify-end gap-4 pt-2">
+        {isSubmitting && uploadProgress > 0 && (
+          <div className="w-full sm:w-64 space-y-1.5">
+            <div className="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
+              <span>{uploadProgress >= 100 ? t('teacherHomework.processing', 'جاري معالجة الواجب...') : t('teacherHomework.uploading', 'جاري الرفع...')}</span>
+              <span className="font-mono">{uploadProgress}%</span>
+            </div>
+            <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-[#00594C] h-2 rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${uploadProgress}%` }}
+              />
+            </div>
+          </div>
+        )}
         <button
           type="button"
           onClick={() => handlePublishHomework()}
@@ -528,7 +563,11 @@ export default function CreateHomework() {
           {isSubmitting ? (
             <>
               <Loader2 size={18} className="animate-spin" />
-              <span>{t('teacherHomework.publishing', 'جاري نشر الواجب...')}</span>
+              <span>
+                {uploadProgress > 0 && uploadProgress < 100
+                  ? `${t('teacherHomework.uploading', 'جاري الرفع')} (${uploadProgress}%)...`
+                  : t('teacherHomework.publishing', 'جاري نشر الواجب...')}
+              </span>
             </>
           ) : (
             <>

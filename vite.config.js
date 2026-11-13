@@ -17,6 +17,7 @@ export default defineConfig(({ mode }) => ({
     port: 3000,
   },
   build: {
+    emptyOutDir: false,
     cssCodeSplit: true,
     assetsInlineLimit: 4096,
     sourcemap: false,

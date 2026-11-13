@@ -38,6 +38,7 @@ export default function AcceptWebsiteTrialModal({
     isRtl
   )
   const applicantEmail = trialSession?.email || '-'
+  const parentEmail = trialSession?.parentEmail || trialSession?.parent?.email || trialSession?.parent_email || null
   const applicantPhone = trialSession?.phone || '-'
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -115,14 +116,20 @@ export default function AcceptWebsiteTrialModal({
             <div className="pt-2 border-t border-slate-200/60 dark:border-slate-700/60 grid grid-cols-2 gap-2 text-[11px] text-slate-500 dark:text-slate-400">
               {applicantPhone && applicantPhone !== '-' && (
                 <div>
-                  <span className="text-slate-400 block">{isRtl ? 'الهاتف:' : 'Phone:'}</span>
+                  <span className="text-slate-400 block">{isRtl ? 'هاتف ولي الأمر:' : 'Parent Phone:'}</span>
                   <span className="font-mono font-bold text-slate-700 dark:text-slate-300" dir="ltr">{applicantPhone}</span>
                 </div>
               )}
               {applicantEmail && applicantEmail !== '-' && (
                 <div>
-                  <span className="text-slate-400 block">{isRtl ? 'البريد:' : 'Email:'}</span>
+                  <span className="text-slate-400 block">{isRtl ? 'بريد الطالب:' : 'Student Email:'}</span>
                   <span className="font-mono font-bold text-slate-700 dark:text-slate-300 truncate block">{applicantEmail}</span>
+                </div>
+              )}
+              {parentEmail && parentEmail !== '-' && (
+                <div className="col-span-2">
+                  <span className="text-slate-400 block">{isRtl ? 'بريد ولي الأمر:' : 'Parent Email:'}</span>
+                  <span className="font-mono font-bold text-slate-700 dark:text-slate-300 truncate block">{parentEmail}</span>
                 </div>
               )}
             </div>

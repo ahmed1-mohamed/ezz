@@ -17,9 +17,20 @@ export const teacherHomeworkApi = {
     }
   },
 
-  createHomework: async (data, retryCount = 0) => {
+  createHomework: async (data, onProgress = null, retryCount = 0) => {
     try {
-      const config = { skipLang: true };
+      const config = {
+        skipLang: true,
+        timeout: 30 * 60 * 1000,
+      };
+      if (typeof onProgress === 'function') {
+        config.onUploadProgress = (progressEvent) => {
+          if (progressEvent.total) {
+            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            onProgress(percent);
+          }
+        };
+      }
       const response = await api.post('/api/v1/teacher/homework', data, config);
       return {
         success: true,
@@ -29,62 +40,91 @@ export const teacherHomeworkApi = {
     } catch (error) {
       console.warn('API createHomework failed:', error);
       const rawMsg = error.response?.data?.message || error.response?.data?.error;
-      // Smart fallback 1: If FormData with JSON questions string failed with "questions must be an array"
-      if (retryCount === 0 && error.response?.status === 400 && data instanceof FormData) {
-        const errorString = Array.isArray(rawMsg) ? rawMsg.join(' ') : String(rawMsg || '');
-        if (errorString.includes('questions must be an array')) {
-          try {
-            const rawQuestionsStr = data.get('questions');
-            if (rawQuestionsStr && typeof rawQuestionsStr === 'string') {
-              const parsedQuestions = JSON.parse(rawQuestionsStr);
-              if (Array.isArray(parsedQuestions) && parsedQuestions.length > 0) {
-                const fallbackFd = new FormData();
-                for (const [key, val] of data.entries()) {
-                  if (key !== 'questions') {
-                    fallbackFd.append(key, val);
+      const status = error.response?.status;
+      const errorString = Array.isArray(rawMsg) ? rawMsg.join(' ') : String(rawMsg || '');
+      const hasQuestionsArrayError =
+        errorString.includes('questions must be an array') ||
+        errorString.includes('الأسئلة يجب أن تكون في مصفوفة') ||
+        errorString.includes('nested property questions') ||
+        errorString.includes('لا يمكن إضافة أكثر من 20 سؤالاً');
+      if (retryCount === 0 && status === 400 && data instanceof FormData && hasQuestionsArrayError) {
+        try {
+          const rawQuestionsStr = data.get('questions');
+          if (rawQuestionsStr && typeof rawQuestionsStr === 'string') {
+            const parsedQuestions = JSON.parse(rawQuestionsStr);
+            if (Array.isArray(parsedQuestions) && parsedQuestions.length > 0) {
+              const fallbackFd = new FormData();
+              for (const [key, val] of data.entries()) {
+                if (key !== 'questions') {
+                  fallbackFd.append(key, val);
+                }
+              }
+              parsedQuestions.forEach((q, idx) => {
+                fallbackFd.append(`questions[${idx}][type]`, q.type || 'multiple_choice');
+                fallbackFd.append(`questions[${idx}][questionText]`, (q.questionText || q.question || '').trim());
+                fallbackFd.append(`questions[${idx}][points]`, String(Math.max(1, Number(q.points) || 5)));
+                if (q.type === 'multiple_choice') {
+                  (q.options || []).forEach((opt, oIdx) => {
+                    const optStr = String(opt ?? '').trim();
+                    if (optStr) fallbackFd.append(`questions[${idx}][options][${oIdx}]`, optStr);
+                  });
+                  if (q.correctOptionIndex !== undefined && q.correctOptionIndex !== null) {
+                    fallbackFd.append(`questions[${idx}][correctOptionIndex]`, String(q.correctOptionIndex));
                   }
                 }
-                parsedQuestions.forEach((q, idx) => {
-                  fallbackFd.append(`questions[${idx}][type]`, q.type);
-                  fallbackFd.append(`questions[${idx}][questionText]`, q.questionText || q.question || '');
-                  fallbackFd.append(`questions[${idx}][points]`, q.points);
-                  if (q.type === 'multiple_choice') {
-                    (q.options || []).forEach((opt, oIdx) => {
-                      fallbackFd.append(`questions[${idx}][options][${oIdx}]`, opt);
-                    });
-                    if (q.correctOptionIndex !== undefined) {
-                      fallbackFd.append(`questions[${idx}][correctOptionIndex]`, q.correctOptionIndex);
-                    }
-                  } else {
-                    fallbackFd.append(`questions[${idx}][options][]`, '');
-                  }
-                });
-                return await teacherHomeworkApi.createHomework(fallbackFd, 1);
-              }
+              });
+              return await teacherHomeworkApi.createHomework(fallbackFd, onProgress, 1);
             }
-          } catch (fallbackErr) {
-            console.warn('API createHomework FormData fallback failed:', fallbackErr);
           }
+        } catch (fallbackErr) {
+          console.warn('API createHomework FormData fallback failed:', fallbackErr);
         }
       }
-      // Smart fallback 2: If JSON request failed because server requires multipart/form-data
-      if (retryCount === 0 && (error.response?.status === 415 || error.response?.status === 400) && !(data instanceof FormData) && typeof data === 'object') {
-        const errorString = Array.isArray(rawMsg) ? rawMsg.join(' ') : String(rawMsg || '');
-        if (errorString.includes('multipart') || errorString.includes('form-data') || error.response?.status === 415) {
+      if (retryCount === 0 && (status === 415 || status === 400) && !(data instanceof FormData) && typeof data === 'object') {
+        if (errorString.includes('multipart') || errorString.includes('form-data') || status === 415) {
           try {
             const fallbackFd = new FormData();
             Object.keys(data).forEach((key) => {
               if (key === 'questions') {
-                fallbackFd.append('questions', JSON.stringify(data[key]));
+                if (Array.isArray(data[key])) {
+                  data[key].forEach((q, idx) => {
+                    fallbackFd.append(`questions[${idx}][type]`, q.type || 'multiple_choice');
+                    fallbackFd.append(`questions[${idx}][questionText]`, (q.questionText || q.question || '').trim());
+                    fallbackFd.append(`questions[${idx}][points]`, String(Math.max(1, Number(q.points) || 5)));
+                    if (q.type === 'multiple_choice') {
+                      (q.options || []).forEach((opt, oIdx) => {
+                        const optStr = String(opt ?? '').trim();
+                        if (optStr) fallbackFd.append(`questions[${idx}][options][${oIdx}]`, optStr);
+                      });
+                      if (q.correctOptionIndex !== undefined && q.correctOptionIndex !== null) {
+                        fallbackFd.append(`questions[${idx}][correctOptionIndex]`, String(q.correctOptionIndex));
+                      }
+                    }
+                  });
+                }
               } else if (data[key] !== undefined && data[key] !== null) {
                 fallbackFd.append(key, data[key]);
               }
             });
-            return await teacherHomeworkApi.createHomework(fallbackFd, 1);
+            return await teacherHomeworkApi.createHomework(fallbackFd, onProgress, 1);
           } catch (fallbackErr) {
             console.warn('API createHomework JSON-to-FormData fallback failed:', fallbackErr);
           }
         }
+      }
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        return {
+          success: false,
+          message: 'استغرقت عملية رفع الملف وقتاً طويلاً، يرجى التحقق من سرعة اتصال الإنترنت أو تقليل حجم الملف والمحاولة مجدداً.',
+          error,
+        };
+      }
+      if (status === 413) {
+        return {
+          success: false,
+          message: 'حجم الملف المرفق كبير جداً ويتجاوز الحد المسموح به من الخادم. يرجى اختيار ملف أصغر حجماً.',
+          error,
+        };
       }
       const responseMessage = Array.isArray(rawMsg)
         ? rawMsg.join(' - ')
