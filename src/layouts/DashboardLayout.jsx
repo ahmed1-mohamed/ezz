@@ -11,8 +11,8 @@ import {
   LogOut,
   Menu,
   X,
-  ShieldCheck,
 } from 'lucide-react';
+import PlatformLogoIcon from '@/shared/components/PlatformLogoIcon.jsx';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 import { roleNavigation } from '@/shared/constants/navigation.js';
 
@@ -78,9 +78,7 @@ export default function DashboardLayout({ title, role, links, children }) {
         <div className="flex flex-col h-full overflow-hidden">
           <div className="p-5 sm:p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 shrink-0">
             <Link to="/dashboard/manager" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#0f7a6c] text-white flex items-center justify-center shadow-xs shrink-0">
-                <ShieldCheck size={22} />
-              </div>
+              <PlatformLogoIcon size={38} className="shrink-0 drop-shadow-xs" />
               <div className="text-start">
                 <h1 className="text-base font-extrabold text-[#0f7a6c] dark:text-emerald-400 leading-tight">
                   {t('appName', 'منارة العز')}
@@ -163,6 +161,7 @@ export default function DashboardLayout({ title, role, links, children }) {
             >
               <Menu size={20} />
             </button>
+            <PlatformLogoIcon size={26} className="shrink-0 drop-shadow-xs" />
             <div className="text-start">
               <h1 className="text-base sm:text-lg font-extrabold text-slate-800 dark:text-white leading-tight">
                 {title || t('dashboard.overview', 'نظرة عامة')}

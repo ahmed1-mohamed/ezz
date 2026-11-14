@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next"
 import { ChevronLeft, ChevronRight, ShieldCheck, Mail, Phone } from "lucide-react"
 import { Link } from "react-router-dom"
 import logoImg from '@/images/programs/NewLogo.webp'
+import { trackWhatsAppConversion } from '@/shared/utils/analytics'
 
 const SUPPORT_EMAIL = 'support@mezzedu.com'
 const PHONE_1 = '+971 566126838'
@@ -185,6 +186,12 @@ export default function Footer() {
                             </a>
                             <a
                                 href={WHATSAPP_CHAT_URL}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    trackWhatsAppConversion(WHATSAPP_CHAT_URL)
+                                }}
                                 className="group flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:text-[#00695C] dark:hover:text-emerald-400 transition-colors"
                             >
                                 <WhatsAppIcon className="w-5 h-5 text-[#735C00] dark:text-amber-400 shrink-0 group-hover:scale-110 transition-transform" />

@@ -93,7 +93,7 @@ function createPageHtml(template, lang, routePath, title, description) {
     }
   })
 
-  if (routePath === 'contact') {
+  if (routePath === 'contact' || routePath === 'trial-session/thank-you' || routePath === 'thank-you') {
     const contactConversionSnippet = [
       '<!-- Event snippet for Contact conversion page -->',
       '<script>',

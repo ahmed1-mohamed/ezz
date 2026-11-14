@@ -24,6 +24,7 @@ const Contact = lazy(() => import('../pages/public/Contact.jsx'))
 const SchedulePage = lazy(() => import('../pages/public/SchedulePage.jsx'))
 const TeacherProfile = lazy(() => import('../pages/public/TeacherProfile.jsx'))
 const TrialSession = lazy(() => import('../pages/public/TrialSession.jsx'))
+const ThankYou = lazy(() => import('../pages/public/ThankYou.jsx'))
 
 const AdminDashboard = lazy(() => import('../dashboard/admin/overview/AdminDashboard.jsx'))
 const AdminManagers = lazy(() => import('../dashboard/admin/managers/AdminManagers.jsx'))
@@ -171,6 +172,8 @@ export default function AppRoutes() {
                         <Route path="/contact" element={<Navigate to="/ar/contact" replace />} />
                         <Route path="/trial-session" element={<Navigate to="/ar/trial-session" replace />} />
                         <Route path="/trial" element={<Navigate to="/ar/trial-session" replace />} />
+                        <Route path="/trial-session/thank-you" element={<Navigate to="/ar/trial-session/thank-you" replace />} />
+                        <Route path="/thank-you" element={<Navigate to="/ar/trial-session/thank-you" replace />} />
 
                         {/* Unified Public Payment Routes without language prefix (for Stripe redirects & unified callbacks) */}
                         <Route
@@ -206,6 +209,8 @@ export default function AppRoutes() {
                             <Route path="schedule" element={<SchedulePage />} />
                             <Route path="contact" element={<Contact />} />
                             <Route path="trial-session" element={<TrialSession />} />
+                            <Route path="trial-session/thank-you" element={<ThankYou />} />
+                            <Route path="thank-you" element={<ThankYou />} />
                             <Route path="trial" element={<Navigate to="trial-session" replace />} />
                             <Route path="checkout/status" element={<ParentPaymentStatus />} />
                             <Route path="payment/status" element={<ParentPaymentStatus />} />

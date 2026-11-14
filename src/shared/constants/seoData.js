@@ -111,5 +111,15 @@ export const SEO_CONFIG = {
       en: 'Book your free trial session with zero obligation to assess your level and experience our platform.',
     },
   },
+  thankYou: {
+    path: 'trial-session/thank-you',
+    title: {
+      ar: 'تم تأكيد حجز الحصة التجريبية | أكاديمية منارة العز',
+      en: 'Trial Session Confirmed | Manarat Al-Ezz',
+    },
+    description: {
+      ar: 'شكراً لثقتكم بنا، تم استلام طلب الحصة التجريبية وسيقوم فريقنا بالتواصل معكم عبر الواتساب لتأكيد الموعد.',
+      en: 'Thank you for choosing us! Your free trial request has been received. Our team will contact you on WhatsApp to confirm.',
+    },
+  },
 }
-

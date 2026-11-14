@@ -11,18 +11,17 @@ import {
   Award,
   Calendar,
   History,
-  DollarSign,
   Receipt,
   CreditCard,
   MessageSquare,
   User,
-  BookOpen,
   Library,
   LogOut,
   Menu,
   X,
   Globe,
 } from 'lucide-react';
+import PlatformLogoIcon from '@/shared/components/PlatformLogoIcon.jsx';
 import { useAuth } from '@/shared/context/useAuth.jsx';
 
 export default function TeacherLayout() {
@@ -141,9 +140,7 @@ export default function TeacherLayout() {
         <div className="flex flex-col h-full overflow-hidden">
           <div className="p-5 sm:p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 shrink-0">
             <Link to="/dashboard/teacher" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#0f7a6c] text-white flex items-center justify-center shadow-xs shrink-0">
-                <BookOpen size={20} />
-              </div>
+              <PlatformLogoIcon size={38} className="shrink-0 drop-shadow-xs" />
               <div className="text-start">
                 <h1 className="text-base font-extrabold text-[#0f7a6c] dark:text-emerald-400 leading-tight">
                   {t('appName', 'منارة العز')}
@@ -223,6 +220,7 @@ export default function TeacherLayout() {
             >
               <Menu size={20} />
             </button>
+            <PlatformLogoIcon size={26} className="shrink-0 drop-shadow-xs" />
             <span className="text-sm font-black text-[#0f7a6c] dark:text-emerald-400">
               {t('appName', 'منارة العز')} · {t('teacher.platformTitle', 'منصة المعلم')}
             </span>

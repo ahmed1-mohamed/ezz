@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import api from '@/shared/services/api/axiosConfig'
 import { landingApi } from '@/shared/services/api/landingApi'
 import { fetchCountries, sortCountries } from '@/shared/utils/countryUtils'
+import { trackTrialSessionConversion } from '@/shared/utils/analytics'
 import TestimonialsSection from '@/shared/components/TestimonialsSection.jsx'
 import TrialSessionHero from './components/TrialSession/TrialSessionHero.jsx'
 import TrialSessionForm from './components/TrialSession/TrialSessionForm.jsx'
@@ -127,6 +128,9 @@ export default function TrialSession() {
   const handlePhoneChange = useCallback((newPhone) => {
     handleInputChange('phone', newPhone)
   }, [handleInputChange])
+  const handleResetSuccess = useCallback(() => {
+    setIsSuccess(false)
+  }, [])
   const validateForm = useCallback(() => {
     const nextErrors = {}
     if (!formData.name.trim() || formData.name.trim().length < 3) {
@@ -204,11 +208,16 @@ export default function TrialSession() {
         }
       }
       setIsSuccess(true)
+      trackTrialSessionConversion()
       toast.success(
         isRtl
           ? 'تم إرسال طلب حجز الحصة التجريبية بنجاح!'
           : 'Trial session request submitted successfully!'
       )
+      const formEl = document.getElementById('trial-session-form')
+      if (formEl) {
+        formEl.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
       const defaultC = countriesList.find((c) => c.code === 'AE') || countriesList[0]
       setFormData({
         name: '',
@@ -247,6 +256,7 @@ export default function TrialSession() {
         onInputChange={handleInputChange}
         onPhoneChange={handlePhoneChange}
         onSubmit={executeFormSubmit}
+        onResetSuccess={handleResetSuccess}
         t={t}
         isRtl={isRtl}
       />

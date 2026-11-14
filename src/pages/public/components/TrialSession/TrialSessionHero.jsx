@@ -1,8 +1,8 @@
-import { useMemo, memo } from 'react'
-import { Sparkles, HeartHandshake, GraduationCap, Award, ShieldCheck, Percent } from 'lucide-react'
+import { useMemo, memo, useCallback } from 'react'
+import { Sparkles, HeartHandshake, GraduationCap, Award, ShieldCheck, Percent, ArrowDown } from 'lucide-react'
 import logoImg from '@/images/programs/NewLogo.webp'
 
-export default memo(function TrialSessionHero({ t, isRtl }) {
+function TrialSessionHero({ t, isRtl }) {
   const perksList = useMemo(() => [
     {
       icon: GraduationCap,
@@ -25,6 +25,12 @@ export default memo(function TrialSessionHero({ t, isRtl }) {
       desc: isRtl ? 'فرصة حقيقية للتعرف إلى طريقة الشرح والمنصة بدون أي رسوم' : 'Genuine opportunity to experience our platform at zero cost',
     },
   ], [t, isRtl])
+  const handleScrollToForm = useCallback(() => {
+    const formElement = document.getElementById('trial-session-form') || document.querySelector('form')
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [])
   return (
     <section className="relative overflow-hidden rounded-3xl sm:rounded-[36px] bg-gradient-to-br from-[#004D40] via-[#00695C] to-[#0A3D36] text-white p-6 sm:p-10 lg:p-14 shadow-2xl border border-emerald-600/30">
       <div className="absolute top-0 end-0 -mt-16 -me-16 w-80 h-80 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
@@ -59,6 +65,16 @@ export default memo(function TrialSessionHero({ t, isRtl }) {
                 : 'Book your free trial session today and get 20% off your first month for all educational programs!'
             )}
           </p>
+        </div>
+        <div className="pt-2 pb-1">
+          <button
+            type="button"
+            onClick={handleScrollToForm}
+            className="inline-flex items-center justify-center gap-3 px-8 sm:px-12 py-4 sm:py-5 rounded-2xl sm:rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-black text-base sm:text-xl shadow-[0_10px_35px_rgba(251,191,36,0.45)] hover:shadow-[0_14px_45px_rgba(251,191,36,0.65)] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-2 border-amber-200 group"
+          >
+            <span>{isRtl ? 'احجز حصتك المجانية' : 'Book My Free Trial'}</span>
+            <ArrowDown size={22} className="group-hover:translate-y-1 transition-transform animate-bounce" />
+          </button>
         </div>
         <div className="pt-4 border-t border-white/15 max-w-2xl mx-auto space-y-2 text-emerald-50/90 text-sm sm:text-base leading-relaxed">
           <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider font-extrabold text-amber-300/90">
@@ -100,4 +116,6 @@ export default memo(function TrialSessionHero({ t, isRtl }) {
       </div>
     </section>
   )
-})
+}
+
+export default memo(TrialSessionHero)

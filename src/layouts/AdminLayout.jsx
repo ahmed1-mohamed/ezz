@@ -33,6 +33,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/shared/context/useAuth'
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
+import PlatformLogoIcon from '@/shared/components/PlatformLogoIcon.jsx'
 
 const NAV_ITEMS = [
   { path: '/dashboard/admin', icon: Home, transKey: 'home', end: true },
@@ -168,9 +169,7 @@ export default memo(function AdminLayout() {
             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#0f7a6c] flex items-center justify-center text-white shadow-sm shrink-0" aria-hidden="true">
-              <BookMarked size={18} />
-            </div>
+            <PlatformLogoIcon size={30} className="shrink-0 drop-shadow-xs" />
             <div className="text-start hidden sm:block">
               <h2 className="text-[#0f7a6c] dark:text-emerald-400 font-bold text-sm leading-tight">
                 {t('adminDashboard.header.title', 'منارة العز')}
@@ -230,11 +229,11 @@ export default memo(function AdminLayout() {
         aria-label={t('adminDashboard.nav.sidebar', 'قائمة الإدارة')}
       >
         <div className={`p-4 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between gap-3'} border-b border-slate-100 dark:border-slate-900 shrink-0`}>
-          {!isSidebarCollapsed && (
+          {isSidebarCollapsed ? (
+            <PlatformLogoIcon size={30} className="shrink-0 drop-shadow-xs" />
+          ) : (
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-8 h-8 rounded-xl bg-[#0f7a6c] flex items-center justify-center text-white shadow-sm shrink-0" aria-hidden="true">
-                <BookMarked size={22} />
-              </div>
+              <PlatformLogoIcon size={36} className="shrink-0 drop-shadow-xs" />
               <div className="text-start whitespace-nowrap">
                 <h2 className="text-[#0f7a6c] dark:text-emerald-400 font-bold text-base leading-tight">
                   {t('adminDashboard.header.title', 'منارة العز')}

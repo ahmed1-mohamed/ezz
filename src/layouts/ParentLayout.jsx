@@ -20,6 +20,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { useAuth } from '@/shared/context/useAuth';
+import PlatformLogoIcon from '@/shared/components/PlatformLogoIcon.jsx';
 
 const navItems = [
   { path: '/dashboard/parent', icon: Home, transKey: 'home', end: true },
@@ -71,9 +72,7 @@ export default function ParentLayout() {
             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-[#0f7a6c] flex items-center justify-center text-white shrink-0">
-              <BookOpen size={16} />
-            </div>
+            <PlatformLogoIcon size={30} className="shrink-0 drop-shadow-xs" />
             <div className="text-start">
               <h2 className="text-[#0f7a6c] dark:text-emerald-400 font-bold text-sm leading-tight">{t('parentDashboard.header.title', 'منارة العز')}</h2>
             </div>
@@ -112,9 +111,7 @@ export default function ParentLayout() {
         <div className="flex flex-col h-full overflow-hidden">
           <div className="p-5 sm:p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 shrink-0">
             <Link to="/dashboard/parent" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#0f7a6c] text-white flex items-center justify-center shadow-xs shrink-0">
-                <BookOpen size={20} />
-              </div>
+              <PlatformLogoIcon size={38} className="shrink-0 drop-shadow-xs" />
               <div className="text-start">
                 <h1 className="text-base font-extrabold text-[#0f7a6c] dark:text-emerald-400 leading-tight">
                   {t('appName', 'منارة العز')}

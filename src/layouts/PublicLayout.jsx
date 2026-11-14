@@ -6,31 +6,25 @@ import Container from '@/shared/components/Container.jsx'
 import Footer from '@/shared/components/Footer.jsx'
 import NotFound from '@/pages/public/NotFound.jsx'
 import SeoHead from '@/shared/components/SeoHead.jsx'
+import FloatingWhatsAppButton from '@/shared/components/FloatingWhatsAppButton.jsx'
 import { setLanguage } from '@/i18n.js'
 
 export default memo(function PublicLayout() {
   const { lang: urlLang } = useParams()
   const { i18n } = useTranslation()
   const location = useLocation()
-
-  // If no urlLang in route params (e.g. unified routes like /payment/status),
-  // fall back to current language or saved language, defaulting to 'ar'
   const lang = urlLang || localStorage.getItem('appLanguage') || i18n.language || 'ar'
   const isValidLang = !urlLang || urlLang === 'ar' || urlLang === 'en'
-
   useEffect(() => {
     if (urlLang && (urlLang === 'ar' || urlLang === 'en') && i18n.language !== urlLang) {
       setLanguage(urlLang)
     }
   }, [urlLang, i18n.language])
-
   if (!isValidLang) {
     return <NotFound />
   }
-
   const subPath = location.pathname.replace(/^\/(ar|en)\/?/, '').replace(/^\//, '')
   const isSchedule = location.pathname.endsWith('/schedule')
-
   return (
     <div
       className={`min-h-screen flex flex-col text-slate-900 dark:text-slate-100 ${
@@ -65,6 +59,7 @@ export default memo(function PublicLayout() {
         )}
       </main>
       <Footer className="border-t border-slate-200/80 bg-white/90 py-6 sm:py-8 lg:py-10 text-xs sm:text-sm text-slate-600 dark:border-slate-800/80 dark:bg-slate-950/95 dark:text-slate-300" />
+      <FloatingWhatsAppButton />
     </div>
   )
 })

@@ -1,5 +1,4 @@
 import { memo, useId } from 'react';
-import PropTypes from 'prop-types';
 
 /**
  * Official platform SVG logo icon of Manarat Al-Ezz.
@@ -89,12 +88,6 @@ function PlatformLogoIcon({ size = 36, className = '', title = 'منارة ال�
     </svg>
   );
 }
-
-PlatformLogoIcon.propTypes = {
-  size: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  className: PropTypes.string,
-  title: PropTypes.string,
-};
 
 export default memo(PlatformLogoIcon);
 

@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Mail, BookOpen, ArrowRight, ArrowLeft, CheckCircle2, Sun, Moon } from 'lucide-react'
+import { Mail, ArrowRight, ArrowLeft, CheckCircle2, Sun, Moon } from 'lucide-react'
+import PlatformLogoIcon from '@/shared/components/PlatformLogoIcon.jsx'
 import { toast } from 'react-hot-toast'
 import LanguageSwitcher from '@/shared/components/LanguageSwitcher.jsx'
 import api from '@/shared/services/api/axiosConfig'
@@ -73,8 +74,8 @@ export default function ForgotPassword() {
             </header>
             <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 py-8">
                 <div className="text-center mb-8">
-                    <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-4">
-                        <BookOpen className="w-10 h-10 text-[#00695C] dark:text-emerald-400" />
+                    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-sm mb-4">
+                        <PlatformLogoIcon size={52} className="drop-shadow-xs" />
                     </div>
                     <h1 className="text-3xl sm:text-4xl font-extrabold text-[#00695C] dark:text-emerald-400 mb-2">
                         {t('login.academyName', 'أكاديمية منارة العز')}
