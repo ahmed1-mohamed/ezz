@@ -27,7 +27,7 @@ export default React.memo(function ScheduleHero({ title, subtitle }) {
                     <span>
                         {t(
                             'schedule.trialOfferBadge',
-                            'احجز حصتك التجريبية الآن واحصل على خصم 20% على الشهر الأول'
+                            'احجز حصتك التجريبية الآن واحصل على خصم 20%'
                         )}
                     </span>
                     <ArrowIcon className="w-4 h-4 text-amber-600 dark:text-amber-400 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform" />

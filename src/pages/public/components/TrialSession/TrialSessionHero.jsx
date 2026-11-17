@@ -16,8 +16,8 @@ function TrialSessionHero({ t, isRtl }) {
     },
     {
       icon: Percent,
-      title: t('trialSessionLanding.perks.discount', isRtl ? 'خصم 20% للشهر الأول' : '20% First Month Discount'),
-      desc: t('trialSessionLanding.perks.discountDesc', isRtl ? 'خصم فوري 20% على اشتراك الشهر الأول عند التسجيل بعد الحصة التجريبية' : 'Instant 20% discount on first month enrollment when subscribing after the trial session'),
+      title: t('trialSessionLanding.perks.discount', isRtl ? 'خصم 20%' : '20% Discount'),
+      desc: t('trialSessionLanding.perks.discountDesc', isRtl ? 'خصم فوري 20% عند التسجيل بعد الحصة التجريبية' : 'Instant 20% discount when subscribing after the trial session'),
     },
     {
       icon: ShieldCheck,
@@ -50,7 +50,7 @@ function TrialSessionHero({ t, isRtl }) {
           </div>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-400/20 backdrop-blur-md border border-amber-300/40 text-xs sm:text-sm font-black text-amber-300 shadow-sm animate-pulse">
             <Percent size={15} className="text-amber-300" />
-            <span>{t('trialSessionLanding.discountBadge', isRtl ? 'خصم 20% على الشهر الأول' : '20% Off First Month')}</span>
+            <span>{t('trialSessionLanding.discountBadge', isRtl ? 'خصم 20%' : '20% Off')}</span>
           </div>
         </div>
         <div className="space-y-3">
@@ -61,8 +61,8 @@ function TrialSessionHero({ t, isRtl }) {
             {t(
               'trialSessionLanding.discountSubtitle',
               isRtl
-                ? 'احجز حصتك التجريبية المجانية اليوم واستفد من خصم 20% على الشهر الأول لجميع البرامج التعليمية!'
-                : 'Book your free trial session today and get 20% off your first month for all educational programs!'
+                ? 'احجز حصتك التجريبية المجانية اليوم واستفد من خصم 20% على جميع البرامج التعليمية!'
+                : 'Book your free trial session today and get 20% off all educational programs!'
             )}
           </p>
         </div>
