@@ -72,14 +72,14 @@ function TrialSessionForm({
           </div>
           <div className="space-y-0.5 flex-1 min-w-0">
             <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
-              {t('trialSessionLanding.form.discountOfferTitle', isRtl ? 'عرض خاص: خصم 20% على الشهر الأول' : 'Special Offer: 20% Off First Month')}
+              {t('trialSessionLanding.form.discountOfferTitle', isRtl ? 'عرض خاص: خصم 20%' : 'Special Offer: 20% Off')}
             </h3>
             <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
               {t(
                 'trialSessionLanding.form.discountOfferDesc',
                 isRtl
-                  ? 'بمجرد حجز الحصة التجريبية، يحصل الطالب تلقائياً على خصم 20% على اشتراك الشهر الأول في أي برنامج تعليمي.'
-                  : 'Upon booking your trial session, the student automatically receives a 20% discount on the first month subscription for any program.'
+                  ? 'بمجرد حجز الحصة التجريبية، يحصل الطالب تلقائياً على خصم 20% على أي برنامج تعليمي.'
+                  : 'Upon booking your trial session, the student automatically receives 20% off any program.'
               )}
             </p>
           </div>
@@ -132,8 +132,8 @@ function TrialSessionForm({
               </div>
               <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-bold leading-snug">
                 {isRtl
-                  ? 'تم تفعيل خصم 20% على اشتراك الشهر الأول لطالبك تلقائياً عند التسجيل بعد الحصة التجريبية!'
-                  : 'Your 20% discount on the first month subscription is automatically activated upon completing the trial session!'}
+                  ? 'تم تفعيل خصم 20% لطالبك تلقائياً عند التسجيل بعد الحصة التجريبية!'
+                  : 'Your 20% discount is automatically activated upon completing the trial session!'}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 max-w-lg mx-auto">

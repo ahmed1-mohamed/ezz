@@ -6,7 +6,7 @@ export default function CTASection({
     titleKey = 'cta.title',
     defaultTitle = 'هل أنت مستعد لبدء رحلتك نحو النور؟',
     descKey = 'cta.desc',
-    defaultDesc = 'انضم إلى آلاف الطلاب اليوم واستفد من خصم 20% على الشهر الأول لجميع البرامج التعليمية.',
+    defaultDesc = 'انضم إلى آلاف الطلاب اليوم واستفد من خصم 20% على جميع البرامج التعليمية.',
     btnKey = 'cta.btn',
     defaultBtn = 'انضم الآن و أبدأ',
     to = 'trial-session',

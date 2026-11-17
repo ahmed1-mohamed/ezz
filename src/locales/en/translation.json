@@ -845,7 +845,7 @@
     },
     "cta": {
       "title": "Are you ready to start your journey towards the light?",
-      "desc": "Join thousands of students today and benefit from a 20% discount on the first month for all educational programs.",
+      "desc": "Join thousands of students today and get a 20% discount on all educational programs.",
       "btn": "Join Now and Start"
     },
     "today": "Today",
@@ -860,7 +860,7 @@
     "thursday": "Thursday",
     "friday": "Friday",
     "saturday": "Saturday",
-    "trialOfferBadge": "Book your trial session now and get 20% off your first month"
+    "trialOfferBadge": "Book your trial session now and get 20% off"
   },
   "errors": {
     "notFound": "Page not found",
@@ -1056,7 +1056,7 @@
   },
   "heroSection": {
     "title": "Are you ready to start your journey of light?",
-    "description": "Join thousands of students today and benefit from a 20% discount on the first month for all educational programs.",
+    "description": "Join thousands of students today and get a 20% discount on all educational programs.",
     "cta": "Get Started Now"
   },
   "statistics": {
@@ -1590,7 +1590,7 @@
   },
   "cta": {
     "title": "Are you ready to start your journey towards the light?",
-    "desc": "Join thousands of students today and get a 20% discount on the first month for all educational programs.",
+    "desc": "Join thousands of students today and get a 20% discount on all educational programs.",
     "btn": "Join Now and Start"
   },
   "parentDashboard": {
@@ -4105,7 +4105,7 @@
     "ctaText": "Our specialized team is ready to help you determine the most suitable level for your child",
     "ctaButton": "Contact an Educational Advisor",
     "trialOfferTitle": "Book a Free Trial Session and Get 20% Off",
-    "trialOfferDesc": "Experience our platform and teaching methods for free with a certified teacher, and get 20% off your first month for all educational programs.",
+    "trialOfferDesc": "Experience our platform and teaching methods for free with a certified teacher, and get 20% off.",
     "bookTrialWithDiscount": "Book Your Trial Session Now"
   },
   "adminReports": {
@@ -4472,8 +4472,8 @@
       "oneOnOne": "Free Live Session",
       "certifiedTeachers": "Certified Expert Teachers",
       "freeNoCommitment": "Completely Free - No Obligation",
-      "discount": "20% First Month Discount",
-      "discountDesc": "Instant 20% discount on first month enrollment when subscribing after the trial session"
+      "discount": "20% Discount",
+      "discountDesc": "Instant 20% discount when subscribing after the trial session"
     },
     "form": {
       "title": "Request Your Free Trial Session",
@@ -4519,8 +4519,8 @@
         "timeRequired": "Please select a preferred time"
       },
       "agePlaceholder": "e.g. 8",
-      "discountOfferTitle": "Special Offer: 20% Off First Month",
-      "discountOfferDesc": "Upon booking your trial session, the student automatically receives a 20% discount on the first month subscription for any program."
+      "discountOfferTitle": "Special Offer: 20% Off",
+      "discountOfferDesc": "Upon booking your trial session, the student automatically receives 20% off any program."
     },
     "testimonials": {
       "badge": "Real Experiences",
@@ -4529,7 +4529,7 @@
     },
     "contactSupportTitle": "Have questions before booking?",
     "contactSupportSubtitle": "Our team is always here to assist and answer your questions via the following channels",
-    "discountBadge": "20% Off First Month",
-    "discountSubtitle": "Book your free trial session today and get 20% off your first month for all educational programs!"
+    "discountBadge": "20% Off",
+    "discountSubtitle": "Book your free trial session today and get 20% off all educational programs!"
   }
 }

@@ -53,7 +53,7 @@ export default function ThankYou() {
         </div>
         <div>
           <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
-            {isRtl ? 'تم تفعيل خصم 20% للشهر الأول' : '20% First Month Discount Activated'}
+            {isRtl ? 'تم تفعيل خصم 20%' : '20% Discount Activated'}
           </h3>
           <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed font-medium">
             {isRtl

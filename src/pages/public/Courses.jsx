@@ -89,7 +89,7 @@ export default React.memo(function Courses() {
                             {t('publicCourses.trialOfferTitle', 'احجز حصة تجريبية مجانية واحصل على خصم 20%')}
                         </h3>
                         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-0.5">
-                            {t('publicCourses.trialOfferDesc', 'جرّب المنصة وطريقة الشرح مجاناً مع معلم معتمد، واستفد من خصم 20% على الشهر الأول لجميع البرامج التعليمية.')}
+                            {t('publicCourses.trialOfferDesc', 'جرّب المنصة وطريقة الشرح مجاناً مع معلم معتمد، واستفد من خصم 20%.')}
                         </p>
                     </div>
                 </div>
