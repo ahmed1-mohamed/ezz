@@ -13,7 +13,6 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [proposedNewDate, setProposedNewDate] = useState('');
   const [proposedStartTime, setProposedStartTime] = useState('');
-  const [proposedEndTime, setProposedEndTime] = useState('');
   const [title, setTitle] = useState('');
   const [details, setDetails] = useState('');
   const [attachments, setAttachments] = useState([]);
@@ -21,7 +20,6 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
   const resetFormState = () => {
     setProposedNewDate('');
     setProposedStartTime('');
-    setProposedEndTime('');
     setTitle('');
     setDetails('');
     setAttachments([]);
@@ -47,11 +45,10 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
       const groupId = session?.group?.id || session?.group?._id || session?.groupId || session?.group_id;
       const sessionId = session?.id || session?._id;
       const payload = {
-        groupId,
-        sessionId,
+        group: groupId,
+        session: sessionId,
         proposedNewDate,
         proposedStartTime,
-        proposedEndTime,
         title: title.trim(),
         details: details.trim(),
         attachments,
@@ -69,8 +66,12 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
   });
   const handleSubmitRequest = (event) => {
     event.preventDefault();
-    if (!proposedNewDate || !proposedStartTime || !proposedEndTime || !title.trim()) {
-      setValidationError(t('teacherLive.fillRequiredFields', 'يرجى ملء جميع الحقول المطلوبة'));
+    if (!proposedNewDate || !proposedStartTime || !title.trim() || (details.trim() && details.trim().length < 5)) {
+      setValidationError(
+        !proposedNewDate || !proposedStartTime || !title.trim()
+          ? t('teacherLive.fillRequiredFields', 'يرجى ملء جميع الحقول المطلوبة')
+          : t('teacherLive.rescheduleDetailsMinLength', 'إذا أضفت تفاصيل، يجب ألا تقل عن 5 أحرف'),
+      );
       return;
     }
     setValidationError('');
@@ -151,7 +152,7 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
               required
             />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                 <Clock className="w-4 h-4 text-[#0f7a6c]" />
@@ -165,20 +166,10 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
                 required
               />
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-[#0f7a6c]" />
-                <span>{t('teacherLive.proposedEndTime', 'وقت الانتهاء المقترح')} *</span>
-              </label>
-              <input
-                type="time"
-                value={proposedEndTime}
-                onChange={(e) => setProposedEndTime(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]"
-                required
-              />
-            </div>
           </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {t('teacherLive.rescheduleTimezoneNote', isRtl ? 'الأوقات المقترحة تُفسَّر حسب منطقة الدولة المسجلة في حسابك، ثم موقع الاتصال، ثم توقيت الإمارات.' : 'Proposed times use the timezone resolved from your account country, then your connection location, with UAE time as the final fallback.')}
+          </p>
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
               {t('teacherLive.rescheduleReasonTitle', 'سبب أو عنوان طلب التأجيل')} *
@@ -200,6 +191,7 @@ export default function RescheduleSessionModal({ isOpen, onClose, session }) {
               rows={3}
               value={details}
               onChange={(e) => setDetails(e.target.value)}
+              minLength={details.trim() ? 5 : undefined}
               placeholder={t('teacherLive.rescheduleDetailsPlaceholder', 'اكتب أي تفاصيل توضيحية للإدارة والطلاب...')}
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]"
             />

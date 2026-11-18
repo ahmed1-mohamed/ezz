@@ -10,6 +10,57 @@ import TeacherUpcomingSessionsList from './components/TeacherUpcomingSessionsLis
 import TeacherGroupsOverviewTable from './components/TeacherGroupsOverviewTable.jsx';
 import TeacherQuickActions from './components/TeacherQuickActions.jsx';
 
+function getIsoOffsetMinutes(value, parsedDate) {
+  if (typeof value === 'string') {
+    if (/Z$/i.test(value)) return 0;
+    const match = value.match(/([+-])(\d{2}):?(\d{2})$/);
+    if (match) {
+      const sign = match[1] === '-' ? -1 : 1;
+      return sign * (Number(match[2]) * 60 + Number(match[3]));
+    }
+  }
+  return -parsedDate.getTimezoneOffset();
+}
+
+function getZonedDateParts(value) {
+  if (!value) return null;
+  const parsedDate = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) return null;
+  const offsetMinutes = getIsoOffsetMinutes(value, parsedDate);
+  const wallDate = new Date(parsedDate.getTime() + offsetMinutes * 60 * 1000);
+  const year = wallDate.getUTCFullYear();
+  const month = String(wallDate.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(wallDate.getUTCDate()).padStart(2, '0');
+  return {
+    dateKey: year + '-' + month + '-' + day,
+    hours: String(wallDate.getUTCHours()).padStart(2, '0'),
+    minutes: String(wallDate.getUTCMinutes()).padStart(2, '0'),
+    offsetMinutes,
+  };
+}
+
+function getDateKeyAtOffset(timestamp, offsetMinutes) {
+  const shiftedDate = new Date(timestamp + offsetMinutes * 60 * 1000);
+  return shiftedDate.toISOString().slice(0, 10);
+}
+
+function getDateOrdinal(dateKey) {
+  const [year, month, day] = dateKey.split('-').map(Number);
+  return Date.UTC(year, month - 1, day) / (24 * 60 * 60 * 1000);
+}
+
+function getCalendarDayDifference(value) {
+  const parts = getZonedDateParts(value);
+  if (!parts) return null;
+  const todayKey = getDateKeyAtOffset(Date.now(), parts.offsetMinutes);
+  return getDateOrdinal(parts.dateKey) - getDateOrdinal(todayKey);
+}
+
+function formatClockTime(value) {
+  const parts = getZonedDateParts(value);
+  return parts ? parts.hours + ':' + parts.minutes : '';
+}
+
 function calculateCountdown(startTime, isRtl, t) {
   if (!startTime) return { countdown: '0:00', countdownUnit: '' };
   const target = new Date(startTime).getTime();
@@ -17,17 +68,14 @@ function calculateCountdown(startTime, isRtl, t) {
   const now = Date.now();
   const diffMs = target - now;
   if (diffMs <= 0) {
-    return {
-      countdown: isRtl ? 'الآن' : 'Now',
-      countdownUnit: '',
-    };
+    return { countdown: isRtl ? 'الآن' : 'Now', countdownUnit: '' };
   }
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMinutes / 60);
   const diffDays = Math.floor(diffHours / 24);
   if (diffDays > 0) {
     return {
-      countdown: `${diffDays}`,
+      countdown: String(diffDays),
       countdownUnit: isRtl
         ? (diffDays === 1 ? 'يوم' : diffDays === 2 ? 'يومان' : diffDays <= 10 ? 'أيام' : 'يوم')
         : (diffDays === 1 ? 'day' : 'days'),
@@ -36,19 +84,19 @@ function calculateCountdown(startTime, isRtl, t) {
   if (diffHours > 0) {
     const remMinutes = diffMinutes % 60;
     return {
-      countdown: `${diffHours}:${String(remMinutes).padStart(2, '0')}`,
+      countdown: diffHours + ':' + String(remMinutes).padStart(2, '0'),
       countdownUnit: t ? t('teacherDashboard.hour', isRtl ? 'ساعة' : 'hour') : (isRtl ? 'ساعة' : 'hour'),
     };
   }
   return {
-    countdown: `${diffMinutes}`,
+    countdown: String(diffMinutes),
     countdownUnit: isRtl ? 'دقيقة' : 'min',
   };
 }
 
 function formatSessionCard(s, idx, isRtl, t) {
   if (!s) return null;
-  const id = s.id || s._id || `session-${idx}`;
+  const id = s.id || s._id || ('session-' + idx);
   let title = '';
   if (typeof s.title === 'object' && s.title !== null) {
     title = isRtl ? (s.title.ar || s.title.en) : (s.title.en || s.title.ar);
@@ -63,77 +111,68 @@ function formatSessionCard(s, idx, isRtl, t) {
   } else if (s.group) {
     group = String(s.group);
   }
-  let timeStr = '';
+
   const dateVal = s.startTime || s.scheduledAt || s.startDate || s.date;
-  if (dateVal) {
-    const d = new Date(dateVal);
-    if (!isNaN(d.getTime())) {
-      const hours = String(d.getHours()).padStart(2, '0');
-      const minutes = String(d.getMinutes()).padStart(2, '0');
-      let endHoursStr = '';
-      if (s.endTime) {
-        const endD = new Date(s.endTime);
-        if (!isNaN(endD.getTime())) {
-          endHoursStr = ` - ${String(endD.getHours()).padStart(2, '0')}:${String(endD.getMinutes()).padStart(2, '0')}`;
-        }
-      }
-      const isToday = new Date().toDateString() === d.toDateString();
-      const tomorrow = new Date();
-      tomorrow.setDate(new Date().getDate() + 1);
-      const isTomorrow = tomorrow.toDateString() === d.toDateString();
-      const dayLabel = isToday
-        ? (isRtl ? (t ? t('teacherDashboard.today', 'اليوم') : 'اليوم') : 'Today')
-        : (isTomorrow ? (isRtl ? (t ? t('teacherDashboard.tomorrow', 'غداً') : 'غداً') : 'Tomorrow') : (s.day || ''));
-      timeStr = `${dayLabel ? `${dayLabel} ` : ''}${hours}:${minutes}${endHoursStr}`;
-    }
+  const dayDifference = getCalendarDayDifference(dateVal);
+  const startClock = formatClockTime(dateVal);
+  const endClock = formatClockTime(s.endTime);
+  const timeRange = s.timeRange || (startClock
+    ? startClock + (endClock ? ' - ' + endClock : '')
+    : '');
+  let dayLabel = s.day || '';
+  if (dayDifference === 0) {
+    dayLabel = t('teacherDashboard.today', isRtl ? 'اليوم' : 'Today');
+  } else if (dayDifference === 1) {
+    dayLabel = t('teacherDashboard.tomorrow', isRtl ? 'غداً' : 'Tomorrow');
   }
+  let timeStr = timeRange
+    ? (dayLabel ? dayLabel + ' ' : '') + timeRange
+    : '';
   if (!timeStr) {
     if (s.day && (s.time || s.startTime)) {
-      timeStr = `${s.day} ${s.time || s.startTime}`;
+      timeStr = s.day + ' ' + (s.time || s.startTime);
     } else if (s.date && s.time) {
-      timeStr = `${s.date} ${s.time}`;
+      timeStr = s.date + ' ' + s.time;
     } else if (s.date) {
       timeStr = String(s.date);
     }
   }
+
   let relativeBadge = '';
   let badgeVariant = 'amber';
   if (dateVal) {
-    const d = new Date(dateVal);
-    if (!isNaN(d.getTime())) {
-      const now = new Date();
-      const diffMs = d.getTime() - now.getTime();
-      const diffMinutes = Math.round(diffMs / (1000 * 60));
-      const diffHours = Math.round(diffMs / (1000 * 60 * 60));
-      const isToday = now.toDateString() === d.toDateString();
-      const tomorrow = new Date();
-      tomorrow.setDate(now.getDate() + 1);
-      const isTomorrow = tomorrow.toDateString() === d.toDateString();
+    const target = new Date(dateVal).getTime();
+    if (!Number.isNaN(target)) {
+      const diffMs = target - Date.now();
+      const diffMinutes = Math.ceil(diffMs / (1000 * 60));
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
       if (diffMs > 0) {
         if (diffMinutes < 60) {
-          relativeBadge = isRtl ? `بعد ${diffMinutes} دقيقة` : `In ${diffMinutes}m`;
+          relativeBadge = isRtl ? 'بعد ' + diffMinutes + ' دقيقة' : 'In ' + diffMinutes + 'm';
           badgeVariant = 'amber';
-        } else if (diffHours === 1) {
+        } else if (diffHours < 2) {
           relativeBadge = isRtl ? 'بعد ساعة' : 'In 1 hour';
           badgeVariant = 'amber';
-        } else if (diffHours === 2) {
+        } else if (diffHours < 3) {
           relativeBadge = isRtl ? 'بعد ساعتين' : 'In 2 hours';
           badgeVariant = 'amber';
-        } else if (diffHours > 2 && diffHours <= 10) {
-          relativeBadge = isRtl ? `بعد ${diffHours} ساعات` : `In ${diffHours} hours`;
+        } else if (diffHours <= 10) {
+          relativeBadge = isRtl ? 'بعد ' + diffHours + ' ساعات' : 'In ' + diffHours + ' hours';
           badgeVariant = 'amber';
-        } else if (isToday) {
-          relativeBadge = isRtl ? (t ? t('teacherDashboard.today', 'اليوم') : 'اليوم') : 'Today';
+        } else if (dayDifference === 0) {
+          relativeBadge = t('teacherDashboard.today', isRtl ? 'اليوم' : 'Today');
           badgeVariant = 'amber';
-        } else if (isTomorrow) {
-          relativeBadge = isRtl ? (t ? t('teacherDashboard.tomorrow', 'غداً') : 'غداً') : 'Tomorrow';
+        } else if (dayDifference === 1) {
+          relativeBadge = t('teacherDashboard.tomorrow', isRtl ? 'غداً' : 'Tomorrow');
           badgeVariant = 'blue';
-        } else {
-          const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-          if (diffDays <= 7) {
-            relativeBadge = isRtl ? `بعد ${diffDays} أيام` : `In ${diffDays} days`;
-            badgeVariant = 'blue';
-          }
+        } else if (dayDifference > 1 && dayDifference <= 7) {
+          relativeBadge = dayDifference === 2
+            ? t('teacherDashboard.inTwoDays', isRtl ? 'بعد يومين' : 'In 2 days')
+            : t('teacherDashboard.afterDays', {
+                count: dayDifference,
+                defaultValue: isRtl ? 'بعد ' + dayDifference + ' أيام' : 'In ' + dayDifference + ' days',
+              });
+          badgeVariant = 'blue';
         }
       } else if (diffMs >= -60 * 60 * 1000) {
         relativeBadge = isRtl ? 'جارية الآن' : 'Live now';
@@ -143,7 +182,7 @@ function formatSessionCard(s, idx, isRtl, t) {
   }
   return {
     id,
-    title: title || (s.sessionNumber ? (isRtl ? `الحصة رقم ${s.sessionNumber}` : `Session #${s.sessionNumber}`) : group || ''),
+    title: title || (s.sessionNumber ? (isRtl ? 'الحصة رقم ' + s.sessionNumber : 'Session #' + s.sessionNumber) : group || ''),
     group,
     date: s.date,
     day: s.day,
@@ -152,7 +191,7 @@ function formatSessionCard(s, idx, isRtl, t) {
     timeStr,
     relativeBadge,
     badgeVariant,
-    joinUrl: s.id ? `/dashboard/teacher/live?session=${s.id}` : '/dashboard/teacher/live',
+    joinUrl: s.id ? '/dashboard/teacher/live?session=' + s.id : '/dashboard/teacher/live',
   };
 }
 
@@ -248,9 +287,7 @@ export default function TeacherDashboard() {
   }, [apiData.upcomingSessions, isRtl, t]);
   const nextSession = useMemo(() => {
     const rawNext = apiData.nextSession || nextSessionRes?.session;
-    if (!rawNext || (!rawNext.id && !rawNext.title && !rawNext.group)) {
-      return null;
-    }
+    if (!rawNext || (!rawNext.id && !rawNext.title && !rawNext.group)) return null;
     let title = '';
     if (typeof rawNext.title === 'object' && rawNext.title !== null) {
       title = isRtl
@@ -269,41 +306,30 @@ export default function TeacherDashboard() {
     }
     const startTimeVal = rawNext.startTime || rawNext.scheduledAt || rawNext.startDate || rawNext.date;
     const { countdown, countdownUnit } = calculateCountdown(startTimeVal, isRtl, t);
-    let timeStr = '';
-    if (startTimeVal) {
-      try {
-        const d = new Date(startTimeVal);
-        if (!isNaN(d.getTime())) {
-          const hours = String(d.getHours()).padStart(2, '0');
-          const minutes = String(d.getMinutes()).padStart(2, '0');
-          timeStr = `${hours}:${minutes}`;
-          if (rawNext.endTime) {
-            const endD = new Date(rawNext.endTime);
-            if (!isNaN(endD.getTime())) {
-              timeStr += ` - ${String(endD.getHours()).padStart(2, '0')}:${String(endD.getMinutes()).padStart(2, '0')}`;
-            }
-          }
-          if (rawNext.day) {
-            const isToday = new Date().toDateString() === d.toDateString();
-            const dayLabel = isToday
-              ? (isRtl ? 'اليوم' : 'Today')
-              : rawNext.day;
-            timeStr = `${dayLabel} (${timeStr})`;
-          }
-        }
-      } catch {
-        timeStr = '';
-      }
+    const dayDifference = getCalendarDayDifference(startTimeVal);
+    const startClock = formatClockTime(startTimeVal);
+    const endClock = formatClockTime(rawNext.endTime);
+    const timeRange = rawNext.timeRange || (startClock
+      ? startClock + (endClock ? ' - ' + endClock : '')
+      : '');
+    let dayLabel = rawNext.day || '';
+    if (dayDifference === 0) {
+      dayLabel = t('teacherDashboard.today', isRtl ? 'اليوم' : 'Today');
+    } else if (dayDifference === 1) {
+      dayLabel = t('teacherDashboard.tomorrow', isRtl ? 'غداً' : 'Tomorrow');
     }
+    const timeStr = timeRange
+      ? (dayLabel ? dayLabel + ' ' : '') + '(' + timeRange + ')'
+      : '';
     return {
       ...rawNext,
       id: rawNext.id || rawNext._id,
-      title: title || (rawNext.sessionNumber ? (isRtl ? `الحصة رقم ${rawNext.sessionNumber}` : `Session #${rawNext.sessionNumber}`) : ''),
+      title: title || (rawNext.sessionNumber ? (isRtl ? 'الحصة رقم ' + rawNext.sessionNumber : 'Session #' + rawNext.sessionNumber) : ''),
       group,
       timeStr,
       countdown: rawNext.countdown || countdown,
       countdownUnit: rawNext.countdownUnit || countdownUnit,
-      joinUrl: rawNext.id ? `/dashboard/teacher/live?session=${rawNext.id}` : '/dashboard/teacher/live',
+      joinUrl: rawNext.id ? '/dashboard/teacher/live?session=' + rawNext.id : '/dashboard/teacher/live',
     };
   }, [apiData.nextSession, nextSessionRes?.session, isRtl, t]);
   const groupsOverviewTable = useMemo(() => {

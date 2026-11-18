@@ -56,7 +56,15 @@ export const teacherComplaintsApi = {
   requestRescheduleSession: async (payload) => {
     const response = await api.post(
       '/api/v1/teacher/complaints-suggestions/reschedule-session',
-      toMultipart(payload),
+      toMultipart({
+        title: payload.title,
+        details: payload.details,
+        group: payload.group ?? payload.groupId,
+        session: payload.session ?? payload.sessionId,
+        proposedNewDate: payload.proposedNewDate,
+        proposedStartTime: payload.proposedStartTime,
+        attachments: payload.attachments,
+      }),
       { headers: { 'Content-Type': 'multipart/form-data' } }
     );
     return response.data;

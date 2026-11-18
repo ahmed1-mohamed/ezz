@@ -28,6 +28,7 @@ export default function ZoomMeetingPlayer({
   className = '',
   onRefreshJoinData,
   isRefreshing = false,
+  showExternalJoinButton = true,
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
@@ -185,7 +186,8 @@ export default function ZoomMeetingPlayer({
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          {(joinUrl || startUrl || cleanMeetingId) && (
+          {/* Keep the external Zoom join button available for other portals; teacher live room disables it. */}
+          {showExternalJoinButton && (joinUrl || startUrl || cleanMeetingId) && (
             <button
               type="button"
               onClick={() => {

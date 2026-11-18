@@ -652,7 +652,7 @@ export default function AppRoutes() {
                                     <Route path="/dashboard/student/settings" element={<StudentProfile />} />
                                 </Route>
                             </Route>
-                            <Route element={<RoleBasedRoute allowedRoles={['Parent', 'parent', 'guardian', 'wali', 'admin', 'super_admin']} />}>
+                            <Route element={<RoleBasedRoute allowedRoles={['Parent', 'parent', 'guardian', 'wali']} />}>
                                 <Route element={<ParentLayout />}>
                                     <Route path="/dashboard/parent" element={<ParentDashboard />} />
                                     <Route path="/dashboard/parent/schedule" element={<ParentSchedule />} />

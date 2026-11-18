@@ -1,9 +1,8 @@
-import { User, Calendar, RotateCcw, Camera, Mail, Phone } from 'lucide-react';
+import TeacherDateTimeDisplay from '@/shared/components/TeacherDateTimeDisplay.jsx';
+import { User, RotateCcw, Camera, Mail, Phone } from 'lucide-react';
 
 export default function TeacherProfileHeader({
   t,
-  currentTimeStr,
-  currentDateStr,
   loadingProfile,
   onReload,
   displayName,
@@ -34,13 +33,7 @@ export default function TeacherProfileHeader({
           </p>
         </div>
         <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
-          <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
-            {currentTimeStr}
-          </span>
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
-            <Calendar size={14} className="text-slate-400" />
-            <span>{currentDateStr}</span>
-          </div>
+          <TeacherDateTimeDisplay />
           <button
             onClick={onReload}
             disabled={loadingProfile}

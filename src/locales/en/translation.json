@@ -1,5 +1,9 @@
 {
   "appName": "Manarat Al-Ezz Academy",
+  "teacherDateTime": {
+    "timezoneLabel": "{{place}} time",
+    "deviceTime": "Device time"
+  },
   "teacherPerformance": {
     "badge": "Teacher Performance Ranking",
     "title": "Excellence List & Teacher Performance Ranking",
@@ -50,6 +54,7 @@
     "forgotPassword": "Forgot password?",
     "submitBtn": "Sign In",
     "orLoginWith": "Or login with Google",
+    "signInWithGoogle": "Sign in with Google",
     "noAccount": "Don't have an account?",
     "registerNow": "Register now",
     "backToHome": "Back to Home",
@@ -739,7 +744,8 @@
     "selectStudentToast": "Please select a student registered in the session",
     "saveSuccessToast": "Evaluation for {{name}} saved successfully ({{rating}}/5 stars)",
     "saveErrorToast": "Failed to save evaluation",
-    "errorOccurredToast": "An error occurred while saving the evaluation"
+    "errorOccurredToast": "An error occurred while saving the evaluation",
+    "pageEvaluationsCount": "{{count}} evaluations on this page"
   },
   "student": {
     "progressCardTitle": "Your Academic Progress",
@@ -3939,6 +3945,8 @@
     "previewGroup1": "First Tajweed Group",
     "inTwoHours": "In 2 hours",
     "tomorrow": "Tomorrow",
+    "inTwoDays": "In 2 days",
+    "afterDays": "In {{count}} days",
     "today": "Today",
     "previewGroupName1": "Holy Quran Exegesis",
     "previewGroupName2": "Prophet Muhammad Biography ﷺ",
@@ -4171,8 +4179,8 @@
     "videoTab": "Instructional Video",
     "documentTab": "Exercise Document",
     "quizTab": "Interactive Quiz",
-    "uploadVideo": "Click to upload explanation video (MP4, WebM)",
-    "maxVideoSize": "Maximum video size: 50MB",
+    "uploadVideo": "Click to upload an explanation video (MP4, MOV, WebM) or MP3 audio",
+    "maxVideoSize": "Maximum media file size: 50 MB (MP4, MOV, WebM, MP3)",
     "uploadDoc": "Click to upload homework document (PDF)",
     "maxDocSize": "Maximum file size: 10MB",
     "saveDraft": "Save as Draft",
@@ -4180,7 +4188,7 @@
     "publishing": "Publishing...",
     "uploading": "Uploading...",
     "processing": "Processing homework...",
-    "errMaxVideoSize": "Video size must not exceed 100 MB",
+    "errMaxVideoSize": "Video size must not exceed 50 MB",
     "allSubmissions": "All",
     "pendingReview": "Pending Review",
     "submittedOnTime": "Submitted",
@@ -4239,7 +4247,8 @@
     "addOption": "Add another option",
     "essayNoteTitle": "Note on Essay Questions:",
     "essayNoteDesc": "The student will write their answer in a text box during submission, and you will be able to review and grade it on the submissions page.",
-    "yesterday": "Yesterday"
+    "yesterday": "Yesterday",
+    "errInvalidMediaFile": "The file format is unsupported or the file is corrupted"
   },
   "teacherCurricula": {
     "title": "Curricula & Educational Resources",
@@ -4392,7 +4401,7 @@
     "amount": "Amount",
     "discount": "Discount",
     "priceAfterDiscount": "Price after Discount",
-    "tax": "Tax",
+    "tax": "Tax / VAT",
     "total": "Total",
     "currency": "EGP",
     "completePayment": "Complete Payment",
@@ -4422,9 +4431,6 @@
     "transactionRef": "Transaction Reference",
     "paymentDate": "Payment Date",
     "student": "Student",
-    "amount": "Amount",
-    "discount": "Discount",
-    "tax": "Tax / VAT",
     "totalPaid": "Total Paid",
     "viewReceipt": "View Receipt",
     "renewedDetails": "Renewed Subscription Details",

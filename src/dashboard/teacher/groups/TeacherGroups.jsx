@@ -60,47 +60,11 @@ export default function TeacherGroups() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [currentTimeStr, setCurrentTimeStr] = useState('');
-  const [currentDateStr, setCurrentDateStr] = useState('');
   const page = 1;
   const limit = 50;
   useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date();
-      try {
-        const timeFormatted = new Intl.DateTimeFormat('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false,
-        }).format(now);
-        setCurrentTimeStr(timeFormatted);
-      } catch {
-        setCurrentTimeStr(now.toTimeString().slice(0, 8));
-      }
-      try {
-        const dateFormatted = new Intl.DateTimeFormat(
-          isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory',
-          {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          }
-        ).format(now);
-        setCurrentDateStr(dateFormatted);
-      } catch {
-        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
-      }
-    };
-    updateDateTime();
-    const interval = setInterval(updateDateTime, 1000);
-    return () => clearInterval(interval);
-  }, [isRtl]);
-  useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
-      setPage(1);
     }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -189,8 +153,6 @@ export default function TeacherGroups() {
     <div className="space-y-6 max-w-7xl mx-auto pb-14 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <TeacherGroupsHeader
         totalGroups={stats.totalGroups}
-        currentTimeStr={currentTimeStr}
-        currentDateStr={currentDateStr}
         userInitial={userInitial}
         notificationsCount={3}
       />

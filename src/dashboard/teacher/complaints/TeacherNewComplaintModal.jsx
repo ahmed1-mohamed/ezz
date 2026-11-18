@@ -15,15 +15,13 @@ import {
 import { teacherComplaintsApi } from '@/shared/services/api/teacherComplaintsApi.js';
 import { teacherGroupsApi } from '@/shared/services/api/teacherGroupsApi.js';
 import { teacherSessionsApi } from '@/shared/services/api/teacherSessionsApi.js';
+import { formatSessionSchedule } from '@/shared/utils/sessionTimeUtils.js';
 
 const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
 
 const formatSessionOption = (sess, isRtl) => {
   const start = sess.startTime || sess.scheduledAt || sess.date;
-  const d = start ? new Date(start) : null;
-  if (!d || Number.isNaN(d.getTime())) return sess.date || '—';
-  const locale = isRtl ? 'ar-EG' : 'en-GB';
-  return `${d.toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' })} · ${d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}`;
+  return formatSessionSchedule(start, isRtl ? 'ar-EG' : 'en-GB');
 };
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
 
@@ -43,7 +41,6 @@ export default function TeacherNewComplaintModal({ onClose }) {
   const [selectedSessionId, setSelectedSessionId] = useState('');
   const [proposedNewDate, setProposedNewDate] = useState('');
   const [proposedStartTime, setProposedStartTime] = useState('');
-  const [proposedEndTime, setProposedEndTime] = useState('');
   const [prevSelectedGroupId, setPrevSelectedGroupId] = useState(selectedGroupId);
   if (prevSelectedGroupId !== selectedGroupId) {
     setPrevSelectedGroupId(selectedGroupId);
@@ -119,11 +116,10 @@ export default function TeacherNewComplaintModal({ onClose }) {
         const payload = {
           title: title.trim(),
           details: details.trim(),
-          groupId: selectedGroupId,
-          sessionId: selectedSessionId,
+          group: selectedGroupId,
+          session: selectedSessionId,
           proposedNewDate,
           proposedStartTime,
-          proposedEndTime,
           attachments,
         };
         return teacherComplaintsApi.requestRescheduleSession(payload);
@@ -157,7 +153,7 @@ export default function TeacherNewComplaintModal({ onClose }) {
       showErrorToast(t('teacherComplaints.errTitle', 'يرجى كتابة عنوان الطلب'));
       return;
     }
-    if (!details.trim()) {
+    if (submissionType !== 'reschedule_request' && !details.trim()) {
       showErrorToast(t('teacherComplaints.errDetails', 'يرجى كتابة تفاصيل الطلب'));
       return;
     }
@@ -174,8 +170,12 @@ export default function TeacherNewComplaintModal({ onClose }) {
         showErrorToast(t('teacherComplaints.errProposedDate', 'يرجى تحديد التاريخ الجديد المقترح'));
         return;
       }
-      if (!proposedStartTime || !proposedEndTime) {
-        showErrorToast(t('teacherComplaints.errProposedTimes', 'يرجى تحديد وقت البداية ووقت النهاية المقترحين'));
+      if (!proposedStartTime) {
+        showErrorToast(t('teacherComplaints.errProposedTimes', 'يرجى تحديد وقت البداية المقترح'));
+        return;
+      }
+      if (details.trim() && details.trim().length < 5) {
+        showErrorToast(t('teacherComplaints.errDetailsMinLength', 'إذا أضفت تفاصيل، يجب ألا تقل عن 5 أحرف'));
         return;
       }
     }
@@ -257,19 +257,21 @@ export default function TeacherNewComplaintModal({ onClose }) {
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              minLength={submissionType === 'reschedule_request' ? 3 : undefined}
               placeholder={t('teacher.complaintTitlePlaceholder', 'اكتب عنواناً واضحاً وموجزاً...')}
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
             />
           </div>
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-              {t('teacher.complaintDetails', 'التفاصيل')} <span className="text-rose-500">*</span>
+              {t('teacher.complaintDetails', 'التفاصيل')} {submissionType !== 'reschedule_request' && <span className="text-rose-500">*</span>}
             </label>
             <textarea
-              required
+              required={submissionType !== 'reschedule_request'}
               rows={4}
               value={details}
               onChange={(e) => setDetails(e.target.value)}
+              minLength={submissionType === 'reschedule_request' && details.trim() ? 5 : undefined}
               placeholder={t('teacher.complaintDetailsPlaceholder', 'اكتب التفاصيل الكاملة هنا...')}
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all resize-none"
             />
@@ -342,7 +344,7 @@ export default function TeacherNewComplaintModal({ onClose }) {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3">
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                     {t('teacher.proposedStartTime', 'وقت البداية')} <span className="text-rose-500">*</span>
@@ -355,19 +357,10 @@ export default function TeacherNewComplaintModal({ onClose }) {
                     className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all"
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                    {t('teacher.proposedEndTime', 'وقت النهاية')} <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="time"
-                    required
-                    value={proposedEndTime}
-                    onChange={(e) => setProposedEndTime(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all"
-                  />
-                </div>
               </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {t('teacherComplaints.rescheduleTimezoneNote', isRtl ? 'الأوقات المقترحة تُفسَّر حسب منطقة الدولة المسجلة في حسابك، ثم موقع الاتصال، ثم توقيت الإمارات.' : 'Proposed times use the timezone resolved from your account country, then your connection location, with UAE time as the final fallback.')}
+              </p>
             </div>
           )}
           <div className="space-y-2">

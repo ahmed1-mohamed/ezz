@@ -63,41 +63,6 @@ export default function TeacherSessions() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
-  const [currentTimeStr, setCurrentTimeStr] = useState('');
-  const [currentDateStr, setCurrentDateStr] = useState('');
-  useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date();
-      try {
-        const timeFormatted = new Intl.DateTimeFormat('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false,
-        }).format(now);
-        setCurrentTimeStr(timeFormatted);
-      } catch {
-        setCurrentTimeStr(now.toTimeString().slice(0, 8));
-      }
-      try {
-        const dateFormatted = new Intl.DateTimeFormat(
-          isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory',
-          {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          }
-        ).format(now);
-        setCurrentDateStr(dateFormatted);
-      } catch {
-        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
-      }
-    };
-    updateDateTime();
-    const interval = setInterval(updateDateTime, 1000);
-    return () => clearInterval(interval);
-  }, [isRtl]);
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
@@ -174,8 +139,6 @@ export default function TeacherSessions() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <TeacherSessionsHeader
-        currentTimeStr={currentTimeStr}
-        currentDateStr={currentDateStr}
         isFetching={isFetching}
         onRefetch={refetch}
       />

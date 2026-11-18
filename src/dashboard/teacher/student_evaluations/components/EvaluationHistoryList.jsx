@@ -22,7 +22,7 @@ export default function EvaluationHistoryList({
           {t('teacherEvaluations.recordedEvaluations', 'تقييمات الطلاب المسجلة')}
         </h3>
         <span className="text-xs font-semibold text-slate-400">
-          {t('teacherEvaluations.totalEvaluationsCount', 'إجمالي {{count}} تقييم', {
+          {t('teacherEvaluations.pageEvaluationsCount', 'في هذه الصفحة {{count}} تقييم', {
             count: evaluationsList.length,
           })}
         </span>

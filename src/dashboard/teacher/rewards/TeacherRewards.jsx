@@ -1,11 +1,11 @@
-﻿import { useState, useEffect } from 'react';
+import TeacherDateTimeDisplay from '@/shared/components/TeacherDateTimeDisplay.jsx';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   Gift,
   Award,
-  Calendar,
   Sparkles,
 } from 'lucide-react';
 import TeacherAwardStudentsTab from './components/TeacherAwardStudentsTab.jsx';
@@ -25,41 +25,6 @@ export default function TeacherRewards() {
     setActiveTab(tab);
     setSearchParams(tab === 'awards' ? {} : { tab });
   };
-  const [currentTimeStr, setCurrentTimeStr] = useState('');
-  const [currentDateStr, setCurrentDateStr] = useState('');
-  useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date();
-      try {
-        const timeFormatted = new Intl.DateTimeFormat('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false,
-        }).format(now);
-        setCurrentTimeStr(timeFormatted);
-      } catch {
-        setCurrentTimeStr(now.toTimeString().slice(0, 8));
-      }
-      try {
-        const dateFormatted = new Intl.DateTimeFormat(
-          isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory',
-          {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          }
-        ).format(now);
-        setCurrentDateStr(dateFormatted);
-      } catch {
-        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
-      }
-    };
-    updateDateTime();
-    const interval = setInterval(updateDateTime, 1000);
-    return () => clearInterval(interval);
-  }, [isRtl]);
   const [isSuggestModalOpen, setIsSuggestModalOpen] = useState(false);
   const handleSuggestionSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['teacher-suggested-rewards'] });
@@ -78,13 +43,7 @@ export default function TeacherRewards() {
           </p>
         </div>
         <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
-          <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
-            {currentTimeStr}
-          </span>
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
-            <Calendar size={14} className="text-slate-400" />
-            <span>{currentDateStr}</span>
-          </div>
+          <TeacherDateTimeDisplay />
         </div>
       </div>
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 rounded-3xl p-2.5 sm:p-3 shadow-xs border border-slate-100 dark:border-slate-800">

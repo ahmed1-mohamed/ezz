@@ -1,5 +1,9 @@
 {
   "appName": "أكاديمية منارة العز",
+  "teacherDateTime": {
+    "timezoneLabel": "بتوقيت {{place}}",
+    "deviceTime": "توقيت الجهاز"
+  },
   "teacherPerformance": {
     "badge": "ترتيب أداء المعلمين",
     "title": "قائمة التميز وتصنيف أداء المعلمين",
@@ -50,6 +54,7 @@
     "forgotPassword": "نسيت كلمة المرور؟",
     "submitBtn": "دخول للمنارة",
     "orLoginWith": "أو سجل الدخول عبر حساب جوجل",
+    "signInWithGoogle": "تسجيل الدخول بواسطة جوجل",
     "noAccount": "لا تملك حسابًا؟",
     "registerNow": "سجل الآن",
     "backToHome": "العودة للرئيسية",
@@ -739,7 +744,8 @@
     "selectStudentToast": "يرجى اختيار طالب مسجل في الحصة",
     "saveSuccessToast": "تم حفظ تقييم {{name}} بنجاح ({{rating}}/5 نجوم)",
     "saveErrorToast": "تعذر حفظ التقييم",
-    "errorOccurredToast": "حدث خطأ أثناء حفظ التقييم"
+    "errorOccurredToast": "حدث خطأ أثناء حفظ التقييم",
+    "pageEvaluationsCount": "في هذه الصفحة {{count}} تقييم"
   },
   "student": {
     "progressCardTitle": "تقدمك الدراسي",
@@ -3735,6 +3741,8 @@
     "previewGroup1": "مجموعة التجويد الأولى",
     "inTwoHours": "بعد ساعتين",
     "tomorrow": "غداً",
+    "inTwoDays": "بعد يومين",
+    "afterDays": "بعد {{count}} أيام",
     "today": "اليوم",
     "previewGroupName1": "تفسير القرآن الكريم",
     "previewGroupName2": "سيرة النبي محمد صلى الله عليه وسلم",
@@ -4171,8 +4179,8 @@
     "videoTab": "فيديو توضيحي",
     "documentTab": "ملف تدريبي",
     "quizTab": "أسئلة تفاعلية",
-    "uploadVideo": "اضغط لرفع فيديو الشرح (MP4, WebM)",
-    "maxVideoSize": "الحد الأقصى لحجم الفيديو: 50 ميجابايت",
+    "uploadVideo": "اضغط لرفع فيديو الشرح (MP4, MOV, WebM) أو ملف صوتي MP3",
+    "maxVideoSize": "الحد الأقصى لحجم الفيديو: 50 ميجابايت (MP4, MOV, WebM, MP3)",
     "uploadDoc": "اضغط لرفع ملف الواجب (PDF)",
     "maxDocSize": "الحد الأقصى لحجم الملف: 10 ميجابايت",
     "saveDraft": "حفظ كمسودة",
@@ -4180,7 +4188,7 @@
     "publishing": "جارٍ النشر...",
     "uploading": "جاري الرفع...",
     "processing": "جاري معالجة الواجب...",
-    "errMaxVideoSize": "حجم الفيديو يجب ألا يتجاوز 100 ميغابايت",
+    "errMaxVideoSize": "حجم الفيديو يجب ألا يتجاوز 50 ميجابايت",
     "allSubmissions": "الكل",
     "pendingReview": "بانتظار المراجعة",
     "submittedOnTime": "تم التسليم",
@@ -4239,7 +4247,8 @@
     "addOption": "إضافة خيار إضافي",
     "essayNoteTitle": "ملاحظة حول السؤال المقالي:",
     "essayNoteDesc": "سيقوم الطالب بكتابة إجابته في صندوق نصي عند حل الواجب، وسيتم عرض إجابته عليك لمراجعتها وتصحيحها ووضع الدرجة المناسبة في صفحة التسليمات.",
-    "yesterday": "أمس"
+    "yesterday": "أمس",
+    "errInvalidMediaFile": "صيغة الملف غير مدعومة أو الملف تالف"
   },
   "teacherCurricula": {
     "title": "المناهج والمصادر التعليمية",
@@ -4422,9 +4431,6 @@
     "transactionRef": "مرجع العملية",
     "paymentDate": "تاريخ الدفع",
     "student": "الابن",
-    "amount": "المبلغ",
-    "discount": "الخصم",
-    "tax": "الضريبة",
     "totalPaid": "الإجمالي المدفوع",
     "viewReceipt": "عرض الإيصال",
     "renewedDetails": "تفاصيل الاشتراك المجدد",

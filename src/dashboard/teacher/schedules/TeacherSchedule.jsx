@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
+import TeacherDateTimeDisplay from '@/shared/components/TeacherDateTimeDisplay.jsx';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Calendar,
@@ -130,41 +131,6 @@ export default function TeacherSchedule() {
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedDayIndex, setSelectedDayIndex] = useState(null);
-  const [currentTimeStr, setCurrentTimeStr] = useState('');
-  const [currentDateStr, setCurrentDateStr] = useState('');
-  useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date();
-      try {
-        const timeFormatted = new Intl.DateTimeFormat('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false,
-        }).format(now);
-        setCurrentTimeStr(timeFormatted);
-      } catch {
-        setCurrentTimeStr(now.toTimeString().slice(0, 8));
-      }
-      try {
-        const dateFormatted = new Intl.DateTimeFormat(
-          isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory',
-          {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          }
-        ).format(now);
-        setCurrentDateStr(dateFormatted);
-      } catch {
-        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
-      }
-    };
-    updateDateTime();
-    const interval = setInterval(updateDateTime, 1000);
-    return () => clearInterval(interval);
-  }, [isRtl]);
   const {
     data: timetableData,
     isLoading,
@@ -368,17 +334,7 @@ export default function TeacherSchedule() {
             >
               <RotateCcw size={16} className={isFetching ? 'animate-spin' : ''} />
             </button>
-            {currentTimeStr && (
-              <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
-                {currentTimeStr}
-              </span>
-            )}
-            {currentDateStr && (
-              <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
-                <Calendar size={14} className="text-slate-400" />
-                <span>{currentDateStr}</span>
-              </div>
-            )}
+            <TeacherDateTimeDisplay />
           </div>
         </section>
         <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6">

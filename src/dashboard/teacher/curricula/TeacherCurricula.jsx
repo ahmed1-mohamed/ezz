@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/shared/context/useAuth.jsx';
@@ -137,8 +137,6 @@ export default function TeacherCurricula() {
   const [selectedCurriculumId, setSelectedCurriculumId] = useState(null);
   const [planModalCurriculum, setPlanModalCurriculum] = useState(null);
   const [previewModalResource, setPreviewModalResource] = useState(null);
-  const [currentTimeStr, setCurrentTimeStr] = useState('');
-  const [currentDateStr, setCurrentDateStr] = useState('');
   const teacherName = useMemo(() => {
     if (!user) return t('teacher.teacherFallback', 'معلم');
     if (typeof user.name === 'object' && user.name !== null) {
@@ -150,39 +148,6 @@ export default function TeacherCurricula() {
     const name = String(teacherName || '').trim();
     return name.charAt(0) || 'أ';
   }, [teacherName]);
-  useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date();
-      try {
-        const timeFormatted = new Intl.DateTimeFormat('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false,
-        }).format(now);
-        setCurrentTimeStr(timeFormatted);
-      } catch {
-        setCurrentTimeStr(now.toTimeString().slice(0, 8));
-      }
-      try {
-        const dateFormatted = new Intl.DateTimeFormat(
-          isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory',
-          {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          }
-        ).format(now);
-        setCurrentDateStr(dateFormatted);
-      } catch {
-        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
-      }
-    };
-    updateDateTime();
-    const interval = setInterval(updateDateTime, 1000);
-    return () => clearInterval(interval);
-  }, [isRtl]);
   const { data: responseData, isLoading } = useQuery({
     queryKey: ['teacherCurricula'],
     queryFn: () => teacherCurriculaApi.fetchCurricula(),
@@ -255,8 +220,6 @@ export default function TeacherCurricula() {
   return (
     <div className="min-h-screen bg-[#edf4f2] dark:bg-slate-950 p-4 sm:p-6 space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <TeacherCurriculaHeader
-        currentTimeStr={currentTimeStr}
-        currentDateStr={currentDateStr}
         userInitial={userInitial}
         notificationsCount={3}
       />
