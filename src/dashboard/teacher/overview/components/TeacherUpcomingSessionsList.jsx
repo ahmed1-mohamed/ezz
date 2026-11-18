@@ -45,6 +45,15 @@ export default React.memo(function TeacherUpcomingSessionsList({ upcomingSession
                   <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate">
                     {session.title}
                   </h3>
+                  <div className="flex sm:hidden items-center gap-2 text-[11px] font-semibold text-slate-500 dark:text-slate-400 min-w-0">
+                    <Clock size={12} className="text-slate-400 shrink-0" />
+                    <span className="truncate">{session.timeStr}</span>
+                    {session.relativeBadge && (
+                      <span className={session.badgeVariant === 'blue' ? 'text-blue-600 dark:text-blue-300 shrink-0' : 'text-amber-600 dark:text-amber-300 shrink-0'}>
+                        {session.relativeBadge}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="hidden sm:flex items-center gap-3 md:gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400 shrink-0">

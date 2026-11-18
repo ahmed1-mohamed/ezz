@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import TeacherDateTimeDisplay from '@/shared/components/TeacherDateTimeDisplay.jsx';
+import { useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import useDebounce from '@/shared/hooks/useDebounce';
 import {
-  Calendar,
   Search,
   Eye,
   Clock,
@@ -19,41 +19,6 @@ import SubmissionDetailsView from './components/SubmissionDetailsView.jsx';
 export default function HomeworkSubmissions() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-  const [currentTimeStr, setCurrentTimeStr] = useState('');
-  const [currentDateStr, setCurrentDateStr] = useState('');
-  useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date();
-      try {
-        const timeFormatted = new Intl.DateTimeFormat('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false,
-        }).format(now);
-        setCurrentTimeStr(timeFormatted);
-      } catch {
-        setCurrentTimeStr(now.toTimeString().slice(0, 8));
-      }
-      try {
-        const dateFormatted = new Intl.DateTimeFormat(
-          isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory',
-          {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          }
-        ).format(now);
-        setCurrentDateStr(dateFormatted);
-      } catch {
-        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
-      }
-    };
-    updateDateTime();
-    const interval = setInterval(updateDateTime, 1000);
-    return () => clearInterval(interval);
-  }, [isRtl]);
   const { id: paramId } = useParams();
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState('all');
@@ -419,8 +384,6 @@ export default function HomeworkSubmissions() {
             navigate('/dashboard/teacher/assignments/submissions');
           }
         }}
-        currentTimeStr={currentTimeStr}
-        currentDateStr={currentDateStr}
       />
     );
   }
@@ -445,13 +408,7 @@ export default function HomeworkSubmissions() {
           >
             <RefreshCw size={14} className={isFetching ? 'animate-spin text-[#00594C]' : ''} />
           </button>
-          <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
-            {currentTimeStr}
-          </span>
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
-            <Calendar size={14} className="text-slate-400" />
-            <span>{currentDateStr}</span>
-          </div>
+          <TeacherDateTimeDisplay />
         </div>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">

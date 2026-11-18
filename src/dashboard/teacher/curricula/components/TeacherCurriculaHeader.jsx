@@ -1,11 +1,8 @@
 import React from 'react';
-import { Calendar } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import TeacherDateTimeDisplay from '@/shared/components/TeacherDateTimeDisplay.jsx';
 
-export default React.memo(function TeacherCurriculaHeader({
-  currentTimeStr = '',
-  currentDateStr = '',
-}) {
+export default React.memo(function TeacherCurriculaHeader() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   return (
@@ -22,17 +19,7 @@ export default React.memo(function TeacherCurriculaHeader({
         </p>
       </div>
       <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
-        {currentDateStr && (
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
-            <Calendar size={14} className="text-slate-400" />
-            <span>{currentDateStr}</span>
-          </div>
-        )}
-        {currentTimeStr && (
-          <span className="px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
-            {currentTimeStr}
-          </span>
-        )}
+        <TeacherDateTimeDisplay />
       </div>
     </header>
   );

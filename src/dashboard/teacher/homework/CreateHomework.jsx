@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import TeacherDateTimeDisplay from '@/shared/components/TeacherDateTimeDisplay.jsx';
+import { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -7,7 +8,6 @@ import {
   FileText,
   HelpCircle,
   Upload,
-  Calendar,
   CheckCircle2,
   ChevronDown,
   Trash2,
@@ -23,41 +23,6 @@ export default function CreateHomework() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-  const [currentTimeStr, setCurrentTimeStr] = useState('');
-  const [currentDateStr, setCurrentDateStr] = useState('');
-  useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date();
-      try {
-        const timeFormatted = new Intl.DateTimeFormat('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false,
-        }).format(now);
-        setCurrentTimeStr(timeFormatted);
-      } catch {
-        setCurrentTimeStr(now.toTimeString().slice(0, 8));
-      }
-      try {
-        const dateFormatted = new Intl.DateTimeFormat(
-          isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory',
-          {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          }
-        ).format(now);
-        setCurrentDateStr(dateFormatted);
-      } catch {
-        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
-      }
-    };
-    updateDateTime();
-    const interval = setInterval(updateDateTime, 1000);
-    return () => clearInterval(interval);
-  }, [isRtl]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [deadline, setDeadline] = useState('');
@@ -89,8 +54,8 @@ export default function CreateHomework() {
   const handleVideoChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 100 * 1024 * 1024) {
-      toast.error(t('teacherHomework.errMaxVideoSize', 'حجم الفيديو يجب ألا يتجاوز 100 ميغابايت'));
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error(t('teacherHomework.errMaxVideoSize', 'حجم الفيديو يجب ألا يتجاوز 50 ميجابايت'));
       return;
     }
     setMediaFile(file);
@@ -235,8 +200,14 @@ export default function CreateHomework() {
         toast.success(t('teacherHomework.publishedSuccess', 'تم نشر الواجب المدرسي بنجاح وإشعار جميع طلاب المجموعة'));
         navigate('/dashboard/teacher/homework/submissions');
       } else {
-        const errorMsg = Array.isArray(res.message) ? res.message.join(' - ') : res.message;
-        toast.error(errorMsg || t('teacherHomework.publishFailed', 'فشل نشر الواجب'));
+        const errorMsg = Array.isArray(res.message) ? res.message.join(' - ') : String(res.message || '');
+        if (/file is too big|max file size/i.test(errorMsg)) {
+          toast.error(t('teacherHomework.errMaxVideoSize', 'حجم الفيديو يجب ألا يتجاوز 50 ميجابايت'));
+        } else if (/file type|file signature|does not match/i.test(errorMsg)) {
+          toast.error(t('teacherHomework.errInvalidMediaFile', 'صيغة الملف غير مدعومة أو الملف تالف'));
+        } else {
+          toast.error(errorMsg || t('teacherHomework.publishFailed', 'فشل نشر الواجب'));
+        }
       }
     } catch {
       setIsSubmitting(false);
@@ -256,13 +227,7 @@ export default function CreateHomework() {
           </p>
         </div>
         <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
-          <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
-            {currentTimeStr}
-          </span>
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
-            <Calendar size={14} className="text-slate-400" />
-            <span>{currentDateStr}</span>
-          </div>
+          <TeacherDateTimeDisplay />
         </div>
       </div>
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xs border border-slate-100 dark:border-slate-800 space-y-4 text-start">
@@ -426,7 +391,7 @@ export default function CreateHomework() {
               <input
                 ref={videoInputRef}
                 type="file"
-                accept="video/mp4,video/quicktime,video/webm,audio/*"
+                accept="video/mp4,video/quicktime,video/webm,audio/mpeg"
                 onChange={handleVideoChange}
                 className="hidden"
               />

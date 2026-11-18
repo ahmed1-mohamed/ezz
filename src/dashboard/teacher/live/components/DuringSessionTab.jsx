@@ -190,6 +190,7 @@ export default function DuringSessionTab({ session, onEndSession, onBackToBefore
           className="w-full flex-1 min-h-0 h-full overflow-hidden"
           onRefreshJoinData={refetch}
           isRefreshing={isFetching}
+          showExternalJoinButton={false}
         />
       )}
       <InSessionRewardModal

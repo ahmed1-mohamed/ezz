@@ -12,10 +12,12 @@ export const teacherSessionsApi = {
   fetchSessionsByStatus: async (status = 'all', params = {}) => {
     let endpoint = '/api/v1/teacher/sessions';
     const norm = (status || 'all').toLowerCase();
+    if (norm === 'live' || norm === 'in_progress' || norm === 'in-progress' || norm === 'مباشرة') {
+      const response = await api.get('/api/v1/teacher/sessions/live', { params, skipLang: true });
+      return response.data;
+    }
     if (norm === 'scheduled' || norm === 'مجدولة') {
       endpoint = '/api/v1/teacher/sessions/scheduled';
-    } else if (norm === 'live' || norm === 'in_progress' || norm === 'in-progress' || norm === 'مباشرة') {
-      endpoint = '/api/v1/teacher/sessions/live';
     } else if (norm === 'completed' || norm === 'مكتملة') {
       endpoint = '/api/v1/teacher/sessions/completed';
     } else if (norm === 'cancelled' || norm === 'ملغاة') {

@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
   CheckCircle2,
-  Calendar,
-  Clock,
   ChevronLeft,
   ChevronRight,
   Star,
@@ -15,6 +13,7 @@ import {
 import toast from 'react-hot-toast';
 import { teacherSessionsApi } from '@/shared/services/api/teacherSessionsApi';
 import { teacherEvaluationsApi } from '@/shared/services/api/teacherEvaluationsApi';
+import TeacherDateTimeDisplay from '@/shared/components/TeacherDateTimeDisplay.jsx';
 
 const RATING_STARS = [1, 2, 3, 4, 5];
 
@@ -25,18 +24,6 @@ function resolveStudentName(student, isRtl) {
     return isRtl ? (student.name.ar || student.name.en) : (student.name.en || student.name.ar);
   }
   return student.name || student.studentName || '-';
-}
-
-function formatSessionDate(dateValue, isRtl) {
-  if (!dateValue) return '-';
-  const dateObj = new Date(dateValue);
-  if (isNaN(dateObj.getTime())) return String(dateValue);
-  return dateObj.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
 }
 
 function StudentEvaluationCard({ student, sessionId, onEvaluatedSuccessfully }) {
@@ -321,18 +308,7 @@ export default function AfterSessionTab() {
                   <span>{t('teacherLive.statusCompleted', 'حصة مكتملة')}</span>
                 </span>
               </div>
-              <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-[#0f7a6c]" />
-                  <span>{formatSessionDate(session.date || session.startTime, isRtl)}</span>
-                </div>
-                {session.startTime && (
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-[#0f7a6c]" />
-                    <span>{session.startTime}</span>
-                  </div>
-                )}
-              </div>
+              <TeacherDateTimeDisplay dateTime={session.startTime || session.date} />
             </div>
             <h2 className="text-xl font-extrabold text-slate-900 dark:text-slate-100">
               {sessionTitle}

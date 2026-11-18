@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -107,6 +107,9 @@ export default function BeforeSessionTab({ onStartSession }) {
     }
     return session?.date || session?.startTime || null;
   }, [session]);
+  const handleCountdownReached = useCallback(() => {
+    void refetch();
+  }, [refetch]);
   const handlePrevSession = () => {
     setOffset((prev) => prev - 1);
   };
@@ -265,8 +268,7 @@ export default function BeforeSessionTab({ onStartSession }) {
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-4 h-4 text-[#0f7a6c]" />
                     <span>
-                      {formatSessionTime(session.startTime)}
-                      {session.endTime && ` - ${formatSessionTime(session.endTime)}`}
+                      {session.timeRange || `${formatSessionTime(session.startTime)}${session.endTime ? ` - ${formatSessionTime(session.endTime)}` : ''}`}
                     </span>
                   </div>
                   {session.duration && (
@@ -283,7 +285,7 @@ export default function BeforeSessionTab({ onStartSession }) {
                 <div className="bg-slate-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
                   <CountdownTimer
                     targetDateTime={startDateTime}
-                    onTimeReached={() => refetch()}
+                    onTimeReached={handleCountdownReached}
                   />
                 </div>
               )}

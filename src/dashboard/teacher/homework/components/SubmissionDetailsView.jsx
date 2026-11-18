@@ -1,5 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import TeacherDateTimeDisplay from '@/shared/components/TeacherDateTimeDisplay.jsx';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Calendar,
@@ -120,45 +121,11 @@ function FileItemCard({ doc, roleLabel, roleBadgeClass, onSelect, onOpen }) {
 export default function SubmissionDetailsView({
   submission,
   onBack,
-  currentTimeStr,
-  currentDateStr,
 }) {
   const { i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const queryClient = useQueryClient();
-  const [internalTimeStr, setInternalTimeStr] = useState('');
-  const [internalDateStr, setInternalDateStr] = useState('');
   const [currentTimestamp] = useState(() => Date.now());
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      try {
-        setInternalTimeStr(new Intl.DateTimeFormat('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false,
-        }).format(now));
-      } catch {
-        setInternalTimeStr(now.toTimeString().slice(0, 8));
-      }
-      try {
-        setInternalDateStr(new Intl.DateTimeFormat(isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        }).format(now));
-      } catch {
-        setInternalDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
-      }
-    };
-    updateTime();
-    const timer = setInterval(updateTime, 1000);
-    return () => clearInterval(timer);
-  }, [isRtl]);
-  const activeTimeStr = currentTimeStr || internalTimeStr;
-  const activeDateStr = currentDateStr || internalDateStr;
   const submissionId = submission?.id || submission?._id;
   const homeworkId = submission?.homeworkId || submission?.homework?._id || submission?.homework?.id || (typeof submission?.homework === 'string' ? submission?.homework : null);
   const { data: detailsRes } = useQuery({
@@ -626,13 +593,7 @@ export default function SubmissionDetailsView({
           </p>
         </div>
         <div className="flex items-center gap-3 self-end md:self-center flex-wrap">
-          <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#d2ede6] text-[#00594C] dark:bg-emerald-950/70 dark:text-emerald-300">
-            {activeTimeStr}
-          </span>
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
-            <Calendar size={14} className="text-slate-400" />
-            <span>{activeDateStr}</span>
-          </div>
+          <TeacherDateTimeDisplay />
         </div>
       </div>
       <div className="flex items-center justify-between gap-4 px-1">

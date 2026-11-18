@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -110,41 +110,6 @@ export default function TeacherEvaluations() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const queryClient = useQueryClient();
-  const [currentTimeStr, setCurrentTimeStr] = useState('');
-  const [currentDateStr, setCurrentDateStr] = useState('');
-  useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date();
-      try {
-        const timeFormatted = new Intl.DateTimeFormat('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false,
-        }).format(now);
-        setCurrentTimeStr(timeFormatted);
-      } catch {
-        setCurrentTimeStr(now.toTimeString().slice(0, 8));
-      }
-      try {
-        const dateFormatted = new Intl.DateTimeFormat(
-          isRtl ? 'ar-EG-u-ca-gregory' : 'en-GB-u-ca-gregory',
-          {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          }
-        ).format(now);
-        setCurrentDateStr(dateFormatted);
-      } catch {
-        setCurrentDateStr(now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB'));
-      }
-    };
-    updateDateTime();
-    const interval = setInterval(updateDateTime, 1000);
-    return () => clearInterval(interval);
-  }, [isRtl]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') === 'admin' ? 'admin' : 'students');
   const [selectedGroupId, setSelectedGroupId] = useState('');
@@ -298,10 +263,10 @@ export default function TeacherEvaluations() {
     return Math.round((Number(studentAverageRating) / 5) * 100);
   }, [studentAverageRating]);
   const { data: historyRes, refetch: refetchHistory } = useQuery({
-    queryKey: ['teacher-evaluations-history'],
+    queryKey: ['teacher-evaluations-history', evalPage],
     queryFn: async () => {
       try {
-        return await teacherEvaluationsApi.fetchTeacherEvaluationsHistory({ limit: 50 });
+        return await teacherEvaluationsApi.fetchTeacherEvaluationsHistory({ page: evalPage, limit: evalsPerPage });
       } catch {
         return { success: true, data: [] };
       }
@@ -352,11 +317,8 @@ export default function TeacherEvaluations() {
     }
     return [];
   }, [historyRes, isRtl, t]);
-  const totalEvalPages = Math.max(1, Math.ceil(recentEvaluationsList.length / evalsPerPage));
-  const paginatedEvaluations = useMemo(() => {
-    const start = (evalPage - 1) * evalsPerPage;
-    return recentEvaluationsList.slice(start, start + evalsPerPage);
-  }, [recentEvaluationsList, evalPage, evalsPerPage]);
+  const totalEvalPages = Math.max(1, Number(historyRes?.pagination?.numberOfPages) || 1);
+  const paginatedEvaluations = recentEvaluationsList;
   const levelInfo = useMemo(() => {
     const pct = studentAveragePercentage;
     if (pct >= 90) {
@@ -415,6 +377,7 @@ export default function TeacherEvaluations() {
         );
         setNotes('');
         setSelectedStudentId('');
+        setEvalPage(1);
         queryClient.invalidateQueries({ queryKey: ['teacher-evaluations-history'] });
         queryClient.invalidateQueries({ queryKey: ['teacher-pending-eval-sessions'] });
       } else {
@@ -477,9 +440,7 @@ export default function TeacherEvaluations() {
       ) : (
         <>
           <EvaluationHeader
-            currentTimeStr={currentTimeStr}
-            currentDateStr={currentDateStr}
-            onRefresh={handleRefreshAll}
+                    onRefresh={handleRefreshAll}
           />
           <EvaluationSelectionCard
             groupsList={groupsList}
