@@ -8,6 +8,28 @@ import {
   GraduationCap,
 } from 'lucide-react';
 
+function formatTime12Hour(value, isRtl) {
+  const match = String(value || '').trim().match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return value || '';
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (hours > 23 || minutes > 59) return value;
+  const date = new Date(Date.UTC(2000, 0, 1, hours, minutes));
+  return new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'UTC',
+  }).format(date);
+}
+
+function formatTimeRange(value, isRtl) {
+  const parts = String(value || '').split(/\s+-\s+/);
+  return parts.length === 2
+    ? `${formatTime12Hour(parts[0], isRtl)} - ${formatTime12Hour(parts[1], isRtl)}`
+    : formatTime12Hour(value, isRtl);
+}
+
 function getStatusBadge(status) {
   const norm = String(status || '').trim();
   if (norm === 'نشطة' || norm.toLowerCase() === 'active') {
@@ -73,6 +95,9 @@ export default function ChildGroupsList({ groups = [] }) {
             const days = isRichObject && Array.isArray(groupItem.days) ? groupItem.days : [];
             const timeStr = isRichObject && groupItem.time ? String(groupItem.time).trim() : '';
             const schedule = isRichObject && Array.isArray(groupItem.schedule) ? groupItem.schedule : [];
+            const timezoneCountry = isRichObject
+              ? String(groupItem.timezoneCountry || groupItem.timezone || '').trim()
+              : '';
             return (
               <div
                 key={idx}
@@ -109,7 +134,7 @@ export default function ChildGroupsList({ groups = [] }) {
                     <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-700 dark:text-slate-300">
                       <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                       <span className="font-semibold text-slate-400 shrink-0">{t('parent.schedule.time', 'التوقيت')}:</span>
-                      <span className="font-mono font-bold truncate dir-ltr">{timeStr}</span>
+                      <span className="font-mono font-bold truncate dir-ltr">{formatTimeRange(timeStr, isRtl)}</span>
                     </div>
                   )}
                 </div>
@@ -131,10 +156,15 @@ export default function ChildGroupsList({ groups = [] }) {
                 )}
                 {schedule.length > 0 && (
                   <div className="p-2.5 rounded-xl bg-white/70 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-500 space-y-1">
+                    {timezoneCountry && (
+                      <p className="font-medium text-slate-400 pb-1">
+                        {t('parent.childrenList.timezoneLabel', { country: timezoneCountry })}
+                      </p>
+                    )}
                     {schedule.map((sch, sIdx) => (
                       <div key={sIdx} className="flex items-center justify-between">
                         <span className="font-bold text-slate-700 dark:text-slate-300">{sch.day}</span>
-                        <span className="font-mono text-slate-400">{sch.startTime} - {sch.endTime}</span>
+                        <span className="font-mono text-slate-400">{formatTime12Hour(sch.startTime, isRtl)} - {formatTime12Hour(sch.endTime, isRtl)}</span>
                       </div>
                     ))}
                   </div>

@@ -1,11 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import Swal from 'sweetalert2';
-import toast from 'react-hot-toast';
 import ParentPagination from './ParentPagination';
 
-function formatSessionDate(session, isRtl) {
-  if (!session?.date && !session?.day) return session?.timeRange || '';
+function formatSessionDate(session, isRtl, t) {
+  const timezoneLabel = session?.timeZone
+    ? t('parentDashboard.home.timezoneLabel', {
+      country: session.timeZoneCountry || session.timeZone,
+    })
+    : '';
+  if (!session?.date && !session?.day) {
+    return [session?.timeRange, timezoneLabel].filter(Boolean).join(' · ');
+  }
   let dayPart = '';
   if (session?.date) {
     try {
@@ -38,8 +43,8 @@ function formatSessionDate(session, isRtl) {
     dayPart = session.day || '';
   }
   const timePart = session.timeRange || (session.startTime ? `${session.startTime} ${session.endTime ? `- ${session.endTime}` : ''}` : '');
-  if (dayPart && timePart) return `${dayPart} - ${timePart}`;
-  return dayPart || timePart;
+  const dateAndTime = dayPart && timePart ? `${dayPart} - ${timePart}` : dayPart || timePart;
+  return [dateAndTime, timezoneLabel].filter(Boolean).join(' · ');
 }
 
 export default React.memo(function ParentUpcomingSessionsSection({
@@ -57,31 +62,61 @@ export default React.memo(function ParentUpcomingSessionsSection({
   const currentSessions = useMemo(() => {
     return (sessions || []).slice(startIndex, endIndex);
   }, [sessions, startIndex, endIndex]);
+  /* Temporarily disabled: keep this excuse form and submission flow for later reactivation.
   const handleApologize = async (session) => {
-    const sessionName = session.group || session.title || 'الحصة';
-    const { isConfirmed } = await Swal.fire({
-      title: isRtl ? 'الإعتذار عن الحصة' : 'Apologize for Session',
-      text: isRtl
-        ? `هل تود الإعتذار عن حضور حصة "${sessionName}"؟`
-        : `Do you want to cancel session "${sessionName}"?`,
-      input: 'textarea',
-      inputPlaceholder: isRtl ? 'اكتب سبب الاعتذار (اختياري)...' : 'Reason (optional)...',
+    const eligibleStudents = Array.isArray(session.excuseEligibleStudents)
+      ? session.excuseEligibleStudents
+      : [];
+    const inputOptions = eligibleStudents.reduce((options, student) => {
+      options[student.id] = student.name;
+      return options;
+    }, {});
+    if (!session.canRequestExcuse || eligibleStudents.length === 0) return;
+
+    const result = await Swal.fire({
+      title: t('parentDashboard.home.excuseTitle', 'Apologize for session'),
+      text: t('parentDashboard.home.excusePrompt', 'Choose the child and enter the reason for the excuse request.'),
+      input: 'select',
+      inputOptions,
+      inputPlaceholder: t('parentDashboard.home.selectExcuseStudent', 'Select a child'),
       inputAttributes: { dir: isRtl ? 'rtl' : 'ltr' },
+      html: `<p>${t('parentDashboard.home.excusePrompt', 'Choose the child and enter the reason for the excuse request.')}</p><textarea id="parent-session-excuse-reason" class="swal2-textarea" dir="${isRtl ? 'rtl' : 'ltr'}" placeholder="${t('parentDashboard.home.excuseReasonPlaceholder', 'Reason for excuse (5–300 characters)')}"></textarea>`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#e63946',
+      confirmButtonColor: '#0f7a6c',
       cancelButtonColor: '#94a3b8',
-      confirmButtonText: isRtl ? 'تأكيد الاعتذار' : 'Confirm Cancel',
-      cancelButtonText: isRtl ? 'تراجع' : 'Back',
+      confirmButtonText: t('parentDashboard.home.submitExcuse', 'Submit excuse'),
+      cancelButtonText: t('common.cancel', 'Cancel'),
       reverseButtons: isRtl,
+      preConfirm: (studentId) => {
+        const reason = document.getElementById('parent-session-excuse-reason')?.value?.trim() || '';
+        if (!studentId) {
+          Swal.showValidationMessage(t('parentDashboard.home.selectExcuseStudent', 'Select a child'));
+          return false;
+        }
+        if (reason.length < 5 || reason.length > 300) {
+          Swal.showValidationMessage(t('parentDashboard.home.excuseReasonValidation', 'Enter a reason between 5 and 300 characters.'));
+          return false;
+        }
+        return { studentId, reason };
+      },
     });
-    if (isConfirmed) {
-      toast.success(isRtl ? 'تم تسجيل الاعتذار عن الحصة بنجاح' : 'Session cancellation submitted');
+    if (result.isConfirmed && result.value) {
+      const response = await parentApi.createSessionExcuse(session.id || session._id, result.value);
+      if (!response?.success) {
+        toast.error(Array.isArray(response?.message) ? response.message.join(' - ') : response?.message || t('parentDashboard.home.excuseSubmitFailed', 'Could not submit the excuse request.'));
+        return;
+      }
+      toast.success(response.message || t('parentDashboard.home.excuseSubmitSuccess', 'Excuse request submitted successfully.'));
+      onExcuseSubmitted?.();
     }
   };
+  */
+  /* Parent accounts do not join live sessions.
   const handleJoinLive = () => {
     toast.success(isRtl ? 'جاري الانتقال للبث المباشر...' : 'Connecting to live stream...');
   };
+  */
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -117,7 +152,7 @@ export default React.memo(function ParentUpcomingSessionsSection({
       ) : (
         <div className="space-y-4">
           {currentSessions.map((session, idx) => {
-            const dateStr = formatSessionDate(session, isRtl);
+            const dateStr = formatSessionDate(session, isRtl, t);
             const canJoin = session.canJoinNow === true;
             const isGenericTitle = session.title && (session.title.includes('الحصة رقم') || session.title.includes('Session #'));
             const mainTitle = (!isGenericTitle && session.title) || session.group || session.title || (session.sessionNumber ? `الحصة رقم ${session.sessionNumber}` : 'حصة دراسية');
@@ -157,26 +192,32 @@ export default React.memo(function ParentUpcomingSessionsSection({
                 </div>
                 <div className="shrink-0 flex items-center justify-end">
                   {canJoin ? (
-                    <button
-                      type="button"
-                      onClick={() => handleJoinLive(session)}
-                      className="px-8 py-3.5 bg-[#e63946] hover:bg-red-600 text-white rounded-full font-bold text-sm transition-all shadow-xs active:scale-95 whitespace-nowrap"
+                    <div
+                      aria-disabled="true"
+                      className="px-8 py-3.5 bg-[#e63946] text-white rounded-full font-bold text-sm shadow-xs whitespace-nowrap cursor-default"
                     >
                       {t('parentDashboard.home.liveStreamNow', 'البث مباشر الآن')}
-                    </button>
+                    </div>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={() => handleApologize(session)}
-                      className="border border-[#e63946] hover:bg-red-50 dark:hover:bg-red-950/20 text-[#e63946] rounded-full px-6 py-2 text-center transition-colors min-w-[170px]"
+                    <div
+                      aria-disabled="true"
+                      className={`border rounded-full px-6 py-2 text-center min-w-[170px] ${
+                        session.canRequestExcuse && session.excuseEligibleStudents?.length
+                          ? 'border-[#e63946] text-[#e63946]'
+                          : 'border-slate-300 dark:border-slate-600 text-slate-400 dark:text-slate-500 opacity-75'
+                      }`}
                     >
                       <span className="font-bold text-sm block leading-tight">
                         {t('parentDashboard.home.cancelClass', 'الإعتذار عن الحصة')}
                       </span>
-                      <span className="text-[11px] text-[#e63946]/90 block mt-0.5">
-                        {t('parentDashboard.home.availableUntil', { time: '01:30:20' })}
+                      <span className="text-[11px] block mt-0.5">
+                        {session.canRequestExcuse && session.excuseEligibleStudents?.length
+                          ? t('parentDashboard.home.availableUntil', { time: session.excuseAvailableUntil || '—' })
+                          : session.excuseDeadlinePassed
+                            ? t('parentDashboard.home.excuseDeadlinePassed', 'انتهت مدة الاعتذار')
+                            : t('parentDashboard.home.excuseUnavailable', 'الاعتذار غير متاح لهذه الحصة')}
                       </span>
-                    </button>
+                    </div>
                   )}
                 </div>
               </div>

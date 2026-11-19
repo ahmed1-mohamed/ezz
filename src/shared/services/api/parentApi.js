@@ -642,35 +642,35 @@ export const parentApi = {
       const rescheduledSessions = rescheduledRes.status === 'fulfilled'
         ? extractSessions(rescheduledRes.value?.data?.data || rescheduledRes.value?.data)
         : [];
+      if (scheduledRes.status === 'rejected' && rescheduledRes.status === 'rejected') {
+        return { success: false, data: [], message: 'Failed to fetch this student’s sessions' };
+      }
 
       const seen = new Set();
       const combined = [...scheduledSessions, ...rescheduledSessions].filter((s) => {
         const id = s.id || s._id;
-        if (!id || seen.has(id)) return false;
+        const registeredStudentIds = Array.isArray(s.attendanceStudentIds)
+          ? s.attendanceStudentIds.map(String)
+          : [];
+        const excusedStudentIds = Array.isArray(s.excusedStudentIds)
+          ? s.excusedStudentIds.map(String)
+          : [];
+        if (
+          !id ||
+          seen.has(id) ||
+          !registeredStudentIds.includes(String(studentId)) ||
+          excusedStudentIds.includes(String(studentId))
+        ) return false;
         seen.add(id);
         return true;
       });
-
-      if (combined.length > 0) {
-        return { success: true, data: combined };
-      }
-    } catch (err) { void err; }
-
-    try {
-      const dashRes = await parentApi.fetchDashboard();
-      const upSessions = Array.isArray(dashRes?.data?.upcomingSessions) ? dashRes.data.upcomingSessions : [];
-      const matched = upSessions.filter((s) => {
-        const matchesStudent = !s.studentId || String(s.studentId) === String(studentId) || !s.student || String(s.student) === String(studentId);
-        const st = String(s.status || '').toLowerCase();
-        const isStatusOk = st === 'scheduled' || st === 'rescheduled' || st.includes('مجدول') || st.includes('عادية');
-        return matchesStudent && isStatusOk;
-      }).map((s) => ({
-        ...s,
-        group: extractSessionGroupName(s) || s.group || ''
-      }));
-      return { success: true, data: matched };
-    } catch {
-      return { success: true, data: [] };
+      return { success: true, data: combined };
+    } catch (err) {
+      return {
+        success: false,
+        data: [],
+        message: err?.response?.data?.message || err?.message || 'Failed to fetch this student’s sessions'
+      };
     }
   },
   fetchPackages: async (params = {}) => {
