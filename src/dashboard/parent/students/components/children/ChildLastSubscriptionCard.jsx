@@ -5,8 +5,8 @@ import {
   Calendar,
   Layers,
 } from 'lucide-react';
-import { useCurrency, formatCurrencyDisplay } from '@/shared/services/api/currenciesApi';
-import { useAuth } from '@/shared/context/useAuth';
+import { resolvePackagePrice, formatCurrencyDisplay } from '@/shared/services/api/currenciesApi';
+import useParentCurrencyInfo from '@/shared/hooks/useParentCurrencyInfo';
 
 function formatDate(dateStr, isRtl) {
   if (!dateStr) return '-';
@@ -29,8 +29,7 @@ export default function ChildLastSubscriptionCard({ lastSubscription }) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
-  const { user } = useAuth();
-  const { currencyInfo, convertPrice } = useCurrency(user);
+  const { currencyInfo } = useParentCurrencyInfo();
   if (!lastSubscription || typeof lastSubscription !== 'object') {
     return null;
   }
@@ -40,7 +39,7 @@ export default function ChildLastSubscriptionCard({ lastSubscription }) {
     : (lastSubscription.total !== undefined
       ? Number(lastSubscription.total)
       : (lastSubscription.amount !== undefined ? Number(lastSubscription.amount) : null));
-  const convertedPrice = rawPrice !== null ? convertPrice(rawPrice) : null;
+  const convertedPrice = rawPrice !== null ? resolvePackagePrice(rawPrice, currencyInfo) : null;
   const sessionsCount = Number(lastSubscription.sessionsCount || 0);
   const subscribedAtFormatted = formatDate(lastSubscription.subscribedAt, isRtl);
   const formattedPrice = convertedPrice !== null

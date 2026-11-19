@@ -66,7 +66,7 @@ const TestimonialCard = React.memo(({ item, index }) => {
                             {item.name}
                         </h3>
                         <span className="text-xs font-semibold text-[#0F7A6C] dark:text-emerald-400">
-                            {item.role || 'ولي أمر'}
+                            {item.role}
                         </span>
                     </div>
                 </div>
@@ -108,11 +108,14 @@ export default React.memo(function TestimonialsSection({ testimonials: customTes
                     ? (item.parentNameAr || item.parentName || item.name || '')
                     : (item.parentNameEn || item.parentName || item.name || ''),
                 image: item.image || item.avatar || '',
-                role: item.role || (isRtl ? 'ولي أمر' : 'Parent')
+                role: t('testimonials.parentRole', isRtl ? 'ولي أمر' : 'Parent')
             }));
         }
-        return fallbackTestimonials;
-    }, [customTestimonials, fallbackTestimonials, isRtl]);
+        return fallbackTestimonials.map((item) => ({
+            ...item,
+            role: t('testimonials.parentRole', isRtl ? 'ولي أمر' : 'Parent')
+        }));
+    }, [customTestimonials, fallbackTestimonials, isRtl, t]);
     const checkScrollState = useCallback(() => {
         const el = sliderRef.current;
         if (!el) return;

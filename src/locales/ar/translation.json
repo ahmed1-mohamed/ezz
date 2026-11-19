@@ -1230,6 +1230,7 @@
   },
   "testimonials": {
     "title": "آراء أولياء الأمور",
+    "parentRole": "ولي أمر",
     "subtitle": "قصص نجاح من عائلة منارة العز",
     "items": [
       {
@@ -1557,6 +1558,17 @@
       "liveStreamNow": "البث مباشر الآن",
       "cancelClass": "الاعتذار عن الحصة",
       "availableUntil": "متاح حتى {{time}}",
+      "timezoneLabel": "بتوقيت {{country}}",
+      "excuseDeadlinePassed": "انتهت مدة الاعتذار",
+      "excuseUnavailable": "الاعتذار غير متاح لهذه الحصة",
+      "excuseTitle": "الاعتذار عن الحصة",
+      "excusePrompt": "اختر الابن واكتب سبب الاعتذار.",
+      "selectExcuseStudent": "اختر الابن",
+      "excuseReasonPlaceholder": "سبب الاعتذار (من 5 إلى 300 حرف)",
+      "excuseReasonValidation": "اكتب سبباً من 5 إلى 300 حرف.",
+      "submitExcuse": "إرسال الاعتذار",
+      "excuseSubmitFailed": "تعذر إرسال طلب الاعتذار.",
+      "excuseSubmitSuccess": "تم إرسال طلب الاعتذار بنجاح.",
       "subscriptionSummary": "ملخص الاشتراك",
       "selectStudent": "اختر الطالب",
       "currentPackage": "الباقة الحالية",
@@ -1767,6 +1779,7 @@
     "excuses": {
       "title": "طلبات اعتذار الأبناء",
       "subtitle": "تابع وقدم طلبات الاعتذار عن حضور حصص أبنائك.",
+      "timezoneLabel": "بتوقيت {{country}}",
       "selectStudentRequired": "يرجى اختيار الطالب.",
       "selectSessionRequired": "يرجى اختيار الحصة المراد الاعتذار عنها.",
       "enterReasonRequired": "يرجى كتابة سبب الاعتذار.",
@@ -1852,6 +1865,7 @@
       "sessionUnit": "حصة",
       "groupsUnit": "مجموعات",
       "groupsTitle": "المجموعات الدراسية المسجل بها",
+      "timezoneLabel": "بتوقيت {{country}}",
       "noGroups": "لا توجد مجموعات دراسية مسجلة حالياً",
       "balanceCardTitle": "تفاصيل رصيد الحصص والاشتراك",
       "usedClassesLabel": "الحصص المستهلكة",

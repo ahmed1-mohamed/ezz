@@ -36,6 +36,7 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage, onBook
   const navigate = useNavigate();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const [isGroupsExpanded, setIsGroupsExpanded] = useState(false);
+  const [failedImage, setFailedImage] = useState(null);
   const studentId = child?.student_id || child?.id || child?.user_id || '';
   const studentName = child?.name || '-';
   const avatarChar = studentName.trim().charAt(0) || 'ط';
@@ -78,10 +79,11 @@ export default function ChildCard({ child, onViewDetails, onRenewPackage, onBook
       <div className="space-y-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3.5 min-w-0">
-            {child?.image ? (
+            {child?.image && failedImage !== child.image ? (
               <img
                 src={child.image}
                 alt={studentName}
+                onError={() => setFailedImage(child.image)}
                 className="w-14 h-14 rounded-2xl object-cover shrink-0 border-2 border-emerald-500/20 shadow-xs"
               />
             ) : (

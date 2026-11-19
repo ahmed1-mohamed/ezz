@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -52,6 +53,7 @@ export default function ChildHeroCard({
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
+  const [failedImage, setFailedImage] = useState(null);
   const studentId = child?.student_id || child?.id || child?.user_id || '';
   const studentCode = studentId ? String(studentId).slice(-8) : '';
   const studentName = child?.name || '-';
@@ -115,10 +117,11 @@ export default function ChildHeroCard({
       <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-start min-w-0">
           <div className="relative">
-            {child?.image ? (
+            {child?.image && failedImage !== child.image ? (
               <img
                 src={child.image}
                 alt={studentName}
+                onError={() => setFailedImage(child.image)}
                 className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl object-cover shrink-0 border-2 border-emerald-500/20 shadow-md"
               />
             ) : (

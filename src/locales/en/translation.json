@@ -1230,6 +1230,7 @@
   },
   "testimonials": {
     "title": "Parents' Reviews",
+    "parentRole": "Parent",
     "subtitle": "Success stories from the Manarat Al-Ezz family",
     "items": [
       {
@@ -1762,6 +1763,17 @@
       "liveStreamNow": "Live Stream Now",
       "cancelClass": "Cancel Class",
       "availableUntil": "Available until {{time}}",
+      "timezoneLabel": "{{country}} time",
+      "excuseDeadlinePassed": "Excuse period has ended",
+      "excuseUnavailable": "Excuses are unavailable for this session",
+      "excuseTitle": "Apologize for Session",
+      "excusePrompt": "Choose the child and enter the reason for the excuse request.",
+      "selectExcuseStudent": "Select a child",
+      "excuseReasonPlaceholder": "Reason for excuse (5–300 characters)",
+      "excuseReasonValidation": "Enter a reason between 5 and 300 characters.",
+      "submitExcuse": "Submit excuse",
+      "excuseSubmitFailed": "Could not submit the excuse request.",
+      "excuseSubmitSuccess": "Excuse request submitted successfully.",
       "subscriptionSummary": "Subscription Summary",
       "selectStudent": "Select Student",
       "currentPackage": "Current Package",
@@ -1972,6 +1984,7 @@
     "excuses": {
       "title": "Children's Absence Requests",
       "subtitle": "View and submit absence requests for your children's lessons.",
+      "timezoneLabel": "{{country}} time",
       "selectStudentRequired": "Please select a child.",
       "selectSessionRequired": "Please select the lesson you want to excuse.",
       "enterReasonRequired": "Please enter a reason for the absence.",
@@ -2057,6 +2070,7 @@
       "sessionUnit": "session",
       "groupsUnit": "groups",
       "groupsTitle": "Enrolled Study Groups & Classes",
+      "timezoneLabel": "Time in {{country}}",
       "noGroups": "No enrolled study groups currently",
       "balanceCardTitle": "Sessions Balance & Subscription Details",
       "usedClassesLabel": "Consumed Sessions",

@@ -48,7 +48,7 @@ function formatExcuseStatus(status, t) {
   return status || t('parent.excuses.pendingStatus');
 }
 
-function formatSessionOptionLabel(sess, isRtl) {
+function formatSessionOptionLabel(sess, isRtl, t) {
   const rawGroup = sess.group ?? sess.groupName ?? sess.groupId ?? sess.subject ?? sess.subjectName;
   let groupName = '';
   if (typeof rawGroup === 'string') {
@@ -70,7 +70,12 @@ function formatSessionOptionLabel(sess, isRtl) {
   const day = sess.day || '';
   const date = sess.formattedDate || sess.date || '';
   const time = sess.timeRange || (sess.startTime ? `${sess.startTime} - ${sess.endTime || ''}` : '');
-  return `${titleWithGroup}${day ? ` | ${day}` : ''}${date ? ` (${date})` : ''}${time ? ` - ${time}` : ''}`;
+  const timezone = sess.timeZone
+    ? ` · ${t('parent.excuses.timezoneLabel', {
+      country: sess.timeZoneCountry || sess.timeZone,
+    })}`
+    : '';
+  return `${titleWithGroup}${day ? ` | ${day}` : ''}${date ? ` (${date})` : ''}${time ? ` - ${time}` : ''}${timezone}`;
 }
 
 export default function ParentExcuses() {
@@ -102,9 +107,9 @@ export default function ParentExcuses() {
         const res = await parentApi.fetchChildren();
         if (isMounted && res?.success && Array.isArray(res.data)) {
           setStudentsList(res.data);
-          if (res.data.length > 0 && !formStudentId) {
+          if (res.data.length > 0) {
             const firstId = res.data[0].student_id || res.data[0].user_id || res.data[0].id;
-            setFormStudentId(firstId);
+            setFormStudentId((currentId) => currentId || firstId);
           }
         }
       } catch (err) {
@@ -113,7 +118,7 @@ export default function ParentExcuses() {
     };
     loadStudents();
     return () => { isMounted = false; };
-  }, [formStudentId]);
+  }, []);
   const loadExcuses = useCallback(async (studentId, page) => {
     setIsLoading(true);
     try {
@@ -187,30 +192,6 @@ export default function ParentExcuses() {
       isMounted = false;
     };
   }, [selectedStudentFilter, currentPage]);
-  const loadEligibleSessions = useCallback(async (studentId) => {
-    if (!studentId) {
-      setEligibleSessions([]);
-      setFormSessionId('');
-      return;
-    }
-    setIsLoadingSessions(true);
-    try {
-      const res = await parentApi.fetchStudentEligibleSessions(studentId);
-      const sessions = res?.success && Array.isArray(res.data) ? res.data : [];
-      setEligibleSessions(sessions);
-      if (sessions.length > 0) {
-        setFormSessionId(sessions[0].id || sessions[0]._id || '');
-      } else {
-        setFormSessionId('');
-      }
-    } catch (err) {
-      console.error('Failed to load eligible sessions', err);
-      setEligibleSessions([]);
-      setFormSessionId('');
-    } finally {
-      setIsLoadingSessions(false);
-    }
-  }, []);
   useEffect(() => {
     let isMounted = true;
     async function fetchSessions() {
@@ -262,8 +243,9 @@ export default function ParentExcuses() {
   const handleFormStudentChange = useCallback((e) => {
     const newStudentId = e.target.value;
     setFormStudentId(newStudentId);
-    loadEligibleSessions(newStudentId);
-  }, [loadEligibleSessions]);
+    setEligibleSessions([]);
+    setFormSessionId('');
+  }, []);
   const handleSubmitExcuse = useCallback(async (e) => {
     e.preventDefault();
     if (!formStudentId) {
@@ -581,7 +563,7 @@ export default function ParentExcuses() {
                           const sid = sess.id || sess._id;
                           return (
                             <option key={sid} value={sid}>
-                              {formatSessionOptionLabel(sess, isRtl)}
+                              {formatSessionOptionLabel(sess, isRtl, t)}
                             </option>
                           );
                         })}
