@@ -89,12 +89,7 @@ export default React.memo(function StudentEditProfileForm({
     setIsDropdownOpen(false);
   }
   function handleSelectCountry(e) {
-    const countryId = e.target.value;
-    onFormChange('country', countryId);
-    const matched = sortedCountries.find((c) => (c.id || c._id) === countryId);
-    if (matched && (matched.dialCode || matched.phoneCode)) {
-      onFormChange('countryDialCode', matched.dialCode || matched.phoneCode);
-    }
+    onFormChange('country', e.target.value);
   }
   return (
     <form
