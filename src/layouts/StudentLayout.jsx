@@ -57,7 +57,7 @@ export default function StudentLayout() {
     }
     return user.name || t('studentDashboard.user.name', isRtl ? 'طالب' : 'Student')
   })()
-  const initialLetter = displayName ? displayName.trim().charAt(0) : (isRtl ? 'ط' : 'S')
+  const initialLetter = displayName.trim().charAt(0) || (isRtl ? 'ط' : 'S')
   const userImage = user?.image || user?.avatar || user?.photoUrl || user?.photo || null
   return (
     <div className={`flex flex-col lg:flex-row bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans ${isLiveSession ? 'h-screen max-h-screen overflow-hidden' : 'min-h-screen'}`} dir={isRtl ? 'rtl' : 'ltr'}>
@@ -136,7 +136,7 @@ export default function StudentLayout() {
             {navItems.map((item) => (
               <NavLink
                 key={item.path}
-                to={item.path}
+                to={item.transKey === 'mainWebsite' ? `/${isRtl ? 'ar' : 'en'}` : item.path}
                 end={item.end}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={({ isActive }) => `

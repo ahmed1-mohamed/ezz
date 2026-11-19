@@ -28,24 +28,24 @@ function resolveSubmissionStatus(item) {
   return 'pending';
 }
 
-function resolveEvaluationStatus(item, isSubmittedAny = true) {
+function resolveEvaluationStatus(item, isSubmittedAny = true, t) {
   if (!isSubmittedAny || item?.isEvaluated === false || item?.evaluated === false) {
-    return { isEvaluated: false, label: 'لم يتم التقييم' };
+    return { isEvaluated: false, label: t('studentDashboard.assignments.notEvaluated') };
   }
   const raw = (item?.evaluationStatus || item?.evalStatus || '').toString().trim();
   const low = raw.toLowerCase();
   // Check "not evaluated" FIRST to avoid substring match with "evaluated"
   if (low === 'not_evaluated' || low.includes('لم يتم') || low.includes('غير مقيم') || low === 'pending') {
-    return { isEvaluated: false, label: 'لم يتم التقييم' };
+    return { isEvaluated: false, label: t('studentDashboard.assignments.notEvaluated') };
   }
   if (low === 'evaluated' || low.includes('تم التقييم') || low.includes('مقيم') || low === 'done') {
-    return { isEvaluated: true, label: 'تم التقييم' };
+    return { isEvaluated: true, label: t('studentDashboard.assignments.evaluated') };
   }
   // Fallback: rely on grade
   if (item?.grade !== null && item?.grade !== undefined && item?.grade !== '' && Number(item?.grade) > 0 && (item?.teacherNotes || item?.feedback || item?.evaluatedAt)) {
-    return { isEvaluated: true, label: 'تم التقييم' };
+    return { isEvaluated: true, label: t('studentDashboard.assignments.evaluated') };
   }
-  return { isEvaluated: false, label: 'لم يتم التقييم' };
+  return { isEvaluated: false, label: t('studentDashboard.assignments.notEvaluated') };
 }
 
 function formatDate(dateStr, isRtl) {
@@ -59,10 +59,10 @@ function formatDate(dateStr, isRtl) {
   });
 }
 
-function normaliseItem(item, submissionKey, isRtl) {
+function normaliseItem(item, submissionKey, isRtl, t) {
   const submStatus = resolveSubmissionStatus({ ...item, status: submissionKey });
   const isSubmittedAny = submStatus === 'submitted' || submStatus === 'submitted_late';
-  const evalInfo = resolveEvaluationStatus(item, isSubmittedAny);
+  const evalInfo = resolveEvaluationStatus(item, isSubmittedAny, t);
   return {
     id: item.id || item._id,
     title: item.homework || item.title || item.name || (isRtl ? 'واجب' : 'Homework'),
@@ -197,7 +197,7 @@ export default function StudentAssignments() {
       // Statistics come from every endpoint — save on first successful load
       if (stats && !statistics) setStatistics(stats);
       if (stats) setStatistics(stats); // always overwrite to get latest
-      const items = Array.isArray(raw) ? raw.map((it) => normaliseItem(it, tabKey, isRtl)) : [];
+      const items = Array.isArray(raw) ? raw.map((it) => normaliseItem(it, tabKey, isRtl, t)) : [];
       setTabData((prev) => ({ ...prev, [tabKey]: items }));
       loadedRef.current.add(tabKey);
     } catch {
@@ -206,7 +206,7 @@ export default function StudentAssignments() {
     } finally {
       setTabLoading((prev) => ({ ...prev, [tabKey]: false }));
     }
-  }, [isRtl, statistics]);
+  }, [isRtl, statistics, t]);
 
   // On mount: load only the pending tab
   useEffect(() => {

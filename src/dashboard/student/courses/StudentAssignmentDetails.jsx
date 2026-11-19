@@ -778,7 +778,7 @@ export default function StudentAssignmentDetails() {
           <div className="min-h-[40vh] flex flex-col items-center justify-center space-y-4">
             <Spinner size="lg" />
             <p className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
-              {t('teacherHomework.loadingSubmissionDetails', 'جاري جلب تفاصيل الواجب...')}
+              {t('studentDashboard.assignments.loadingDetails', 'Loading assignment details...')}
             </p>
           </div>
         ) : (

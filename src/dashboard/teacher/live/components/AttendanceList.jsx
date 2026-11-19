@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Users, CheckCircle2, XCircle, Clock, HelpCircle } from 'lucide-react';
+import TeacherStudentAvatar from './TeacherStudentAvatar.jsx';
 
 const STATUS_CONFIGS = {
   present: {
@@ -125,24 +126,17 @@ export default function AttendanceList({ session }) {
         {normalizedStudents.map((student) => {
           const config = STATUS_CONFIGS[student.statusKey] || STATUS_CONFIGS.pending;
           const StatusIcon = config.icon;
-          const initial = student.name ? student.name.trim().charAt(0) : 'ط';
           return (
             <div
               key={student.id}
               className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 hover:border-[#0f7a6c]/40 transition-colors"
             >
               <div className="flex items-center gap-3 min-w-0">
-                {student.avatar ? (
-                  <img
-                    src={student.avatar}
-                    alt={student.name}
-                    className="w-9 h-9 rounded-full object-cover shrink-0 border border-slate-200 dark:border-slate-700"
-                  />
-                ) : (
-                  <div className="w-9 h-9 rounded-full bg-[#0f7a6c]/10 dark:bg-[#0f7a6c]/20 text-[#0f7a6c] dark:text-emerald-400 font-bold flex items-center justify-center shrink-0 text-sm">
-                    {initial}
-                  </div>
-                )}
+                <TeacherStudentAvatar
+                  src={student.avatar}
+                  name={student.name}
+                  className="w-9 h-9 rounded-full object-cover shrink-0 border border-slate-200 dark:border-slate-700 text-sm"
+                />
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">
                     {student.name}

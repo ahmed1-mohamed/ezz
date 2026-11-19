@@ -283,8 +283,8 @@ export default function TeacherProfile() {
     return resolveStr(profileForm.nameEn) || resolveStr(profileForm.nameAr) || resolveStr(user?.name) || t('common.teacher', 'Teacher');
   }, [isRtl, profileForm.nameAr, profileForm.nameEn, user?.name, t]);
   const initialLetter = useMemo(() => {
-    return displayName.replace(/^أ\.\s*/, '').trim().charAt(0) || 'م';
-  }, [displayName]);
+    return displayName.replace(/^أ\.\s*/, '').trim().charAt(0) || (isRtl ? 'م' : 'T');
+  }, [displayName, isRtl]);
   const tabs = useMemo(() => [
     { key: 'personal', label: t('teacherProfilePage.personalInfo', 'البيانات الشخصية'), icon: User },
     { key: 'security', label: t('teacherProfilePage.security', 'الأمان وكلمة المرور'), icon: ShieldCheck },

@@ -24,7 +24,7 @@ export default React.memo(function TeacherResourcePreviewModal({
     typeof resource.curriculum === 'object' ? resource.curriculum?.name : resource.curriculum,
     isRtl
   ) || resource.curriculumName || '-';
-  const formatStr = resource.fileFormat || resource.format || 'PDF';
+  const formatStr = resource.fileFormat || resource.format || resource.type || '—';
   const sizeStr = resource.fileSize || resource.size || '';
   const pagesCount = resource.pages || resource.pagesCount;
   const url = resource.previewUrl || resource.url || resource.fileUrl || null;

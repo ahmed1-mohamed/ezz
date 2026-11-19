@@ -177,7 +177,7 @@ export default function ParentPackageDetailsModal({
                   }`}
                 >
                   {isFamily ? <Users className="w-3 h-3" /> : <User className="w-3 h-3" />}
-                  <span>{activeData?.typeText || (isFamily ? 'باقة عائلية' : 'باقة فردية')}</span>
+                  <span>{isFamily ? t('parentPackages.familyPackageType', 'باقة عائلية') : t('parentPackages.individualPackageType', 'باقة فردية')}</span>
                 </span>
                 {countryFlag && (
                   <span className="text-sm font-bold text-slate-500 dark:text-slate-400">
@@ -265,7 +265,7 @@ export default function ParentPackageDetailsModal({
             <div className="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <span className="text-slate-400 font-medium">{t('parentPackages.packageType', 'نوع الباقة')}:</span>
               <span className="font-extrabold text-slate-800 dark:text-slate-200">
-                {activeData?.typeText || (isFamily ? 'عائلية' : 'فردية')}
+                {isFamily ? t('parentPackages.familyType', 'عائلية') : t('parentPackages.individualType', 'فردية')}
               </span>
             </div>
             <div className="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between">

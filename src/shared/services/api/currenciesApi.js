@@ -3,9 +3,12 @@ import { useMemo, useCallback } from 'react';
 import api from './axiosConfig';
 
 export const currenciesApi = {
-  fetchExchangeRate: async (params) => {
+  fetchExchangeRate: async (params, language) => {
     try {
-      const response = await api.get('/api/v1/currencies/public/exchange-rate', { params });
+      const response = await api.get('/api/v1/currencies/public/exchange-rate', {
+        params,
+        ...(language ? { headers: { 'Accept-Language': language } } : {}),
+      });
       return response.data;
     } catch (error) {
       console.warn('Failed to fetch exchange rate, fallback to default USD:', error);
@@ -32,27 +35,16 @@ export function resolveCurrencySymbol(currency) {
 }
 
 export function resolveCurrencyLabel(currency = '$', isRtl = true) {
-  const norm = String(currency || '').trim().toUpperCase();
-  const isUSD = norm === 'USD' || norm === '$' || norm === 'دولار';
-  const isEGP = norm === 'EGP' || norm === 'ج.م' || norm === 'LE' || norm === 'L.E' || norm === 'جنيه' || norm === 'جنية';
-  const isSAR = norm === 'SAR' || norm === 'ر.س' || norm === 'SR';
-  if (isUSD) return isRtl ? 'دولار' : '$';
-  if (isEGP) return isRtl ? 'ج.م' : 'EGP';
-  if (isSAR) return isRtl ? 'ر.س' : 'SAR';
-  return resolveCurrencySymbol(currency) || currency || (isRtl ? 'دولار' : '$');
+  void isRtl;
+  return String(currency || '$').trim();
 }
 
 export function formatCurrencyDisplay(amount, currency = '$', isRtl = true) {
   if (amount === null || amount === undefined || isNaN(Number(amount))) return '-';
   const num = Number(amount);
   const formattedNum = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-  const norm = String(currency || '').trim().toUpperCase();
-  const isUSD = norm === 'USD' || norm === '$' || norm === 'دولار';
-  if (isUSD) {
-    if (isRtl) return `${formattedNum} دولار`;
-    return `$${formattedNum}`;
-  }
   const label = resolveCurrencyLabel(currency, isRtl);
+  if (['$', '€', '£'].includes(label)) return `${label}${formattedNum}`;
   return `${formattedNum} ${label}`;
 }
 
@@ -62,7 +54,7 @@ export function parseExchangeRateData(res) {
   }
   const data = res.data?.data || res.data || res;
   const rawSymbol = data.symbol || data.currencySymbol || data.currency || '$';
-  const symbol = resolveCurrencySymbol(rawSymbol) || '$';
+  const symbol = String(rawSymbol).trim() || '$';
   const rawRate = data.exchangeRate ?? data.rate ?? 1;
   const exchangeRate = typeof rawRate === 'number' && rawRate > 0
     ? rawRate
@@ -149,7 +141,7 @@ export function detectCountryCode(candidates = []) {
   return 'EG';
 }
 
-export function resolveUserCurrencyInfo({ user = null, sub = null, storedInfo = null, apiResult = null } = {}) {
+export function resolveUserCurrencyInfo({ user = null, sub = null, storedInfo = null, apiResult = null, isRtl = true } = {}) {
   const countryCode = detectCountryCode([
     user?.country,
     user?.countryCode,
@@ -162,11 +154,15 @@ export function resolveUserCurrencyInfo({ user = null, sub = null, storedInfo = 
     sub?.phone,
   ]);
   const defaultInfo = DEFAULT_COUNTRY_CURRENCIES[countryCode] || DEFAULT_COUNTRY_CURRENCIES.EG;
+  const fallbackInfo = {
+    ...defaultInfo,
+    symbol: isRtl ? defaultInfo.symbol : defaultInfo.code,
+  };
   if (storedInfo?.symbol && storedInfo.symbol !== '$' && storedInfo.symbol !== 'USD' && Number(storedInfo.exchangeRate) > 0) {
     return storedInfo;
   }
-  const apiSymbol = apiResult?.symbol ? resolveCurrencySymbol(apiResult.symbol) : null;
-  const hasValidApiSymbol = apiSymbol && apiSymbol !== '$' && apiSymbol !== 'USD';
+  const apiSymbol = apiResult?.symbol ? String(apiResult.symbol).trim() : null;
+  const hasValidApiSymbol = apiSymbol && apiSymbol !== '$' && apiSymbol.toUpperCase() !== 'USD';
   const apiRate = Number(apiResult?.exchangeRate || 0);
   if (hasValidApiSymbol && apiRate > 0) {
     return {
@@ -177,13 +173,13 @@ export function resolveUserCurrencyInfo({ user = null, sub = null, storedInfo = 
   }
   if (apiRate > 1) {
     return {
-      symbol: defaultInfo.symbol,
+      symbol: fallbackInfo.symbol,
       exchangeRate: apiRate,
       code: countryCode,
     };
   }
   return {
-    symbol: defaultInfo.symbol,
+    symbol: fallbackInfo.symbol,
     exchangeRate: defaultInfo.exchangeRate,
     code: defaultInfo.code,
   };

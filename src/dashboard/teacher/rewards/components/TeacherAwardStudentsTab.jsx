@@ -85,7 +85,7 @@ export default function TeacherAwardStudentsTab() {
     return list.map((r) => {
       let nameStr = r.name;
       if (typeof nameStr === 'object' && nameStr !== null) {
-        nameStr = nameStr.ar || nameStr.en || 'مكافأة';
+        nameStr = (isRtl ? nameStr.ar || nameStr.en : nameStr.en || nameStr.ar) || t('teacher.rewardFallback', 'Reward');
       }
       let descStr = r.description;
       if (typeof descStr === 'object' && descStr !== null) {
@@ -101,7 +101,7 @@ export default function TeacherAwardStudentsTab() {
         backgroundColor: r.backgroundColor || '#FFD700',
       };
     });
-  }, [rewardsRes]);
+  }, [rewardsRes, isRtl, t]);
   const studentRewardItems = useMemo(() => {
     return rewardsList.map((r) => ({
       id: r.id,
@@ -121,10 +121,10 @@ export default function TeacherAwardStudentsTab() {
       const studentId = s.id || s._id || s.student_id || `st-${idx + 1}`;
       let name = s.name;
       if (typeof name === 'object' && name !== null) {
-        name = name.ar || name.en || `طالب ${idx + 1}`;
+        name = (isRtl ? name.ar || name.en : name.en || name.ar) || t('teacher.studentFallback', { count: idx + 1, defaultValue: `Student ${idx + 1}` });
       }
-      name = name || `طالب ${idx + 1}`;
-      const initial = name.replace(/^أ\.\s*/, '').trim().charAt(0) || 'ط';
+      name = name || t('teacher.studentFallback', { count: idx + 1, defaultValue: `Student ${idx + 1}` });
+      const initial = name.replace(/^أ\.\s*/, '').trim().charAt(0) || (isRtl ? 'ط' : 'S');
       let gName = s.groupName || s.group?.name || '';
       if (typeof gName === 'object' && gName !== null) {
         gName = gName.ar || gName.en || '';
@@ -146,7 +146,7 @@ export default function TeacherAwardStudentsTab() {
       });
     }
     return mapped;
-  }, [teacherStudentsRes, groupDetailsRes, selectedGroupId]);
+  }, [teacherStudentsRes, groupDetailsRes, selectedGroupId, isRtl, t]);
   const totalSelectedCount = useMemo(() => {
     return Object.values(studentAwards).reduce(
       (acc, list) => acc + (Array.isArray(list) ? list.length : 0),
@@ -240,7 +240,7 @@ export default function TeacherAwardStudentsTab() {
           <div className="px-4 py-2 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-[#ecd9b8] dark:border-amber-800/40 flex items-center gap-2">
             <Award size={16} className="text-[#cca332]" />
             <span className="text-xs font-bold text-[#785b12] dark:text-amber-200">
-              تم اختيار <span className="font-mono font-black text-sm text-[#00594C] dark:text-emerald-400">{totalSelectedCount}</span> / 3
+              {t('teacher.rewardsSelectedCount', { count: totalSelectedCount, defaultValue: `Selected ${totalSelectedCount}` })} / 3
             </span>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-[#cca332] text-white flex items-center justify-center font-bold shadow-xs shrink-0">
@@ -254,7 +254,7 @@ export default function TeacherAwardStudentsTab() {
             <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white flex items-center gap-2.5">
               <span>{t('teacher.awardStudentsHeader', 'منح المكافآت للطلاب')}</span>
               <span className="px-3 py-0.5 rounded-full text-xs font-bold bg-[#e8f7f3] text-[#00594C] dark:bg-emerald-950/60 dark:text-emerald-300">
-                {studentsList.length} طالب
+                {t('teacher.studentCount', { count: studentsList.length, defaultValue: `${studentsList.length} students` })}
               </span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-400 font-semibold mt-1">
@@ -418,7 +418,7 @@ export default function TeacherAwardStudentsTab() {
                 <span>{t('teacher.selectStudentAndReward', 'قائمة الطلاب وتوزيع المكافآت')}</span>
               </h3>
               <p className="text-[11px] text-slate-400 font-semibold mt-0.5">
-                انقر على اسم المكافأة أسفل اسم كل طالب لتحديدها له
+                {t('teacher.selectRewardForStudentHint', 'Click a reward below a student’s name to select it.')}
               </p>
             </div>
             {totalSelectedCount > 0 && (
@@ -428,7 +428,7 @@ export default function TeacherAwardStudentsTab() {
                 className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1.5 self-start sm:self-center transition-colors cursor-pointer"
               >
                 <RotateCcw size={13} />
-                <span>إلغاء جميع التحديدات ({totalSelectedCount})</span>
+                <span>{t('teacher.clearRewardSelections', { count: totalSelectedCount, defaultValue: `Clear all selections (${totalSelectedCount})` })}</span>
               </button>
             )}
           </div>
@@ -445,7 +445,7 @@ export default function TeacherAwardStudentsTab() {
             <div className="p-12 text-center text-slate-400 bg-slate-50 dark:bg-slate-800/40 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 space-y-2">
               <Users size={32} className="mx-auto text-slate-300 dark:text-slate-600" />
               <p className="text-sm font-bold">{t('teacher.noStudentsInActiveGroup', 'لا يوجد طلاب مطابقين في هذه المجموعة')}</p>
-              <p className="text-xs text-slate-400">تأكد من اختيار مجموعة تحتوي على طلاب أو قم بتغيير عبارة البحث</p>
+              <p className="text-xs text-slate-400">{t('teacher.noStudentsSearchHint', 'Choose a group with students or change your search.')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -481,11 +481,11 @@ export default function TeacherAwardStudentsTab() {
                         {isSelected && (
                           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#00594C] text-white flex items-center gap-1 shadow-xs">
                             <Check size={11} />
-                            <span>محدد ({awardedList.length})</span>
+                            <span>{t('teacher.selectedRewardCount', { count: awardedList.length, defaultValue: `Selected (${awardedList.length})` })}</span>
                           </span>
                         )}
                         <span className="px-2.5 py-1 rounded-xl text-xs font-mono font-bold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700">
-                          {student.totalPoints} نقطة
+                          {t('teacher.pointsCount', { count: student.totalPoints, defaultValue: `${student.totalPoints} points` })}
                         </span>
                       </div>
                     </div>
@@ -525,10 +525,10 @@ export default function TeacherAwardStudentsTab() {
           <div className="text-xs text-slate-500 dark:text-slate-400 font-semibold text-start">
             {totalSelectedCount > 0 ? (
               <span>
-                سيتم منح <strong className="text-[#00594C] dark:text-emerald-400 font-black">{totalSelectedCount}</strong> مكافأة لـ <strong className="text-slate-800 dark:text-white font-black">{awardedStudentsCount}</strong> طلاب.
+                {t('teacher.rewardsWillBeGranted', { rewards: totalSelectedCount, students: awardedStudentsCount, defaultValue: `${totalSelectedCount} rewards will be granted to ${awardedStudentsCount} students.` })}
               </span>
             ) : (
-              <span>اختر الطلاب والمكافآت لتفعيل زر المنح</span>
+              <span>{t('teacher.selectStudentsAndRewardsHint', 'Select students and rewards to enable the grant button.')}</span>
             )}
           </div>
           <div className="flex items-center gap-3">

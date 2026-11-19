@@ -16,8 +16,7 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi.js';
-import { currenciesApi, parseExchangeRateData, resolveUserCurrencyInfo, detectCountryCode } from '@/shared/services/api/currenciesApi.js';
-import { useAuth } from '@/shared/context/useAuth';
+import useParentCurrencyInfo from '@/shared/hooks/useParentCurrencyInfo';
 import ParentPackageCard from './components/ParentPackageCard.jsx';
 import ParentPackageDetailsModal from './components/ParentPackageDetailsModal.jsx';
 import ParentPackageNavTabs from './components/ParentPackageNavTabs.jsx';
@@ -61,32 +60,7 @@ export default function ParentPackages() {
     queryKey: ['parent-packages-list', queryParams],
     queryFn: () => parentPackagesApi.fetchPackages(queryParams),
   });
-  const { user } = useAuth();
-  const userCountryCode = detectCountryCode([user?.country, user?.countryCode, user?.countryId, user?.phone]);
-  const { data: exchangeRateRes } = useQuery({
-    queryKey: ['currenciesExchangeRate', userCountryCode],
-    queryFn: () => currenciesApi.fetchExchangeRate({ country: userCountryCode }),
-    staleTime: 1000 * 60 * 10,
-  });
-  const currencyInfo = useMemo(() => {
-    const parsedApi = exchangeRateRes ? parseExchangeRateData(exchangeRateRes) : null;
-    let stored = null;
-    try {
-      const saved = localStorage.getItem('user_currency_info');
-      if (saved) stored = JSON.parse(saved);
-    } catch (e) {
-      void e;
-    }
-    const resolved = resolveUserCurrencyInfo({ user, storedInfo: stored, apiResult: parsedApi });
-    if (resolved?.symbol && resolved.symbol !== '$') {
-      try {
-        localStorage.setItem('user_currency_info', JSON.stringify(resolved));
-      } catch (e) {
-        void e;
-      }
-    }
-    return resolved;
-  }, [exchangeRateRes, user]);
+  const { currencyInfo } = useParentCurrencyInfo();
   const rawPackagesList = useMemo(() => {
     if (!packagesResponse) return [];
     if (Array.isArray(packagesResponse.data)) return packagesResponse.data;

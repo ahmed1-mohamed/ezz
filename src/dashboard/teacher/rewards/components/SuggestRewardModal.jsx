@@ -36,15 +36,15 @@ const POPULAR_REWARD_EMOJIS = [
 ];
 
 const COLOR_PRESETS = [
-  { hex: '#4CAF50', name: 'أخضر زمردي' },
-  { hex: '#00594C', name: 'أخضر وقور' },
-  { hex: '#cca332', name: 'ذهبي فاخر' },
-  { hex: '#2563EB', name: 'أزرق ملكي' },
-  { hex: '#7C3AED', name: 'بنفسجي متألق' },
-  { hex: '#E11D48', name: 'وردي ياقوتي' },
-  { hex: '#D97706', name: 'عنبري مميز' },
-  { hex: '#0D9488', name: 'فيروزي راقي' },
-  { hex: '#475569', name: 'رمادي أنيق' },
+  { hex: '#4CAF50', key: 'emerald' },
+  { hex: '#00594C', key: 'deepGreen' },
+  { hex: '#cca332', key: 'gold' },
+  { hex: '#2563EB', key: 'royalBlue' },
+  { hex: '#7C3AED', key: 'violet' },
+  { hex: '#E11D48', key: 'rubyPink' },
+  { hex: '#D97706', key: 'amber' },
+  { hex: '#0D9488', key: 'turquoise' },
+  { hex: '#475569', key: 'slate' },
 ];
 
 export default function SuggestRewardModal({ isOpen, onClose, onSuccess }) {
@@ -295,7 +295,7 @@ export default function SuggestRewardModal({ isOpen, onClose, onSuccess }) {
                   value={backgroundColor}
                   onChange={(e) => setBackgroundColor(e.target.value)}
                   className="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer p-0.5 bg-transparent"
-                  title="اختر لوناً مخصصاً"
+                  title={t('teacher.chooseCustomRewardColor', 'Choose a custom color')}
                 />
               </div>
             </div>
@@ -318,7 +318,7 @@ export default function SuggestRewardModal({ isOpen, onClose, onSuccess }) {
                       style={{ backgroundColor: color.hex }}
                     />
                     <span className="text-[11px] truncate text-slate-700 dark:text-slate-300">
-                      {color.name}
+                      {t(`teacher.rewardColors.${color.key}`)}
                     </span>
                     {isSelected && <Check size={12} className="text-[#00594C] shrink-0" />}
                   </button>

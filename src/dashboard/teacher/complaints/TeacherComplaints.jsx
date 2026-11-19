@@ -343,7 +343,7 @@ export default function TeacherComplaints() {
                 setSearchQuery(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="ابحث بالعنوان أو التفاصيل..."
+              placeholder={t('teacher.complaintsSearchPlaceholder', 'Search by title or details...')}
               className={`w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all ${
                 isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'
               }`}

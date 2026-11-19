@@ -53,7 +53,11 @@ export default React.memo(function TeacherActiveCurriculumDetail({
     }
     return acc;
   }, 0) || Number(curriculum.completedLessons) || 6;
-  const resourcesCount = Array.isArray(curriculum.resources) ? curriculum.resources.length : (Number(curriculum.resourcesCount) || 7);
+  const resourcesCount = Array.isArray(curriculum.resources)
+    ? curriculum.resources.length
+    : levels.length > 0
+      ? levels.reduce((count, item) => count + (item.units || []).reduce((unitCount, unit) => unitCount + (unit.files?.length || 0), 0), 0)
+      : Number(curriculum.resourcesCount) || 0;
   const linkedGroups = Array.isArray(curriculum.linkedGroups) ? curriculum.linkedGroups : [];
   function handleToggleUnit(index) {
     setExpandedUnitIndex((prev) => (prev === index ? null : index));

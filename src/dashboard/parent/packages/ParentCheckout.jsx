@@ -18,16 +18,8 @@ import {
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
 import { parentApi } from '@/shared/services/api/parentApi';
-import { useAuth } from '@/shared/context/useAuth';
-import {
-  currenciesApi,
-  parseExchangeRateData,
-  resolvePackagePrice,
-  resolveCurrencySymbol,
-  formatCurrencyDisplay,
-  resolveUserCurrencyInfo,
-  detectCountryCode,
-} from '@/shared/services/api/currenciesApi';
+import { resolvePackagePrice, formatCurrencyDisplay } from '@/shared/services/api/currenciesApi';
+import useParentCurrencyInfo from '@/shared/hooks/useParentCurrencyInfo';
 import { showErrorToast, showSuccessToast } from '@/shared/utils/sweetAlert';
 
 function formatCurrency(amount, currency = '$', isRtl = true) {
@@ -40,7 +32,6 @@ export default function ParentCheckout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
 
   const initialPackage = location.state?.package || null;
   const packageIdParam = searchParams.get('packageId') || initialPackage?.id || '';
@@ -72,30 +63,9 @@ export default function ParentCheckout() {
   }, [allPackagesRes]);
 
   const [selectedPackageOverride, setSelectedPackageOverride] = useState(null);
-  const initialCurrencyInfo = location.state?.currencyInfo || null;
-  const userCountryCode = detectCountryCode([user?.country, user?.countryCode, user?.countryId, user?.phone]);
-  const { data: exchangeRateRes } = useQuery({
-    queryKey: ['currenciesExchangeRate', userCountryCode],
-    queryFn: () => currenciesApi.fetchExchangeRate({ country: userCountryCode }),
-    staleTime: 1000 * 60 * 10,
-    enabled: !initialCurrencyInfo,
-  });
-  const currencyInfo = useMemo(() => {
-    if (initialCurrencyInfo) return initialCurrencyInfo;
-    const parsedApi = exchangeRateRes ? parseExchangeRateData(exchangeRateRes) : null;
-    let stored = null;
-    try {
-      const saved = localStorage.getItem('user_currency_info');
-      if (saved) stored = JSON.parse(saved);
-    } catch (e) {
-      void e;
-    }
-    return resolveUserCurrencyInfo({ user, sub: selectedPackageOverride || initialPackage || fetchedPackage, storedInfo: stored, apiResult: parsedApi });
-  }, [initialCurrencyInfo, exchangeRateRes, user, selectedPackageOverride, initialPackage, fetchedPackage]);
+  const { currencyInfo } = useParentCurrencyInfo();
   const selectedPackage = selectedPackageOverride || initialPackage || fetchedPackage || (availablePackagesList.length > 0 ? availablePackagesList[0] : null);
-  const rawCurrency = selectedPackage?.currency || selectedPackage?.priceCurrency;
-  const packageCurrencySymbol = resolveCurrencySymbol(rawCurrency);
-  const currencySymbol = packageCurrencySymbol || (currencyInfo?.symbol !== '$' ? currencyInfo?.symbol : null) || '$';
+  const currencySymbol = currencyInfo?.symbol || '$';
   const effectiveCurrencyInfo = useMemo(() => ({
     symbol: currencySymbol,
     exchangeRate: Number(currencyInfo?.exchangeRate || 1),
@@ -482,7 +452,9 @@ export default function ParentCheckout() {
                     {childrenList.map((child, idx) => {
                       const childId = String(child.id || child.student_id || child.user_id || child._id || `child-${idx}`);
                       const isSelected = effectiveStudentIds.includes(childId);
-                      const childName = typeof child.name === 'object' ? (child.name.ar || child.name.en) : (child.name || child.studentName || `طالب ${idx + 1}`);
+                      const childName = typeof child.name === 'object' && child.name !== null
+                        ? (isRtl ? child.name.ar || child.name.en : child.name.en || child.name.ar)
+                        : (child.name || child.studentName || t('parentPackages.studentFallback', { count: idx + 1 }));
                       return (
                         <div
                           key={childId}
