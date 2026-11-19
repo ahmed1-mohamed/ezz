@@ -50,12 +50,7 @@ export default function HomeworkSubmissions() {
         month: 'short',
         year: 'numeric',
       }).format(date);
-      const timePart = new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-      }).format(date);
-      return `${datePart} - ${timePart}`;
+      return datePart;
     } catch {
       return date.toLocaleDateString();
     }

@@ -21,7 +21,7 @@ function ElapsedSessionTimer() {
   const secs = seconds % 60;
   const formatted = hours > 0
     ? `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
-    : `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    : `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   return (
     <span className="font-mono text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400">
       {formatted}
@@ -112,6 +112,7 @@ export default React.memo(function StudentDuringSessionView({
         className="w-full flex-1 min-h-0 h-full overflow-hidden"
         onRefreshJoinData={onRefreshJoinData}
         isRefreshing={isRefreshing}
+        showExternalJoinButton={false}
       />
     </div>
   );

@@ -13,6 +13,7 @@ import {
 import toast from 'react-hot-toast';
 import { teacherSessionsApi } from '@/shared/services/api/teacherSessionsApi';
 import { teacherEvaluationsApi } from '@/shared/services/api/teacherEvaluationsApi';
+import TeacherStudentAvatar from './TeacherStudentAvatar.jsx';
 import TeacherDateTimeDisplay from '@/shared/components/TeacherDateTimeDisplay.jsx';
 
 const RATING_STARS = [1, 2, 3, 4, 5];
@@ -56,7 +57,6 @@ function StudentEvaluationCard({ student, sessionId, onEvaluatedSuccessfully }) 
       setIsSubmitting(false);
     }
   };
-  const initial = student.name ? student.name.trim().charAt(0) : 'ط';
   if (isEvaluated) {
     return (
       <div className="p-5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between gap-3 animate-in fade-in">
@@ -85,17 +85,11 @@ function StudentEvaluationCard({ student, sessionId, onEvaluatedSuccessfully }) 
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          {student.avatar ? (
-            <img
-              src={student.avatar}
-              alt={student.name}
-              className="w-10 h-10 rounded-full object-cover shrink-0 border border-slate-200 dark:border-slate-700"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 text-[#0f7a6c] dark:text-emerald-400 font-bold flex items-center justify-center shrink-0">
-              {initial}
-            </div>
-          )}
+          <TeacherStudentAvatar
+            src={student.avatar}
+            name={student.name}
+            className="w-10 h-10 rounded-full object-cover shrink-0 border border-slate-200 dark:border-slate-700"
+          />
           <div className="min-w-0">
             <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">{student.name}</p>
             {student.code && (

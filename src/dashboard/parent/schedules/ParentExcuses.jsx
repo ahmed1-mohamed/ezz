@@ -34,6 +34,20 @@ function formatDate(dateStr, isRtl) {
   return dateStr;
 }
 
+function formatExcuseStatus(status, t) {
+  const value = String(status || '').trim().toLowerCase();
+  if (value === 'معذور' || value === 'excused' || value === 'accepted' || value === 'approved') {
+    return t('parent.excuses.excusedStatus');
+  }
+  if (value === 'مرفوض' || value === 'rejected') {
+    return t('parent.excuses.rejectedStatus');
+  }
+  if (value === 'pending' || value === 'قيد الانتظار' || value === 'قيد المراجعة') {
+    return t('parent.excuses.pendingStatus');
+  }
+  return status || t('parent.excuses.pendingStatus');
+}
+
 function formatSessionOptionLabel(sess, isRtl) {
   const rawGroup = sess.group ?? sess.groupName ?? sess.groupId ?? sess.subject ?? sess.subjectName;
   let groupName = '';
@@ -401,7 +415,7 @@ export default function ParentExcuses() {
                         ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
                         : 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 border-amber-200 dark:border-amber-800'
                     }`}>
-                      {excuseObj.status || t('parent.excuses.excusedStatus', 'معذور')}
+                      {formatExcuseStatus(excuseObj.status, t)}
                     </span>
                     <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
                       isCutoffOk
@@ -603,7 +617,7 @@ export default function ParentExcuses() {
                     disabled={isSubmittingExcuse}
                     className="px-6 py-3 rounded-2xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                   >
-                    {t('common.cancel', 'إلغاء')}
+                    {t('parent.excuses.cancelBtn', 'إلغاء')}
                   </button>
                   <button
                     type="submit"
@@ -700,7 +714,7 @@ export default function ParentExcuses() {
                   )}
                   <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <span>{t('parent.excuses.submittedAt', 'تاريخ التقديم')}: {formatDate(activeExcuseDetails.excuse?.submittedAt, isRtl)}</span>
-                    <span className="font-bold text-[#0f7a6c]">{activeExcuseDetails.excuse?.status || t('parent.excuses.excusedStatus', 'معذور')}</span>
+                    <span className="font-bold text-[#0f7a6c]">{formatExcuseStatus(activeExcuseDetails.excuse?.status, t)}</span>
                   </div>
                 </div>
               ) : null}

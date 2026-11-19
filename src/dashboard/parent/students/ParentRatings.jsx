@@ -22,6 +22,7 @@ import TeacherCard from './components/teacher_evaluations/TeacherCard';
 import TeacherEvaluationModal from './components/teacher_evaluations/TeacherEvaluationModal';
 import EvaluationsHistoryList from './components/teacher_evaluations/EvaluationsHistoryList';
 import useDebounce from '@/shared/hooks/useDebounce';
+import EvaluationAvatar from './components/teacher_evaluations/EvaluationAvatar';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -588,19 +589,17 @@ export default function ParentRatings() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-xs text-[#0f7a6c] dark:text-emerald-400">
-                          {ev.studentImage ? (
-                            <img src={ev.studentImage} alt={ev.studentName} className="w-full h-full object-cover rounded-xl" />
-                          ) : (
-                            <span>{ev.studentName.charAt(0) || 'S'}</span>
-                          )}
-                        </div>
+                        <EvaluationAvatar
+                          image={ev.studentImage}
+                          name={ev.studentName}
+                          className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-xs text-[#0f7a6c] dark:text-emerald-400"
+                        />
                         <div>
                           <span className="font-extrabold text-sm text-slate-900 dark:text-white block">
                             {ev.studentName}
                           </span>
                           <span className="text-[11px] text-slate-400 block">
-                            {t('teacherLive.teacherPrefix', 'المعلم')}: {ev.teacherName}
+                            {t('common.teacher', 'المعلم')}: {ev.teacherName}
                           </span>
                         </div>
                       </div>

@@ -194,7 +194,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
         setSavingProfile(false);
     };
     const activeName = isRtl ? (profileData.nameAr || profileData.nameEn) : (profileData.nameEn || profileData.nameAr);
-    const userInitial = activeName ? activeName.trim().charAt(0) : 'أ';
+    const userInitial = activeName?.trim().charAt(0) || (isRtl ? 'أ' : 'A');
     const fileInputRef = useRef(null);
     const handlePhotoClick = () => {
         fileInputRef.current?.click();

@@ -99,10 +99,10 @@ function getDisplayName(userObj, isRtl) {
   return String(nameVal || '')
 }
 
-const NavItem = memo(function NavItem({ item, t, onClose, isCollapsed }) {
+const NavItem = memo(function NavItem({ item, t, onClose, isCollapsed, isRtl }) {
   return (
     <NavLink
-      to={item.path}
+      to={item.transKey === 'mainWebsite' ? `/${isRtl ? 'ar' : 'en'}` : item.path}
       end={item.end}
       onClick={onClose}
       className={({ isActive }) => `
@@ -147,7 +147,7 @@ export default memo(function AdminLayout() {
     })
   }, [isSuperAdmin, hasPermission, hasAnyPermission])
   const resolvedName = useMemo(() => getDisplayName(user, isRtl), [user, isRtl])
-  const userInitial = useMemo(() => resolvedName ? resolvedName.trim().charAt(0) : 'أ', [resolvedName])
+  const userInitial = useMemo(() => resolvedName.trim().charAt(0) || (isRtl ? 'أ' : 'A'), [resolvedName, isRtl])
   const userAvatar = useMemo(() => {
     const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo
     return typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null
@@ -271,7 +271,7 @@ export default memo(function AdminLayout() {
         </div>
         <nav className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-200 dark:[&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full scrollbar-thin" aria-label={t('adminDashboard.nav.main', 'التنقل الرئيسي')}>
           {accessibleNavItems.map((item) => (
-            <NavItem key={item.path} item={item} t={t} onClose={closeMobileMenu} isCollapsed={isSidebarCollapsed} />
+            <NavItem key={item.path} item={item} t={t} onClose={closeMobileMenu} isCollapsed={isSidebarCollapsed} isRtl={isRtl} />
           ))}
         </nav>
         <div className={`p-4 border-t border-slate-100 dark:border-slate-800 shrink-0 space-y-3 bg-white dark:bg-slate-950 ${isSidebarCollapsed ? 'flex flex-col items-center' : ''}`}>

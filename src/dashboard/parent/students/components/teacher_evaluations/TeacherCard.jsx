@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Clock,
 } from 'lucide-react';
+import EvaluationAvatar from './EvaluationAvatar';
 
 function extractText(val, isRtl) {
   if (val === null || val === undefined) return '';
@@ -53,7 +54,7 @@ const TeacherCard = memo(function TeacherCard({
   const thisWeek = teacher?.thisWeekEvaluation || null;
   const childrenList = Array.isArray(teacher?.children) ? teacher.children : [];
   const specializations = Array.isArray(teacher?.specializations) ? teacher.specializations : [];
-   const teacherName = extractText(teacher?.name, isRtl) || t('teacherLive.teacherDefaultName', 'المعلم');
+   const teacherName = extractText(teacher?.name, isRtl) || t('common.teacher', 'المعلم');
   const teacherBio = extractText(teacher?.bio, isRtl);
   const teacherImage = typeof teacher?.image === 'string' && teacher.image.trim() ? teacher.image : null;
   const overallRating = Number(teacher?.rating || 0).toFixed(1);
@@ -71,17 +72,11 @@ const TeacherCard = memo(function TeacherCard({
        <div>
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 font-black text-lg text-[#0f7a6c] dark:text-emerald-400 shadow-xs">
-              {teacherImage ? (
-                <img
-                  src={teacherImage}
-                  alt={teacherName}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span>{teacherName.charAt(0) || 'T'}</span>
-              )}
-            </div>
+            <EvaluationAvatar
+              image={teacherImage}
+              name={teacherName}
+              className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-black text-lg text-[#0f7a6c] dark:text-emerald-400 shadow-xs"
+            />
             <div className="min-w-0">
               <h3 className="font-extrabold text-slate-900 dark:text-white text-base sm:text-lg leading-snug truncate">
                 {teacherName}

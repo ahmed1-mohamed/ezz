@@ -4,6 +4,7 @@ import { ArrowRight, Star, FileText, User, GraduationCap, Users, Calendar, Clock
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { parentApi } from '@/shared/services/api/parentApi';
+import { getEvaluationStatusLabel, getSubmissionStatusLabel } from './assignmentStatusLabels';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -244,12 +245,12 @@ export default function ParentAssignmentDetails() {
                   </h1>
                   {submission.submissionStatus && (
                     <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                      {submission.submissionStatus}
+                      {getSubmissionStatusLabel(submission.submissionStatus, t)}
                     </span>
                   )}
                   {submission.evaluationStatus && (
                     <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300">
-                      {submission.evaluationStatus}
+                      {getEvaluationStatusLabel(submission.evaluationStatus, t)}
                     </span>
                   )}
                 </div>

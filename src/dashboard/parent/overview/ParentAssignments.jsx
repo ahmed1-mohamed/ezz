@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { parentApi } from '@/shared/services/api/parentApi';
 import ParentPagination from './components/ParentPagination';
+import { getEvaluationStatusLabel, getSubmissionStatusLabel } from './assignmentStatusLabels';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -217,7 +218,7 @@ export default function ParentAssignments() {
                   : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border border-slate-100 dark:border-slate-800'
               }`}
             >
-              {t(`parent.assignments.filter_${tab.id}`, tab.defaultLabel)}
+              {t(`parent.assignments.filter_${tab.labelKey}`, tab.defaultLabel)}
             </button>
           );
         })}
@@ -292,6 +293,8 @@ export default function ParentAssignments() {
             const teacherName = item.teacher || item.teacherName || '-';
             const submissionStatus = item.submissionStatus || 'قيد الانتظار';
             const evaluationStatus = item.evaluationStatus || 'قيد التقييم';
+            const submissionStatusLabel = getSubmissionStatusLabel(submissionStatus, t);
+            const evaluationStatusLabel = getEvaluationStatusLabel(evaluationStatus, t);
             const rawGrade = item.grade !== null && item.grade !== undefined ? Number(item.grade) : null;
             const submittedDate = formatDate(item.submittedAt, isRtl);
             const deadlineDate = formatDate(item.deadline, isRtl);
@@ -317,11 +320,11 @@ export default function ParentAssignments() {
                         ? 'bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400 border-red-200 dark:border-red-800'
                         : 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 border-amber-200 dark:border-amber-800'
                     }`}>
-                      {submissionStatus}
+                      {submissionStatusLabel}
                     </span>
                     {evaluationStatus && (
                       <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300">
-                        {evaluationStatus}
+                        {evaluationStatusLabel}
                       </span>
                     )}
                     {grade !== null && (

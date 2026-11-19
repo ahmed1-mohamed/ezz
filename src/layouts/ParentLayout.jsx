@@ -59,7 +59,9 @@ export default function ParentLayout() {
     return user.name || t('parentDashboard.user.name', 'ولي أمر');
   })();
   const userImage = user?.image || user?.avatar || user?.photoUrl || user?.photo || null;
-  const initialLetter = displayName ? displayName.trim().charAt(0) : 'و';
+  const [failedUserImage, setFailedUserImage] = useState(null);
+  const showUserImage = Boolean(userImage) && failedUserImage !== userImage;
+  const initialLetter = displayName.trim().charAt(0) || (isRtl ? 'و' : 'P');
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#f3f7f6] dark:bg-slate-900 transition-colors duration-300 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
       <header className="lg:hidden w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 h-16 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shrink-0">
@@ -81,8 +83,8 @@ export default function ParentLayout() {
         <div className="flex items-center gap-2">
           <Link to="/dashboard/parent/settings" className="flex items-center gap-2 p-1 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-xl transition-colors">
             <div className="w-8 h-8 rounded-full bg-[#0f7a6c] text-white flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
-              {userImage ? (
-                <img src={userImage} alt={displayName} className="w-full h-full object-cover" />
+              {showUserImage ? (
+                <img src={userImage} alt={displayName} className="w-full h-full object-cover" onError={() => setFailedUserImage(userImage)} />
               ) : (
                 <span>{initialLetter}</span>
               )}
@@ -133,7 +135,7 @@ export default function ParentLayout() {
             {navItems.map((item) => (
               <NavLink
                 key={item.path}
-                to={item.path}
+                to={item.transKey === 'mainWebsite' ? `/${isRtl ? 'ar' : 'en'}` : item.path}
                 end={item.end}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={({ isActive }) => `
@@ -156,8 +158,8 @@ export default function ParentLayout() {
               className="flex items-center gap-3 p-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900 border border-transparent hover:border-slate-100 dark:hover:border-slate-800 transition-colors group cursor-pointer"
             >
               <div className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/40 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-xs shrink-0 overflow-hidden">
-                {userImage ? (
-                  <img src={userImage} alt={displayName} className="w-full h-full object-cover" />
+                {showUserImage ? (
+                  <img src={userImage} alt={displayName} className="w-full h-full object-cover" onError={() => setFailedUserImage(userImage)} />
                 ) : (
                   <span>{initialLetter}</span>
                 )}

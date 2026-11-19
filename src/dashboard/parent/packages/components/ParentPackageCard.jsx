@@ -144,8 +144,10 @@ const ParentPackageCard = memo(function ParentPackageCard({
             >
               {isFamily ? <Users className="w-3 h-3" /> : <User className="w-3 h-3" />}
               <span>
-                {packageItem?.typeText || (isFamily ? 'باقة عائلية' : 'باقة فردية')}
-                {isFamily && ` (حتى ${maxFamilyMembers} أبناء)`}
+                {isFamily
+                  ? t('parentPackages.familyPackageType', 'باقة عائلية')
+                  : t('parentPackages.individualPackageType', 'باقة فردية')}
+                {isFamily && ` (${t('parentPackages.upToChildren', { count: maxFamilyMembers })})`}
               </span>
             </span>
             <h3 className="font-bold text-slate-900 dark:text-white text-lg sm:text-xl mt-1 leading-snug">

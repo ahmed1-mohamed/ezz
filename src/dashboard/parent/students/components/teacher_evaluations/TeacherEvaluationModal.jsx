@@ -10,13 +10,14 @@ import {
   } from 'lucide-react';
 import { parentTeacherEvaluationsApi } from '@/shared/services/api/parentTeacherEvaluationsApi.js';
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert.js';
+import EvaluationAvatar from './EvaluationAvatar';
 
 const QUICK_SUGGESTIONS = [
-  'شرح مبسط وممتع للأبناء',
-  'معلم صبور ومشجع جداً',
-  'التزام تام بمواعيد الحصص',
-  'متابعة ممتازة للواجبات والتلاوة',
-  'تفاعل رائع وطريقة تحفيزية',
+  'suggestionClearExplanation',
+  'suggestionPatientTeacher',
+  'suggestionPunctuality',
+  'suggestionHomeworkFollowUp',
+  'suggestionGreatInteraction',
 ];
 
 function extractText(val, isRtl) {
@@ -63,7 +64,7 @@ export default function TeacherEvaluationModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   if (!isOpen || !teacher || typeof document === 'undefined') return null;
   const teacherId = teacher.teacherId || teacher.id || teacher._id;
-  const teacherName = extractText(teacher.name, isRtl) || t('teacherLive.teacherDefaultName', 'المعلم');
+  const teacherName = extractText(teacher.name, isRtl) || t('common.teacher', 'المعلم');
   const teacherImage = typeof teacher.image === 'string' && teacher.image.trim() ? teacher.image : null;
   const currentActiveStar = hoverRating || selectedRating;
   const starMeta = getStarLabel(currentActiveStar, t);
@@ -109,13 +110,11 @@ export default function TeacherEvaluationModal({
       >
         <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 font-black text-base text-[#0f7a6c] dark:text-emerald-400">
-              {teacherImage ? (
-                <img src={teacherImage} alt={teacherName} className="w-full h-full object-cover" />
-              ) : (
-                <span>{teacherName.charAt(0) || 'T'}</span>
-              )}
-            </div>
+            <EvaluationAvatar
+              image={teacherImage}
+              name={teacherName}
+              className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-black text-base text-[#0f7a6c] dark:text-emerald-400"
+            />
             <div>
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wide block">
                 {t('parentTeacherEval.weeklyEvalModalTitle', 'التقييم الأسبوعي للمعلم')}
@@ -158,7 +157,7 @@ export default function TeacherEvaluationModal({
                     onMouseLeave={() => setHoverRating(0)}
                     onClick={() => setSelectedRating(starIndex)}
                     className="p-1 transition-transform hover:scale-125 active:scale-95 cursor-pointer focus:outline-none"
-                    aria-label={`${starIndex} Stars`}
+                    aria-label={t('parentTeacherEval.starAriaLabel', { count: starIndex })}
                   >
                     <Star
                       className={`w-8 h-8 sm:w-9 sm:h-9 transition-colors ${
@@ -205,10 +204,10 @@ export default function TeacherEvaluationModal({
                 <button
                   type="button"
                   key={idx}
-                  onClick={() => handleQuickSuggestionClick(phrase)}
+                  onClick={() => handleQuickSuggestionClick(t(`parentTeacherEval.${phrase}`))}
                   className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-[11px] font-bold transition-colors cursor-pointer"
                 >
-                  +{phrase}
+                  +{t(`parentTeacherEval.${phrase}`)}
                 </button>
               ))}
             </div>

@@ -12,6 +12,7 @@ import {
   History,
 } from 'lucide-react';
 import { parentTeacherEvaluationsApi } from '@/shared/services/api/parentTeacherEvaluationsApi.js';
+import EvaluationAvatar from './EvaluationAvatar';
 
 function extractText(val, isRtl) {
   if (val === null || val === undefined) return '';
@@ -132,7 +133,7 @@ export default function EvaluationsHistoryList() {
             type="button"
             onClick={() => refetch()}
             className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-            title="تحديث"
+            title={t('parentTeacherEval.refresh', 'تحديث')}
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -192,7 +193,7 @@ export default function EvaluationsHistoryList() {
           {evaluationsList.map((item) => {
             const evalId = item.id || item._id;
             const teacherObj = item.teacher || {};
-            const teacherName = extractText(teacherObj.name, isRtl) || t('teacherLive.teacherDefaultName', 'المعلم');
+            const teacherName = extractText(teacherObj.name, isRtl) || t('common.teacher', 'المعلم');
             const teacherImage = typeof teacherObj.image === 'string' && teacherObj.image.trim() ? teacherObj.image : null;
             const ratingNumber = Number(item.rating || 5);
             const notesText = extractText(item.notes, isRtl);
@@ -203,13 +204,11 @@ export default function EvaluationsHistoryList() {
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3.5">
-                    <div className="w-11 h-11 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 font-bold text-sm text-[#0f7a6c] dark:text-emerald-400">
-                      {teacherImage ? (
-                        <img src={teacherImage} alt={teacherName} className="w-full h-full object-cover" />
-                      ) : (
-                        <span>{teacherName.charAt(0) || 'T'}</span>
-                      )}
-                    </div>
+                    <EvaluationAvatar
+                      image={teacherImage}
+                      name={teacherName}
+                      className="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-bold text-sm text-[#0f7a6c] dark:text-emerald-400"
+                    />
                     <div>
                       <h4 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">
                         {teacherName}

@@ -250,10 +250,10 @@ export default function CreateHomework() {
                 size={16}
                 className={questions.length > 0 ? 'text-emerald-500' : 'text-slate-400'}
               />
-              <span>{t('teacherHomework.quiz', 'الاختبار')} ({questions.length} أسئلة)</span>
+              <span>{t('teacherHomework.quiz', 'الاختبار')} ({t('teacherHomework.questionCount', '{{count}} questions', { count: questions.length })})</span>
             </div>
             <span className={questions.length > 0 ? 'text-emerald-600 font-black' : 'text-slate-400'}>
-              {questions.length > 0 ? t('teacherHomework.questionsAdded', { count: questions.length, defaultValue: `${questions.length} سؤال مضاف` }) : '0 أسئلة'}
+              {t('teacherHomework.questionsAdded', { count: questions.length, defaultValue: `${questions.length} سؤال مضاف` })}
             </span>
           </div>
           <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">

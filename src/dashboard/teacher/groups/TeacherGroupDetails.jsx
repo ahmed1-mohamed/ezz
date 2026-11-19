@@ -44,7 +44,7 @@ function StudentCard({ student, idx, isRtl, t }) {
   const studentName =
     typeof student.name === 'object' && student.name !== null
       ? (isRtl ? student.name.ar || student.name.en : student.name.en || student.name.ar)
-      : (student.name || 'طالب');
+      : (student.name || t('teacher.studentFallbackShort', 'Student'));
   const showImage = Boolean(student.image && !hasImageError);
   return (
     <div
@@ -84,7 +84,11 @@ function StudentCard({ student, idx, isRtl, t }) {
             {t('teacher.attendanceRate', 'معدل الحضور')}:
           </span>
           <span className="font-bold text-slate-900 dark:text-white">
-            {attended} من {completed} حصة ({attendancePercent}%)
+            {t('teacher.attendanceCount', '{{attended}} of {{completed}} sessions ({{percent}}%)', {
+              attended,
+              completed,
+              percent: attendancePercent,
+            })}
           </span>
         </div>
         <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
@@ -385,7 +389,7 @@ export default function TeacherGroupDetails() {
                         {t('teacher.noStudentsInGroup', 'لا يوجد طلاب مسجلون في هذه المجموعة بعد')}
                       </h3>
                       <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                        عندما يتم تسجيل الطلاب في المجموعة، ستظهر بياناتهم ومعدل حضورهم وتقييماتهم هنا.
+                        {t('teacher.groupStudentsEmptyHint', 'When students join this group, their profiles, attendance, and evaluations will appear here.')}
                       </p>
                     </div>
                   ) : (
@@ -414,7 +418,7 @@ export default function TeacherGroupDetails() {
                         {t('teacher.noSessionsInGroup', 'لا يوجد سجل حصص لهذه المجموعة حتى الآن')}
                       </h3>
                       <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                        عندما يتم إكمال حصص في هذه المجموعة، سيتم تسجيلها وحفظ بياناتها هنا.
+                        {t('teacher.groupSessionsHistoryEmptyHint', 'Completed sessions in this group will appear here.')}
                       </p>
                     </div>
                   ) : (

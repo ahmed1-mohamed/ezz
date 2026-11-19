@@ -26,7 +26,7 @@ import {
 import toast from 'react-hot-toast';
 import { teacherHomeworkApi } from '@/shared/services/api/teacherHomeworkApi.js';
 
-function normalizeFile(rawItem, index, defaultPrefix = 'ملف') {
+function normalizeFile(rawItem, index, defaultPrefix = 'File') {
   if (!rawItem) return null;
   if (typeof rawItem === 'string') {
     const rawName = decodeURIComponent(rawItem.split('/').pop()?.split('?')[0] || `${defaultPrefix}_${index + 1}`);
@@ -34,7 +34,7 @@ function normalizeFile(rawItem, index, defaultPrefix = 'ملف') {
       id: `${defaultPrefix}-${index}`,
       name: rawName,
       url: rawItem,
-      size: 'ملف مرفق',
+      size: '',
       type: rawName.toLowerCase().endsWith('.pdf') ? 'pdf' : 'file',
       isPdf: rawName.toLowerCase().endsWith('.pdf'),
     };
@@ -52,13 +52,13 @@ function normalizeFile(rawItem, index, defaultPrefix = 'ملف') {
     id: rawItem.id || rawItem._id || `${defaultPrefix}-${index}`,
     name: rawName,
     url: rawUrl,
-    size: rawItem.size || rawItem.fileSize || 'ملف مرفق',
+    size: rawItem.size || rawItem.fileSize || '',
     type: isPdf ? 'pdf' : 'file',
     isPdf,
   };
 }
 
-function FileItemCard({ doc, roleLabel, roleBadgeClass, onSelect, onOpen }) {
+function FileItemCard({ doc, roleLabel, roleBadgeClass, onSelect, onOpen, t }) {
   return (
     <div
       onClick={() => onSelect(doc)}
@@ -83,9 +83,7 @@ function FileItemCard({ doc, roleLabel, roleBadgeClass, onSelect, onOpen }) {
               {roleLabel}
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 font-semibold mt-0.5">
-            {doc.size}
-          </p>
+          {doc.size && <p className="text-[11px] text-slate-400 font-semibold mt-0.5">{doc.size}</p>}
         </div>
       </div>
       <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
@@ -98,7 +96,7 @@ function FileItemCard({ doc, roleLabel, roleBadgeClass, onSelect, onOpen }) {
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 hover:border-[#00594C] hover:text-[#00594C] transition shadow-xs cursor-pointer"
         >
           <ExternalLink size={13} />
-          <span>معاينة / فتح</span>
+          <span>{t('teacherHomework.details.previewOpen', 'Preview / Open')}</span>
         </button>
         {doc.url && doc.url !== '#' && (
           <a
@@ -108,7 +106,7 @@ function FileItemCard({ doc, roleLabel, roleBadgeClass, onSelect, onOpen }) {
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
             className="p-2 rounded-xl bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 hover:text-[#00594C] hover:border-[#00594C] transition shadow-xs"
-            title="تنزيل الملف"
+            title={t('teacherHomework.details.downloadFile', 'Download file')}
           >
             <Download size={14} />
           </a>
@@ -122,7 +120,7 @@ export default function SubmissionDetailsView({
   submission,
   onBack,
 }) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const queryClient = useQueryClient();
   const [currentTimestamp] = useState(() => Date.now());
@@ -138,16 +136,16 @@ export default function SubmissionDetailsView({
   const liveData = useMemo(() => detailsRes?.data || submission || {}, [detailsRes?.data, submission]);
   const studentName =
     typeof liveData.student === 'object'
-      ? liveData.student?.name || 'طالب'
-      : liveData.student || 'طالب';
+      ? liveData.student?.name || t('teacherHomework.details.studentFallback', 'Student')
+      : liveData.student || t('teacherHomework.details.studentFallback', 'Student');
   const homeworkTitle =
     typeof liveData.homework === 'object'
-      ? liveData.homework?.title || 'واجب مدرسي'
-      : liveData.homework || 'واجب مدرسي';
+      ? liveData.homework?.title || t('teacherHomework.details.homeworkFallback', 'Homework')
+      : liveData.homework || t('teacherHomework.details.homeworkFallback', 'Homework');
   const groupName =
     typeof liveData.group === 'object'
-      ? liveData.group?.name || 'مجموعة دراسية'
-      : liveData.group || 'مجموعة دراسية';
+      ? liveData.group?.name || t('teacherHomework.details.groupFallback', 'Study group')
+      : liveData.group || t('teacherHomework.details.groupFallback', 'Study group');
   const rawStatus = (() => {
     const st = (
       liveData.submissionStatus ||
@@ -317,12 +315,12 @@ export default function SubmissionDetailsView({
       null;
     if (!rawDate) {
       if (rawStatus === 'pending') {
-        return isRtl ? 'لم يتم التسليم بعد (في الانتظار)' : 'Pending submission';
+        return t('teacherHomework.details.pendingSubmission', 'Pending submission');
       }
       if (rawStatus === 'overdue') {
-        return isRtl ? 'لم يتم التسليم (متأخر عن الموعد)' : 'Overdue';
+        return t('teacherHomework.details.overdueSubmission', 'Overdue');
       }
-      return isRtl ? 'غير محدد' : 'Not specified';
+      return t('teacherHomework.details.notSpecified', 'Not specified');
     }
     const d = new Date(rawDate);
     if (isNaN(d.getTime())) {
@@ -343,45 +341,45 @@ export default function SubmissionDetailsView({
     } catch {
       return d.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB');
     }
-  }, [liveData, submission, rawStatus, isRtl]);
+  }, [liveData, submission, rawStatus, isRtl, t]);
   const canEvaluate = !isEvaluated && (rawStatus === 'submitted' || rawStatus === 'submitted_late');
   const statusBadge = useMemo(() => {
     if (isEvaluated) {
       const displayScore = liveData.grade ?? submission?.grade;
       const g = (displayScore !== null && displayScore !== undefined && displayScore !== '') ? `${displayScore}%` : '';
       return {
-        label: g ? `تم التقييم (${g})` : 'تم التقييم',
+        label: g ? t('teacherHomework.details.evaluatedWithGrade', { grade: g, defaultValue: `Evaluated (${g})` }) : t('teacherHomework.details.evaluated', 'Evaluated'),
         className: 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300',
         icon: CheckCircle2,
       };
     }
     if (rawStatus === 'submitted_late') {
       return {
-        label: 'تم التسليم متأخراً',
+        label: t('teacherHomework.details.submittedLate', 'Submitted late'),
         className: 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300',
         icon: Clock,
       };
     }
     if (rawStatus === 'submitted') {
       return {
-        label: 'تم التسليم',
+        label: t('teacherHomework.details.submitted', 'Submitted'),
         className: 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300',
         icon: CheckCircle2,
       };
     }
     if (rawStatus === 'overdue') {
       return {
-        label: 'متأخر (لم يسلّم)',
+        label: t('teacherHomework.details.overdueNotSubmitted', 'Overdue (not submitted)'),
         className: 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300',
         icon: AlertCircle,
       };
     }
     return {
-      label: 'في الانتظار',
+      label: t('teacherHomework.details.pending', 'Pending'),
       className: 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300',
       icon: Clock,
     };
-  }, [isEvaluated, rawStatus, liveData.grade, submission?.grade]);
+  }, [isEvaluated, rawStatus, liveData.grade, submission?.grade, t]);
   const studentTextAnswer = useMemo(() => {
     return (
       liveData.textAnswer ||
@@ -402,8 +400,8 @@ export default function SubmissionDetailsView({
       (Array.isArray(submission?.attachments) && submission.attachments) ||
       (Array.isArray(liveData.solution?.attachments) && liveData.solution.attachments) ||
       [];
-    return rawAtts.map((att, idx) => normalizeFile(att, idx, 'مرفق_طالب')).filter(Boolean);
-  }, [liveData, submission]);
+    return rawAtts.map((att, idx) => normalizeFile(att, idx, t('teacherHomework.details.studentFilePrefix', 'Student file'))).filter(Boolean);
+  }, [liveData, submission, t]);
   const teacherDocuments = useMemo(() => {
     const hw = liveData.homework || submission?.homework || liveData.homeworkData || {};
     let rawDocs = [];
@@ -420,8 +418,8 @@ export default function SubmissionDetailsView({
     } else if (submission?.document) {
       rawDocs = Array.isArray(submission.document) ? submission.document : [submission.document];
     }
-    return rawDocs.map((doc, idx) => normalizeFile(doc, idx, 'ملف_الواجب')).filter(Boolean);
-  }, [liveData, submission]);
+    return rawDocs.map((doc, idx) => normalizeFile(doc, idx, t('teacherHomework.details.homeworkFilePrefix', 'Homework file'))).filter(Boolean);
+  }, [liveData, submission, t]);
   const [selectedPreviewDoc, setSelectedPreviewDoc] = useState(null);
   const activePreviewDoc = selectedPreviewDoc || studentAttachments[0] || teacherDocuments[0] || null;
   const handleOpenFile = (fileUrl) => {
@@ -478,16 +476,16 @@ export default function SubmissionDetailsView({
           if (ans.selectedOptionIndex !== undefined && ans.selectedOptionIndex !== null) {
             const optIdx = Number(ans.selectedOptionIndex);
             if (Array.isArray(q.options) && q.options[optIdx] !== undefined) {
-              studentAnsText = `الخيار (${optIdx + 1}): ${q.options[optIdx]}`;
+              studentAnsText = t('teacherHomework.details.optionAnswer', { number: optIdx + 1, answer: q.options[optIdx], defaultValue: `Option ${optIdx + 1}: ${q.options[optIdx]}` });
             } else {
-              studentAnsText = `الخيار رقم ${optIdx + 1}`;
+              studentAnsText = t('teacherHomework.details.optionNumber', { number: optIdx + 1, defaultValue: `Option ${optIdx + 1}` });
             }
           } else if (ans.selectedOption !== undefined && ans.selectedOption !== null) {
             const optIdx = Number(ans.selectedOption);
             if (Array.isArray(q.options) && q.options[optIdx] !== undefined) {
-              studentAnsText = `الخيار (${optIdx + 1}): ${q.options[optIdx]}`;
+              studentAnsText = t('teacherHomework.details.optionAnswer', { number: optIdx + 1, answer: q.options[optIdx], defaultValue: `Option ${optIdx + 1}: ${q.options[optIdx]}` });
             } else {
-              studentAnsText = `الخيار رقم ${optIdx + 1}`;
+              studentAnsText = t('teacherHomework.details.optionNumber', { number: optIdx + 1, defaultValue: `Option ${optIdx + 1}` });
             }
           } else if (ans.answerText) {
             studentAnsText = String(ans.answerText);
@@ -502,7 +500,7 @@ export default function SubmissionDetailsView({
         return {
           ...q,
           id: qId,
-          question: q.questionText || q.question || `السؤال ${idx + 1}`,
+          question: q.questionText || q.question || t('teacherHomework.details.questionNumber', { number: idx + 1, defaultValue: `Question ${idx + 1}` }),
           points: Number(q.points) || 5,
           studentAnswer: studentAnsText || q.studentAnswer || '',
           isCorrect: ans?.isCorrect !== undefined ? ans.isCorrect : (q.isCorrect !== undefined ? q.isCorrect : null),
@@ -510,7 +508,7 @@ export default function SubmissionDetailsView({
       });
     }
     return [];
-  }, [liveData, submission]);
+  }, [liveData, submission, t]);
   const [questionResults, setQuestionResults] = useState({});
   const isQuestionResultCorrect = (q) => {
     if (questionResults[q.id] !== undefined) {
@@ -547,14 +545,14 @@ export default function SubmissionDetailsView({
   const handleSaveEvaluation = async () => {
     if (!canEvaluate) {
       if (isEvaluated) {
-        toast.error('تم تقييم هذا الواجب بالفعل ولا يمكن إعادة تقييمه');
+      toast.error(t('teacherHomework.details.alreadyEvaluated', 'This homework has already been evaluated and cannot be evaluated again.'));
       } else {
-        toast.error('لا يمكن تقييم الواجب إلا بعد تسليمه من قِبل الطالب');
+      toast.error(t('teacherHomework.details.cannotEvaluateBeforeSubmission', 'Homework can only be evaluated after the student submits it.'));
       }
       return;
     }
     if (grade === '' || isNaN(Number(grade))) {
-      toast.error('يرجى تحديد درجة صحيحة للطالب');
+      toast.error(t('teacherHomework.details.enterValidGrade', 'Enter a valid grade for the student.'));
       return;
     }
     setIsSubmitting(true);
@@ -569,15 +567,15 @@ export default function SubmissionDetailsView({
       );
       setIsSubmitting(false);
       if (res.success) {
-        toast.success(`تم حفظ تقييم الطالب ${studentName} بنجاح (${grade}/100)`);
+        toast.success(t('teacherHomework.details.gradeSaved', { student: studentName, grade, defaultValue: `Grade saved for ${studentName} (${grade}/100).` }));
         queryClient.invalidateQueries({ queryKey: ['teacher-homework-submissions'] });
         queryClient.invalidateQueries({ queryKey: ['teacher-submission-details', submissionId] });
       } else {
-        toast.error(res.message || 'تعذر حفظ التقييم');
+        toast.error(res.message || t('teacherHomework.details.gradeSaveFailed', 'Could not save the evaluation.'));
       }
     } catch {
       setIsSubmitting(false);
-      toast.error('حدث خطأ أثناء حفظ التقييم');
+      toast.error(t('teacherHomework.details.gradeSaveError', 'An error occurred while saving the evaluation.'));
     }
   };
   const StatusIcon = statusBadge.icon;
@@ -586,7 +584,7 @@ export default function SubmissionDetailsView({
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xs border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="text-start">
           <h1 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white leading-tight">
-            تسليم: {studentName}
+            {t('teacherHomework.details.submissionTitle', { student: studentName, defaultValue: `Submission: ${studentName}` })}
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 font-semibold mt-0.5">
             {homeworkTitle}
@@ -603,7 +601,7 @@ export default function SubmissionDetailsView({
           className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-500 hover:text-[#00594C] dark:text-slate-400 dark:hover:text-emerald-400 transition cursor-pointer"
         >
           <ArrowRight size={16} />
-          <span>العودة إلى قائمة التسليمات</span>
+          <span>{t('teacherHomework.details.backToSubmissions', 'Back to submissions')}</span>
         </button>
         <span
           className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold ${statusBadge.className}`}
@@ -614,7 +612,7 @@ export default function SubmissionDetailsView({
       </div>
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-6 text-start">
         <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-          معلومات التسليم
+          {t('teacherHomework.details.submissionInfo', 'Submission information')}
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-2 border-b border-slate-100 dark:border-slate-800/80 pb-6">
           <div className="flex items-center gap-3">
@@ -622,7 +620,7 @@ export default function SubmissionDetailsView({
               <Hash size={18} />
             </div>
             <div className="text-start">
-              <span className="text-[11px] font-semibold text-slate-400 block">الواجب</span>
+              <span className="text-[11px] font-semibold text-slate-400 block">{t('teacherHomework.details.homework', 'Homework')}</span>
               <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white">
                 {homeworkTitle}
               </span>
@@ -633,7 +631,7 @@ export default function SubmissionDetailsView({
               <Calendar size={18} />
             </div>
             <div className="text-start">
-              <span className="text-[11px] font-semibold text-slate-400 block">وقت التسليم</span>
+              <span className="text-[11px] font-semibold text-slate-400 block">{t('teacherHomework.details.submissionTime', 'Submission time')}</span>
               <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white">
                 {formattedSubmissionTime}
               </span>
@@ -644,7 +642,7 @@ export default function SubmissionDetailsView({
               <User size={18} />
             </div>
             <div className="text-start">
-              <span className="text-[11px] font-semibold text-slate-400 block">اسم الطالب</span>
+              <span className="text-[11px] font-semibold text-slate-400 block">{t('teacherHomework.details.studentName', 'Student name')}</span>
               <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white">
                 {studentName}
               </span>
@@ -655,7 +653,7 @@ export default function SubmissionDetailsView({
               <BookOpen size={18} />
             </div>
             <div className="text-start">
-              <span className="text-[11px] font-semibold text-slate-400 block">المجموعة</span>
+              <span className="text-[11px] font-semibold text-slate-400 block">{t('teacherHomework.details.group', 'Group')}</span>
               <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white">
                 {groupName}
               </span>
@@ -665,7 +663,7 @@ export default function SubmissionDetailsView({
         {studentTextAnswer && (
           <div className="rounded-2xl p-4 bg-[#fffbeb] border border-[#fef3c7] dark:bg-amber-950/20 dark:border-amber-900/30 text-start space-y-1">
             <div className="text-xs font-bold text-[#b45309] dark:text-amber-400 flex items-center gap-1.5">
-              <span>إجابة الطالب / ملاحظات الحل</span>
+              <span>{t('teacherHomework.details.studentAnswerNotes', 'Student answer / notes')}</span>
             </div>
             <p className="text-xs sm:text-sm font-semibold text-[#92400e] dark:text-amber-300 whitespace-pre-wrap">
               {studentTextAnswer}
@@ -680,17 +678,17 @@ export default function SubmissionDetailsView({
           <div className="flex items-center gap-2">
             <Paperclip size={18} className="text-[#00594C]" />
             <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-              مرفقات إجابة الطالب ({studentAttachments.length} ملفات)
+              {t('teacherHomework.details.studentAttachments', { count: studentAttachments.length, defaultValue: `Student answer attachments (${studentAttachments.length})` })}
             </h3>
           </div>
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
             <GraduationCap size={13} />
-            <span>ملفات الطالب (attachments)</span>
+            <span>{t('teacherHomework.details.studentFiles', 'Student files')}</span>
           </span>
         </div>
         {studentAttachments.length === 0 ? (
           <div className="rounded-2xl p-6 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/60 text-center text-xs text-slate-400 font-semibold">
-            لم يقم الطالب بإرفاق أي ملفات في هذا التسليم
+            {t('teacherHomework.details.noStudentAttachments', 'The student did not attach any files to this submission.')}
           </div>
         ) : (
           <div className="space-y-3">
@@ -698,7 +696,8 @@ export default function SubmissionDetailsView({
               <FileItemCard
                 key={doc.id}
                 doc={doc}
-                roleLabel="مرفق من الطالب"
+                roleLabel={t('teacherHomework.details.studentAttachmentLabel', 'Student attachment')}
+                t={t}
                 roleBadgeClass="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/80"
                 onSelect={(d) => setSelectedPreviewDoc(d)}
                 onOpen={handleOpenFile}
@@ -714,17 +713,17 @@ export default function SubmissionDetailsView({
           <div className="flex items-center gap-2">
             <BookOpen size={18} className="text-blue-600" />
             <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-              ملفات الواجب المرفقة من المعلم ({teacherDocuments.length} ملفات)
+              {t('teacherHomework.details.teacherAttachments', { count: teacherDocuments.length, defaultValue: `Homework files attached by the teacher (${teacherDocuments.length})` })}
             </h3>
           </div>
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
             <FileText size={13} />
-            <span>ملفات المعلم (documents)</span>
+            <span>{t('teacherHomework.details.teacherFiles', 'Teacher files')}</span>
           </span>
         </div>
         {teacherDocuments.length === 0 ? (
           <div className="rounded-2xl p-6 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/60 text-center text-xs text-slate-400 font-semibold">
-            لا توجد ملفات مرفقة مع هذا الواجب من قِبل المعلم
+            {t('teacherHomework.details.noTeacherAttachments', 'No files were attached to this homework by the teacher.')}
           </div>
         ) : (
           <div className="space-y-3">
@@ -732,7 +731,8 @@ export default function SubmissionDetailsView({
               <FileItemCard
                 key={doc.id}
                 doc={doc}
-                roleLabel="ملف الواجب (المعلم)"
+                roleLabel={t('teacherHomework.details.teacherAttachmentLabel', 'Homework file (teacher)')}
+                t={t}
                 roleBadgeClass="bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200/80"
                 onSelect={(d) => setSelectedPreviewDoc(d)}
                 onOpen={handleOpenFile}
@@ -752,7 +752,7 @@ export default function SubmissionDetailsView({
               </div>
               <div>
                 <h5 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white">
-                  معاينة الملف: {activePreviewDoc.name}
+                  {t('teacherHomework.details.previewFile', { name: activePreviewDoc.name, defaultValue: `Preview file: ${activePreviewDoc.name}` })}
                 </h5>
                 <p className="text-[11px] text-slate-400">
                   {activePreviewDoc.size}
@@ -765,7 +765,7 @@ export default function SubmissionDetailsView({
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#00594C] hover:bg-[#00473c] text-white text-xs font-bold transition shadow-xs cursor-pointer self-start sm:self-auto"
             >
               <ExternalLink size={14} />
-              <span>فتح الملف في نافذة جديدة</span>
+              <span>{t('teacherHomework.details.openFileNewWindow', 'Open file in a new window')}</span>
             </button>
           </div>
         </div>
@@ -776,7 +776,7 @@ export default function SubmissionDetailsView({
           <div className="flex items-center gap-2">
             <Mic size={18} className="text-[#00594C]" />
             <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-              التسجيلات الصوتية ({audioRecordings.length} تسجيلات)
+              {t('teacherHomework.details.audioRecordings', { count: audioRecordings.length, defaultValue: `Audio recordings (${audioRecordings.length})` })}
             </h3>
           </div>
           <div className="space-y-3">
@@ -824,7 +824,7 @@ export default function SubmissionDetailsView({
                   <button
                     type="button"
                     className="p-2 rounded-xl text-slate-400 hover:text-[#00594C] hover:bg-slate-100 dark:hover:bg-slate-700 transition"
-                    title="تنزيل التسجيل الصوتي"
+                    title={t('teacherHomework.details.downloadAudio', 'Download audio recording')}
                   >
                     <Download size={16} />
                   </button>
@@ -839,10 +839,10 @@ export default function SubmissionDetailsView({
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-100 dark:border-slate-800 space-y-5 text-start">
           <div className="flex items-center justify-between">
             <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-              أسئلة الاختبار القصير وإجابات الطالب
+              {t('teacherHomework.details.quizAnswersTitle', 'Quiz questions and student answers')}
             </h3>
             <span className="text-xs text-slate-400 font-semibold">
-              حدد صحة أو خطأ كل إجابة
+              {t('teacherHomework.details.markAnswersHint', 'Mark each answer as correct or incorrect.')}
             </span>
           </div>
           <div className="space-y-4">
@@ -856,7 +856,7 @@ export default function SubmissionDetailsView({
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
                       <span className="text-xs font-bold text-[#00594C]">
-                        السؤال {idx + 1} ({q.points || 5} درجات)
+                        {t('teacherHomework.details.questionPoints', { number: idx + 1, points: q.points || 5, defaultValue: `Question ${idx + 1} (${q.points || 5} points)` })}
                       </span>
                       <h4 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white">
                         {q.question}
@@ -875,7 +875,7 @@ export default function SubmissionDetailsView({
                             }`}
                           >
                             <CheckCircle2 size={13} />
-                            <span>صح</span>
+                            <span>{t('teacherHomework.details.correct', 'Correct')}</span>
                           </button>
                           <button
                             type="button"
@@ -887,7 +887,7 @@ export default function SubmissionDetailsView({
                             }`}
                           >
                             <XCircle size={13} />
-                            <span>خطأ</span>
+                            <span>{t('teacherHomework.details.incorrect', 'Incorrect')}</span>
                           </button>
                         </>
                       ) : (
@@ -899,17 +899,17 @@ export default function SubmissionDetailsView({
                           }`}
                         >
                           {isCorrect ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
-                          <span>{isCorrect ? 'إجابة صحيحة' : 'إجابة خاطئة'}</span>
+                          <span>{isCorrect ? t('teacherHomework.details.correctAnswer', 'Correct answer') : t('teacherHomework.details.incorrectAnswer', 'Incorrect answer')}</span>
                         </span>
                       )}
                     </div>
                   </div>
                   <div className="rounded-xl p-3 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 text-xs">
                     <span className="font-bold text-slate-500 block mb-1">
-                      إجابة الطالب:
+                      {t('teacherHomework.details.studentAnswer', 'Student answer:')}
                     </span>
                     <p className="font-semibold text-slate-800 dark:text-slate-100">
-                      {q.studentAnswer || 'لم يتم تقديم إجابة'}
+                      {q.studentAnswer || t('teacherHomework.details.noAnswer', 'No answer provided')}
                     </p>
                   </div>
                 </div>
@@ -924,43 +924,43 @@ export default function SubmissionDetailsView({
             <div className="flex items-center gap-2">
               <Star size={20} className="text-amber-500 fill-amber-500" />
               <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-                تقييم الواجب (معتمد)
+                {t('teacherHomework.details.approvedEvaluation', 'Homework evaluation (approved)')}
               </h3>
             </div>
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300">
               <CheckCircle2 size={14} />
-              <span>تم التقييم بنجاح</span>
+              <span>{t('teacherHomework.details.evaluationSuccessful', 'Evaluation completed')}</span>
             </span>
           </div>
           <div className="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-800/40 flex items-center gap-3 text-xs font-semibold text-emerald-900 dark:text-emerald-200">
             <CheckCircle2 size={18} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>تم تقييم هذا الواجب واعتماده مسبقاً من قِبل المعلم، ولا يمكن إعادة تعديل التقييم.</span>
+            <span>{t('teacherHomework.details.evaluationLocked', 'This homework was already evaluated and approved by the teacher. The evaluation cannot be changed.')}</span>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
             <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center text-center space-y-2">
               <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                الدرجة المعتمدة
+                {t('teacherHomework.details.approvedGrade', 'Approved grade')}
               </span>
               <div className="text-4xl sm:text-5xl font-black text-[#00594C] dark:text-emerald-400 tracking-tight">
                 {liveData.grade ?? submission?.grade ?? (grade !== '' ? grade : 0)}
                 <span className="text-lg font-bold text-slate-400 dark:text-slate-500 mr-1.5">/ 100</span>
               </div>
               <span className="text-[11px] font-semibold text-slate-400">
-                النسبة المئوية: {liveData.grade ?? submission?.grade ?? (grade !== '' ? grade : 0)}%
+                {t('teacherHomework.details.percentage', { grade: liveData.grade ?? submission?.grade ?? (grade !== '' ? grade : 0), defaultValue: `Percentage: ${liveData.grade ?? submission?.grade ?? (grade !== '' ? grade : 0)}%` })}
               </span>
             </div>
             <div className="lg:col-span-2 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-3">
               <div className="space-y-2">
                 <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block">
-                  ملاحظات وتغذية راجعة من المعلم
+                  {t('teacherHomework.details.teacherFeedback', 'Teacher feedback')}
                 </span>
                 <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-line">
-                  {teacherNotes || liveData.teacherNotes || submission?.teacherNotes || 'تم رصد الدرجة بنجاح دون إضافة ملاحظات نصية إضافية.'}
+                  {teacherNotes || liveData.teacherNotes || submission?.teacherNotes || t('teacherHomework.details.noTeacherFeedback', 'The grade was recorded without additional written feedback.')}
                 </p>
               </div>
               {(liveData.evaluatedAt || submission?.evaluatedAt) && (
                 <span className="text-[11px] text-slate-400 block pt-2 border-t border-slate-200/60 dark:border-slate-700/60">
-                  تاريخ التقييم: {new Date(liveData.evaluatedAt || submission?.evaluatedAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}
+                  {t('teacherHomework.details.evaluationDate', { date: new Date(liveData.evaluatedAt || submission?.evaluatedAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US'), defaultValue: `Evaluation date: ${new Date(liveData.evaluatedAt || submission?.evaluatedAt).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US')}` })}
                 </span>
               )}
             </div>
@@ -971,13 +971,13 @@ export default function SubmissionDetailsView({
           <div className="flex items-center gap-2">
             <Star size={20} className="text-slate-400" />
             <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-              التقييم
+              {t('teacherHomework.details.evaluation', 'Evaluation')}
             </h3>
           </div>
           <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/40 flex items-center gap-3 text-xs font-semibold text-amber-900 dark:text-amber-200">
             <AlertCircle size={18} className="text-amber-600 dark:text-amber-400 shrink-0" />
             <span>
-              لا يمكن تقييم هذا الواجب حالياً لأن الطالب لم يقم بالتسليم بعد (حالة التسليم: {statusBadge.label}). يمكن التقييم فقط بعد قيام الطالب بتسليم الواجب (submitted أو submitted_late).
+              {t('teacherHomework.details.cannotEvaluateStatus', { status: statusBadge.label, defaultValue: `This homework cannot be evaluated because the student has not submitted it yet (status: ${statusBadge.label}). Evaluation is available only after submission.` })}
             </span>
           </div>
         </div>
@@ -986,14 +986,14 @@ export default function SubmissionDetailsView({
           <div className="flex items-center gap-2">
             <Star size={20} className="text-amber-500 fill-amber-500" />
             <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-              التقييم
+              {t('teacherHomework.details.evaluation', 'Evaluation')}
             </h3>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
             <div className="space-y-4">
               <div className="space-y-1.5">
                 <label className="block text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
-                  الدرجة (من 100)
+                  {t('teacherHomework.details.gradeOutOf100', 'Grade (out of 100)')}
                 </label>
                 <input
                   type="number"
@@ -1001,7 +1001,7 @@ export default function SubmissionDetailsView({
                   max="100"
                   value={grade}
                   onChange={(e) => setGrade(e.target.value)}
-                  placeholder="---"
+                  placeholder={t('teacherHomework.details.gradePlaceholder', 'Enter grade')}
                   className="w-full text-center py-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-2xl font-black text-slate-800 dark:text-white focus:outline-none focus:border-[#00594C] transition"
                 />
               </div>
@@ -1037,25 +1037,25 @@ export default function SubmissionDetailsView({
                 {isSubmitting ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    <span>جاري حفظ التقييم...</span>
+                    <span>{t('teacherHomework.details.savingEvaluation', 'Saving evaluation...')}</span>
                   </>
                 ) : (
                   <>
                     <Star size={18} className="fill-white" />
-                    <span>حفظ التقييم</span>
+                    <span>{t('teacherHomework.details.saveEvaluation', 'Save evaluation')}</span>
                   </>
                 )}
               </button>
             </div>
             <div className="space-y-1.5 h-full flex flex-col">
               <label className="block text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
-                الملاحظات
+                {t('teacherHomework.details.notes', 'Notes')}
               </label>
               <textarea
                 value={teacherNotes}
                 onChange={(e) => setTeacherNotes(e.target.value)}
                 rows={10}
-                placeholder="اكتب تغذية راجعة للطالب..."
+                placeholder={t('teacherHomework.details.feedbackPlaceholder', 'Write feedback for the student...')}
                 className="w-full flex-1 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#00594C] transition resize-none min-h-[220px]"
               />
             </div>

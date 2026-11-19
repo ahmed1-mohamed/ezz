@@ -23,7 +23,10 @@ export default React.memo(function StudentProfileHeader({
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
   const studentName = resolveName(student?.name, isRtl) || (isRtl ? student?.nameAr : student?.nameEn) || '-';
-  const initial = (studentName === '-' ? 'ط' : studentName).trim().charAt(0);
+  const initialName = studentName === '-'
+    ? (isRtl ? student?.nameAr || student?.nameEn : student?.nameEn || student?.nameAr)
+    : studentName;
+  const initial = initialName?.trim().charAt(0) || (isRtl ? 'ط' : 'S');
   const imageUrl = student?.image || student?.photoUrl || student?.avatar;
   const email = student?.email || '-';
   const resolvedLevel = academicLevel && academicLevel !== '-'

@@ -18,8 +18,15 @@ function getResourceTypeInfo(type, t) {
       iconClass: 'bg-cyan-50 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400',
     };
   }
+  if (norm === 'worksheet' || norm.includes('ورقة عمل')) {
+    return {
+      label: t('teacherCurricula.typeWorksheet', 'ورقة عمل'),
+      icon: FileText,
+      iconClass: 'bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400',
+    };
+  }
   return {
-    label: t('teacherCurricula.typeWorksheet', 'ورقة عمل'),
+    label: norm ? (t(`teacherCurricula.fileTypes.${norm}`, norm)) : t('teacherCurricula.typeFile', 'ملف'),
     icon: FileText,
     iconClass: 'bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400',
   };
@@ -95,10 +102,18 @@ export default React.memo(function TeacherResourcesTable({
                         .join('، ')
                     : (resource.benefitingGroups || '-');
                   const pagesCount = resource.pages || resource.pagesCount;
-                  const pagesStr = pagesCount ? `${pagesCount} ${t('teacherCurricula.pages', 'صفحة')} ، ` : '';
                   const sizeStr = resource.fileSize || resource.size || '';
-                  const formatStr = resource.fileFormat || resource.format || 'PDF';
-                  const metaSubtext = `${pagesStr}${sizeStr} • ${formatStr}`.trim();
+                  const formatStr = resource.fileFormat || resource.format || '';
+                  const metaSubtext = [
+                    pagesCount && `${pagesCount} ${t('teacherCurricula.pages', 'صفحة')}`,
+                    sizeStr,
+                    formatStr,
+                    resource.levelName,
+                    resource.unitName,
+                  ]
+                    .filter(Boolean)
+                    .join(' • ');
+                  const fileUrl = resource.downloadUrl || resource.url || resource.fileUrl || resource.previewUrl;
                   return (
                     <tr
                       key={resource.id || resource._id || idx}
@@ -138,22 +153,28 @@ export default React.memo(function TeacherResourcesTable({
                       </td>
                       <td className="px-6 py-4.5">
                         <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => onPreview(resource)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                          >
-                            <Eye size={13} />
-                            <span>{t('teacherCurricula.preview', 'معاينة')}</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => onDownload(resource)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                          >
-                            <Download size={13} />
-                            <span>{t('teacherCurricula.download', 'تنزيل')}</span>
-                          </button>
+                          {fileUrl ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => onPreview(resource)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                              >
+                                <Eye size={13} />
+                                <span>{t('teacherCurricula.preview', 'معاينة')}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => onDownload(resource)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                              >
+                                <Download size={13} />
+                                <span>{t('teacherCurricula.download', 'تنزيل')}</span>
+                              </button>
+                            </>
+                          ) : (
+                            <span className="text-xs text-slate-400">{t('teacherCurricula.fileUnavailable', 'لا يوجد ملف مرفق')}</span>
+                          )}
                         </div>
                       </td>
                     </tr>

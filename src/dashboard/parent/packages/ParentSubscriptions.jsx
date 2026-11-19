@@ -19,15 +19,8 @@ import {
   Users,
 } from 'lucide-react';
 import { parentPackagesApi } from '@/shared/services/api/parentPackagesApi';
-import {
-  currenciesApi,
-  parseExchangeRateData,
-  resolvePackagePrice,
-  formatCurrencyDisplay,
-  resolveUserCurrencyInfo,
-  detectCountryCode,
-} from '@/shared/services/api/currenciesApi';
-import { useAuth } from '@/shared/context/useAuth';
+import { resolvePackagePrice, formatCurrencyDisplay } from '@/shared/services/api/currenciesApi';
+import useParentCurrencyInfo from '@/shared/hooks/useParentCurrencyInfo';
 import ParentPackageNavTabs from './components/ParentPackageNavTabs';
 import ParentInvoiceModal from './components/ParentInvoiceModal';
 import Spinner from '@/shared/components/Spinner';
@@ -109,31 +102,7 @@ export default function ParentSubscriptions() {
     }
     return params;
   }, [currentPage, selectedStatus, debouncedSearch]);
-  const { user } = useAuth();
-  const userCountryCode = useMemo(() => {
-    return detectCountryCode([
-      user?.country,
-      user?.countryCode,
-      user?.countryId,
-      user?.phone,
-    ]);
-  }, [user]);
-  const { data: exchangeRateRes } = useQuery({
-    queryKey: ['currenciesExchangeRate', userCountryCode],
-    queryFn: () => currenciesApi.fetchExchangeRate({ country: userCountryCode }),
-    staleTime: 1000 * 60 * 10,
-  });
-  const currencyInfo = useMemo(() => {
-    const parsedApi = exchangeRateRes ? parseExchangeRateData(exchangeRateRes) : null;
-    let stored = null;
-    try {
-      const saved = localStorage.getItem('user_currency_info');
-      if (saved) stored = JSON.parse(saved);
-    } catch (e) {
-      void e;
-    }
-    return resolveUserCurrencyInfo({ user, storedInfo: stored, apiResult: parsedApi });
-  }, [exchangeRateRes, user]);
+  const { currencyInfo } = useParentCurrencyInfo();
   const {
     data: subscriptionsRes,
     isLoading,

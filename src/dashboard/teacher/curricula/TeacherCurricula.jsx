@@ -11,125 +11,6 @@ import TeacherResourcesTable from './components/TeacherResourcesTable.jsx';
 import TeacherCurriculumPlanModal from './components/TeacherCurriculumPlanModal.jsx';
 import TeacherResourcePreviewModal from './components/TeacherResourcePreviewModal.jsx';
 
-const DEFAULT_CURRICULA = [
-  {
-    id: 'cur-1',
-    name: 'التجويد الميسر — المستوى الأول',
-    level: 'متوسط',
-    statusLabel: 'قيد التدريس',
-    unitsCount: 4,
-    totalLessons: 16,
-    completedLessons: 6,
-    resourcesCount: 7,
-    progress: 38,
-    linkedGroups: [
-      { id: 'g1', name: 'مجموعة التجويد الأولى' },
-      { id: 'g2', name: 'مجموعة التجويد الثانية' },
-    ],
-    units: [
-      {
-        name: 'الوحدة الأولى: آداب التلاوة والاستعاذة والبسملة',
-        lessonsCount: 3,
-        status: 'completed',
-      },
-      {
-        name: 'الوحدة الثانية: أحكام النون الساكنة والتنوين',
-        lessonsCount: 4,
-        status: 'inProgress',
-        currentLessonHint: 'الدرس الحالي: الإظهار الحلقي • التالي: الإدغام بغنة وبغير غنة',
-      },
-      {
-        name: 'الوحدة الثالثة: أحكام الميم الساكنة',
-        lessonsCount: 3,
-        status: 'notStarted',
-      },
-      {
-        name: 'الوحدة الرابعة: المدود وتطبيقاتها',
-        lessonsCount: 6,
-        status: 'notStarted',
-      },
-    ],
-  },
-  {
-    id: 'cur-2',
-    name: 'حفظ جزء عم ومراجعته',
-    level: 'مبتدئ',
-    statusLabel: 'قيد التدريس',
-    unitsCount: 6,
-    totalLessons: 30,
-    completedLessons: 12,
-    resourcesCount: 5,
-    progress: 40,
-    linkedGroups: [
-      { id: 'g3', name: 'حلقة الحفظ الأولى' },
-      { id: 'g4', name: 'حلقة الحفظ الثانية' },
-    ],
-    units: [
-      { name: 'الوحدة الأولى: سورة النبأ والنازعات', lessonsCount: 5, status: 'completed' },
-      { name: 'الوحدة الثانية: سورة عبس والتكوير', lessonsCount: 5, status: 'inProgress' },
-      { name: 'الوحدة الثالثة: سورة الانفطار والمطففين', lessonsCount: 5, status: 'notStarted' },
-      { name: 'الوحدة الرابعة: سورة الانشقاق والبروج', lessonsCount: 5, status: 'notStarted' },
-      { name: 'الوحدة الخامسة: سورة الطارق والأعلى والغاشية', lessonsCount: 5, status: 'notStarted' },
-      { name: 'الوحدة السادسة: من الفجر إلى الناس', lessonsCount: 5, status: 'notStarted' },
-    ],
-  },
-  {
-    id: 'cur-3',
-    name: 'إتقان التلاوة ومخارج الحروف',
-    level: 'متقدم',
-    statusLabel: 'قيد التدريس',
-    unitsCount: 5,
-    totalLessons: 20,
-    completedLessons: 4,
-    resourcesCount: 6,
-    progress: 20,
-    linkedGroups: [
-      { id: 'g5', name: 'حلقة الإتقان' },
-      { id: 'g6', name: 'مجموعة التلاوة الخاصة' },
-    ],
-    units: [
-      { name: 'الوحدة الأولى: مخارج الحروف العامة والخاصة', lessonsCount: 4, status: 'completed' },
-      { name: 'الوحدة الثانية: صفات الحروف اللازمة', lessonsCount: 4, status: 'notStarted' },
-      { name: 'الوحدة الثالثة: صفات الحروف العارضة', lessonsCount: 4, status: 'notStarted' },
-      { name: 'الوحدة الرابعة: أحكام الوقف والابتداء', lessonsCount: 4, status: 'notStarted' },
-      { name: 'الوحدة الخامسة: تطبيقات عملية على المصحف', lessonsCount: 4, status: 'notStarted' },
-    ],
-  },
-];
-
-const DEFAULT_RESOURCES = [
-  {
-    id: 'res-1',
-    name: 'التجويد الميسر',
-    type: 'كتاب',
-    pages: 84,
-    fileSize: '4.2 م.ب',
-    fileFormat: 'PDF',
-    curriculum: 'التجويد الميسر',
-    linkedGroups: [{ id: 'g1', name: 'مجموعتا التجويد الأولى والثانية' }],
-  },
-  {
-    id: 'res-2',
-    name: 'تحفة الأطفال',
-    type: 'مرجع',
-    pages: 24,
-    fileSize: '1.8 م.ب',
-    fileFormat: 'PDF',
-    curriculum: 'التجويد الميسر',
-    linkedGroups: [{ id: 'g1', name: 'مجموعتا التجويد الأولى والثانية' }],
-  },
-  {
-    id: 'res-3',
-    name: 'تدريبات أحكام النون الساكنة',
-    type: 'ورقة عمل',
-    pages: 8,
-    fileSize: '640 ك.ب',
-    fileFormat: 'PDF',
-    curriculum: 'التجويد الميسر',
-    linkedGroups: [{ id: 'g1', name: 'مجموعتا التجويد الأولى والثانية' }],
-  },
-];
-
 export default function TeacherCurricula() {
   const { user } = useAuth();
   const { t, i18n } = useTranslation();
@@ -158,30 +39,44 @@ export default function TeacherCurricula() {
     if (Array.isArray(responseData?.data)) list = responseData.data;
     else if (Array.isArray(responseData?.curricula)) list = responseData.curricula;
     else if (Array.isArray(responseData)) list = responseData;
-    if (list.length === 0) return DEFAULT_CURRICULA;
     return list;
   }, [responseData]);
+  const allResources = useMemo(() => {
+    const res = rawCurricula.flatMap((cur) =>
+      (Array.isArray(cur.levels) ? cur.levels : []).flatMap((level) =>
+        (Array.isArray(level.units) ? level.units : []).flatMap((unit) =>
+          (Array.isArray(unit.files) ? unit.files : []).map((file) => ({
+            ...file,
+            id: file.fileId || file.id || file._id,
+            curriculum: cur.name,
+            levelName: level.name,
+            unitName: unit.name,
+            linkedGroups: cur.groups || [],
+          }))
+        )
+      )
+    );
+    const topLevel = Array.isArray(responseData?.resources) ? responseData.resources : [];
+    const unique = new Map();
+    [...res, ...topLevel].forEach((resource, index) => {
+      const key = resource.fileId || resource.id || resource._id || resource.url || `${resource.name || 'resource'}-${index}`;
+      if (!unique.has(String(key))) unique.set(String(key), resource);
+    });
+    return [...unique.values()];
+  }, [rawCurricula, responseData]);
   const statistics = useMemo(() => {
     const stats = responseData?.statistics || responseData?.stats || {};
+    const groupIds = new Set(rawCurricula.flatMap((curriculum) =>
+      (Array.isArray(curriculum.groups) ? curriculum.groups : []).map((group) => group.id || group._id).filter(Boolean)
+    ));
+    const booksCount = allResources.filter((resource) => String(resource.type || '').toLowerCase() === 'book').length;
     return {
       total: stats.total ?? rawCurricula.length,
-      books: stats.books ?? stats.booksCount ?? 10,
-      support: stats.supportMaterials ?? stats.support ?? 8,
-      linkedGroups: stats.linkedGroups ?? 6,
+      books: stats.books ?? stats.booksCount ?? booksCount,
+      support: stats.supportMaterials ?? stats.support ?? allResources.length - booksCount,
+      linkedGroups: stats.linkedGroups ?? groupIds.size,
     };
-  }, [responseData, rawCurricula]);
-  const allResources = useMemo(() => {
-    const res = [];
-    rawCurricula.forEach((cur) => {
-      if (Array.isArray(cur.resources)) {
-        cur.resources.forEach((r) => res.push({ ...r, curriculum: cur.name }));
-      }
-    });
-    const topLevel = Array.isArray(responseData?.resources) ? responseData.resources : [];
-    const merged = [...res, ...topLevel];
-    if (merged.length === 0) return DEFAULT_RESOURCES;
-    return merged;
-  }, [rawCurricula, responseData]);
+  }, [responseData, rawCurricula, allResources]);
   const activeCurriculum = useMemo(() => {
     if (rawCurricula.length === 0) return null;
     if (selectedCurriculumId) {

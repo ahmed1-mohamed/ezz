@@ -23,7 +23,11 @@ export default React.memo(function TeacherCurriculumSidebarCard({
     ? (levels.reduce((acc, l) => acc + (Array.isArray(l.units) ? l.units.length : 0), 0) || levels.length)
     : (Array.isArray(curriculum.units) ? curriculum.units.length : (Number(curriculum.unitsCount) || 6));
   const totalLessons = Number(curriculum.totalLessons ?? curriculum.lessonsCount ?? 30);
-  const resourcesCount = Array.isArray(curriculum.resources) ? curriculum.resources.length : (Number(curriculum.resourcesCount) || 5);
+  const resourcesCount = Array.isArray(curriculum.resources)
+    ? curriculum.resources.length
+    : levels.length > 0
+      ? levels.reduce((count, item) => count + (item.units || []).reduce((unitCount, unit) => unitCount + (unit.files?.length || 0), 0), 0)
+      : Number(curriculum.resourcesCount) || 0;
   const linkedGroups = Array.isArray(curriculum.linkedGroups) ? curriculum.linkedGroups : [];
   const groupsNames = linkedGroups
     .map((g) => resolveName(typeof g === 'object' ? g.name : g, isRtl))

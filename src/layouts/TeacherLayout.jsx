@@ -38,7 +38,10 @@ export default function TeacherLayout() {
     }
     return user.name || t('teacher.teacherFallback', 'معلم');
   })();
-  const teacherInitial = teacherName ? teacherName.trim().charAt(0) : 'م';
+  const teacherAvatarName = (typeof user?.name === 'object' && user.name !== null
+    ? (isRtl ? user.name.ar || user.name.en : user.name.en || user.name.ar)
+    : (isRtl ? user?.nameAr || user?.nameEn : user?.nameEn || user?.nameAr)) || teacherName;
+  const teacherInitial = teacherAvatarName.trim().charAt(0) || (isRtl ? 'م' : 'T');
   const navItems = [
     {
       path: '/dashboard/teacher',
@@ -114,6 +117,7 @@ export default function TeacherLayout() {
     {
       path: '/',
       icon: Globe,
+      transKey: 'mainWebsite',
       label: t('common.mainWebsite', 'الموقع الرئيسي'),
     },
   ];
@@ -160,7 +164,7 @@ export default function TeacherLayout() {
             {navItems.map((item) => (
               <NavLink
                 key={item.path}
-                to={item.path}
+                to={item.transKey === 'mainWebsite' ? `/${isRtl ? 'ar' : 'en'}` : item.path}
                 end={item.end}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={({ isActive }) => `

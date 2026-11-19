@@ -124,6 +124,7 @@ export default function ParentSettings() {
     avatar: '',
     imageFile: null,
   });
+  const [failedAvatarUrl, setFailedAvatarUrl] = useState(null);
   const [passwordForm, setPasswordForm] = useState({
     current: '',
     newPassword: '',
@@ -382,7 +383,9 @@ export default function ParentSettings() {
     );
   }
   const displayName = profileForm.nameAr || profileForm.nameEn || t('parentDashboard.user.name', 'ولي الأمر');
-  const avatarLetter = (displayName.charAt(0) || 'أ').toUpperCase();
+  const avatarInitialName = isRtl ? profileForm.nameAr || profileForm.nameEn : profileForm.nameEn || profileForm.nameAr;
+  const avatarLetter = (avatarInitialName?.trim().charAt(0) || (isRtl ? 'و' : 'P')).toUpperCase();
+  const showAvatarImage = Boolean(profileForm.avatar) && failedAvatarUrl !== profileForm.avatar;
   return (
     <motion.div
       variants={containerVariants}
@@ -426,11 +429,12 @@ export default function ParentSettings() {
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 pb-8 mb-8 border-b border-slate-100 dark:border-slate-800">
           <div className="relative group">
             <div className="w-24 h-24 rounded-3xl bg-[#0f7a6c] text-white flex items-center justify-center text-3xl font-black shadow-md overflow-hidden border-4 border-white dark:border-slate-800 shrink-0">
-              {profileForm.avatar ? (
+              {showAvatarImage ? (
                 <img
                   src={profileForm.avatar}
                   alt={displayName}
                   className="w-full h-full object-cover"
+                  onError={() => setFailedAvatarUrl(profileForm.avatar)}
                 />
               ) : (
                 <span>{avatarLetter}</span>
