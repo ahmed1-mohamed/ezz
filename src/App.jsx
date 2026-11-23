@@ -58,7 +58,14 @@ function App() {
     <div dir={isArabic ? 'rtl' : 'ltr'} className="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
       <ScrollManager />
       <IndexingPolicy />
-      <AppErrorBoundary>
+      <AppErrorBoundary
+        isRtl={isArabic}
+        homePath={isArabic ? '/ar' : '/en'}
+        errorTitle={i18n.t('errorBoundary.title')}
+        errorDescription={i18n.t('errorBoundary.description')}
+        reloadLabel={i18n.t('errorBoundary.reload')}
+        homeLabel={i18n.t('errorBoundary.home')}
+      >
         <AppRoutes key={currentLang} />
       </AppErrorBoundary>
       <Toaster 

@@ -45,7 +45,7 @@ export const showNotesPrompt = async ({ isRtl = true, title = '', confirmText = 
   const result = await Swal.fire({
     title,
     input: 'textarea',
-    inputPlaceholder: isRtl ? 'اكتب ملاحظاتك هنا...' : 'Write your notes here...',
+    inputPlaceholder: isRtl ? 'اكتب ملاحظاتك هنا (اختياري)...' : 'Write your notes here (optional)...',
     inputAttributes: { dir: isRtl ? 'rtl' : 'ltr' },
     showCancelButton: true,
     confirmButtonColor: confirmColor,
@@ -53,7 +53,6 @@ export const showNotesPrompt = async ({ isRtl = true, title = '', confirmText = 
     confirmButtonText: confirmText || (isRtl ? 'تأكيد' : 'Confirm'),
     cancelButtonText: isRtl ? 'إلغاء' : 'Cancel',
     reverseButtons: isRtl,
-    inputValidator: (value) => (value && value.trim() ? null : (isRtl ? 'الملاحظات مطلوبة' : 'Notes are required')),
     customClass: {
       container: '!z-[999999]',
       popup: 'dark:bg-slate-900 dark:border dark:border-slate-800 rounded-3xl shadow-2xl',
@@ -61,7 +60,7 @@ export const showNotesPrompt = async ({ isRtl = true, title = '', confirmText = 
       input: 'dark:bg-slate-800 dark:text-white',
     }
   });
-  return result.isConfirmed ? result.value.trim() : null;
+  return result.isConfirmed ? String(result.value || '').trim() : null;
 };
 
 let lastSuccessMessage = '';

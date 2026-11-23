@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import { studentsApi } from '@/shared/services/api/studentsApi'
-import { adminGroupsApi } from '@/shared/services/api/adminGroupsApi'
 import StudentDetailsScreen from './components/StudentDetailsScreen'
 import Spinner from '@/shared/components/Spinner'
 import { getApiErrorText } from '@/shared/utils/errorHandler'
@@ -61,22 +60,6 @@ export default function AdminStudentDetails() {
       throw err
     }
   }
-  const handleChangeGroup = async (currentGroupId, targetGroupId) => {
-    try {
-      const studentId = student?.student_id || student?.id || student?._id || id
-      if (currentGroupId) {
-        await adminGroupsApi.transferStudent(currentGroupId, { student: studentId, targetGroup: targetGroupId })
-      } else {
-        await adminGroupsApi.addStudentToGroup(targetGroupId, studentId)
-      }
-      await refreshStudent()
-      toast.success(isRtl ? 'تم تغيير المجموعة بنجاح' : 'Group changed successfully')
-    } catch (err) {
-      toast.error(getApiErrorText(err, isRtl ? 'فشل تغيير المجموعة' : 'Failed to change group'))
-      console.error('Failed to change student group:', err)
-      throw err
-    }
-  }
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -122,7 +105,6 @@ export default function AdminStudentDetails() {
         onEdit={() => navigate(`/dashboard/admin/students/${id}/edit`)}
         onToggleStatus={handleToggleStatus}
         isTogglingStatus={isTogglingStatus}
-        onChangeGroup={handleChangeGroup}
         onAddSessions={handleAddSessions}
       />
     </div>

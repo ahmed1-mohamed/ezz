@@ -1,9 +1,12 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Search, Calendar, ChevronLeft, ChevronRight, X, CalendarPlus } from 'lucide-react'
 import { adminSessionsApi } from '@/shared/services/api/adminSessionsApi'
 import { teachersApi } from '@/shared/services/api/teachersApi'
+import { adminGroupsApi } from '@/shared/services/api/adminGroupsApi'
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
+import useAdminGroupTimeZone from '@/dashboard/admin/groups/hooks/useAdminGroupTimeZone'
+import { getTimeZonePlace } from '@/dashboard/admin/groups/utils/groupTimeUtils'
 import Spinner from '@/shared/components/Spinner'
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert'
 import StatCard from './components/StatCard'
@@ -14,6 +17,7 @@ import CreateSessionModal from './components/CreateSessionModal'
 const STATUS_TABS = [
   { key: 'all', label: 'الكل' },
   { key: 'scheduled', label: 'مجدولة' },
+  { key: 'rescheduled', label: 'معاد جدولتها' },
   { key: 'live', label: 'مباشرة الآن' },
   { key: 'completed', label: 'مكتملة' },
   { key: 'cancelled', label: 'ملغاة' },
@@ -22,6 +26,12 @@ const STATUS_TABS = [
 export default function AdminSessions() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n?.language?.startsWith('ar') ?? true
+  const {
+    timeZone: adminTimeZone,
+    countryName: adminCountryName,
+    place: adminTimeZonePlace,
+    isResolved: adminTimeZoneResolved,
+  } = useAdminGroupTimeZone()
   const { hasPermission, isSuperAdmin } = useAdminPermissions()
   const canCreate = hasPermission('sessions.create_extra') || hasPermission('sessions.write') || isSuperAdmin
   const [apiStats, setApiStats] = useState(null)
@@ -38,6 +48,8 @@ export default function AdminSessions() {
   const [expandedPanel, setExpandedPanel] = useState(null)
   const [monitoringSession, setMonitoringSession] = useState(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [groupTimeZones, setGroupTimeZones] = useState({})
+  const requestedGroupTimeZones = useRef(new Set())
   const itemsPerPage = 10
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -119,6 +131,40 @@ export default function AdminSessions() {
       isMounted = false
     }
   }, [loadSessions])
+  useEffect(() => {
+    if (adminTimeZone) return undefined
+    let isMounted = true
+    const groupIds = [...new Set(sessions
+      .filter((session) => !session.groupTimeZone && session.groupId)
+      .map((session) => String(session.groupId)))]
+      .filter((id) => !requestedGroupTimeZones.current.has(id))
+    groupIds.forEach((id) => requestedGroupTimeZones.current.add(id))
+    if (!groupIds.length) return undefined
+
+    Promise.all(groupIds.map(async (id) => {
+      try {
+        const response = await adminGroupsApi.fetchGroupByIdRaw(id)
+        const group = response?.data?.data || response?.data || response
+        const country = group?.country
+        const timezone = country?.timezone || country?.country?.timezone || ''
+        const rawName = country?.name
+        const countryName = typeof rawName === 'object'
+          ? (isRtl ? rawName.ar || rawName.en : rawName.en || rawName.ar)
+          : rawName || ''
+        return [id, { timeZone: timezone, countryName, loaded: true }]
+      } catch (error) {
+        console.warn(`Failed to load timezone for session group ${id}:`, error)
+        return [id, { timeZone: '', countryName: '', loaded: true }]
+      }
+    })).then((entries) => {
+      if (!isMounted) return
+      setGroupTimeZones((current) => ({
+        ...current,
+        ...Object.fromEntries(entries),
+      }))
+    })
+    return () => { isMounted = false }
+  }, [adminTimeZone, adminTimeZoneResolved, isRtl, sessions])
   const stats = useMemo(() => {
     const list = Array.isArray(sessions) ? sessions : []
     const live = Number(apiStats?.in_progress ?? list.filter((s) => s.status === 'live').length) || 0
@@ -151,21 +197,9 @@ export default function AdminSessions() {
     const res = await adminSessionsApi.rescheduleSession(sessionId, payload)
     if (res && res.success) {
       showSuccessToast(t('adminDashboard.sessions.rescheduleSuccess', 'تمت إعادة جدولة الحصة بنجاح'), isRtl)
-      setSessions((prev) =>
-        prev.map((s) => {
-          if (s.id !== sessionId) return s
-          const timeDisplay = payload.endTime ? `${payload.startTime} - ${payload.endTime}` : payload.startTime
-          return {
-            ...s,
-            date: payload.date,
-            startTime: payload.startTime,
-            endTime: payload.endTime,
-            time: timeDisplay,
-          }
-        })
-      )
       setExpandedRow(null)
       setExpandedPanel(null)
+      await loadSessions()
       return true
     } else {
       showErrorToast(
@@ -194,11 +228,11 @@ export default function AdminSessions() {
       )
     }
   }
-  const handleCancelSession = async (sessionId) => {
-    const res = await adminSessionsApi.cancelSession(sessionId)
+  const handleCancelSession = async (sessionId, reason, notes) => {
+    const res = await adminSessionsApi.cancelSession(sessionId, { reason, notes: notes || undefined })
     if (res.success) {
       showSuccessToast(
-        res?.message || (isRtl ? 'تم إلغاء الحصة بنجاح' : 'Session cancelled successfully'),
+        t('adminDashboard.sessions.cancelSuccess'),
         isRtl
       )
       setSessions((prev) =>
@@ -208,15 +242,18 @@ export default function AdminSessions() {
       setExpandedPanel(null)
     } else {
       showErrorToast(
-        res?.message || (isRtl ? 'فشلت عملية إلغاء الحصة' : 'Failed to cancel session'),
+        t('adminDashboard.sessions.cancelError'),
         isRtl
       )
+      return false
     }
+    return true
   }
   const getTabLabel = (key, defaultLabel) => {
     const map = {
       'all': t('adminDashboard.sessions.tabs.all', 'الكل'),
       'scheduled': t('adminDashboard.sessions.tabs.scheduled', 'مجدولة'),
+      'rescheduled': t('adminDashboard.sessions.tabs.rescheduled', 'معاد جدولتها'),
       'live': t('adminDashboard.sessions.tabs.live', 'مباشرة الآن'),
       'completed': t('adminDashboard.sessions.tabs.completed', 'مكتملة'),
       'cancelled': t('adminDashboard.sessions.tabs.cancelled', 'ملغاة'),
@@ -333,21 +370,40 @@ export default function AdminSessions() {
               <p className="text-sm font-medium">{t('adminDashboard.sessions.noSessionsFound', 'لا توجد حصص مطابقة')}</p>
             </div>
           ) : (
-            sessions.map((session) => (
-              <SessionRow
-                key={session.id}
-                session={session}
-                isExpanded={expandedRow === session.id}
-                expandedPanel={expandedPanel}
-                handleTogglePanel={handleTogglePanel}
-                handleReschedule={handleReschedule}
-                handleChangeTeacher={handleChangeTeacher}
-                handleCancelSession={handleCancelSession}
-                onMonitorSession={setMonitoringSession}
-                teachers={teachers}
-                t={t}
-              />
-            ))
+            sessions.map((session) => {
+              const fetchedGroup = groupTimeZones[String(session.groupId)]
+              const groupTimeZone = session.groupTimeZone || fetchedGroup?.timeZone || ''
+              const displayTimeZone = adminTimeZone || groupTimeZone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+              const timeZoneResolved = adminTimeZone
+                ? adminTimeZoneResolved
+                : adminTimeZoneResolved && Boolean(groupTimeZone)
+              const rawGroupCountryName = session.groupCountry?.name
+              const sessionGroupCountryName = typeof rawGroupCountryName === 'object'
+                ? (isRtl ? rawGroupCountryName.ar || rawGroupCountryName.en : rawGroupCountryName.en || rawGroupCountryName.ar)
+                : rawGroupCountryName
+              const displayTimeZonePlace = adminTimeZone
+                ? adminCountryName || adminTimeZonePlace || getTimeZonePlace(adminTimeZone, isRtl)
+                : sessionGroupCountryName || fetchedGroup?.countryName || getTimeZonePlace(displayTimeZone, isRtl)
+
+              return (
+                <SessionRow
+                  key={session.id}
+                  session={session}
+                  isExpanded={expandedRow === session.id}
+                  expandedPanel={expandedPanel}
+                  handleTogglePanel={handleTogglePanel}
+                  handleReschedule={handleReschedule}
+                  handleChangeTeacher={handleChangeTeacher}
+                  handleCancelSession={handleCancelSession}
+                  onMonitorSession={setMonitoringSession}
+                  teachers={teachers}
+                  t={t}
+                  timeZone={displayTimeZone}
+                  timeZonePlace={displayTimeZonePlace}
+                  timeZoneResolved={timeZoneResolved}
+                />
+              )
+            })
           )}
         </div>
         <div
@@ -364,7 +420,7 @@ export default function AdminSessions() {
                 <span className="font-semibold text-slate-700 dark:text-slate-200">{endIdx}</span>{' '}
                 {t('adminDashboard.students.pagination.of', 'من أصل')}{' '}
                 <span className="font-semibold text-slate-700 dark:text-slate-200">{totalCount}</span>{' '}
-                {t('adminDashboard.sessions.title', 'حصص')}
+                {t('adminDashboard.sessions.paginationSessions', 'حصص')}
               </>
             ) : (
               <>
@@ -374,7 +430,7 @@ export default function AdminSessions() {
                 <span className="font-semibold text-slate-700 dark:text-slate-200">{endIdx}</span>{' '}
                 {t('adminDashboard.students.pagination.of', 'of')}{' '}
                 <span className="font-semibold text-slate-700 dark:text-slate-200">{totalCount}</span>{' '}
-                {t('adminDashboard.sessions.title', 'sessions')}
+                {t('adminDashboard.sessions.paginationSessions', 'sessions')}
               </>
             )}
           </div>

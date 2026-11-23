@@ -18,6 +18,7 @@ import Spinner from '@/shared/components/Spinner'
 
 import { getLocalizedValue, saveGroupEdits } from './utils/groupUtils'
 import GroupCard from './components/GroupCard'
+import useAdminGroupTimeZone from './hooks/useAdminGroupTimeZone'
 
 const AddEditGroupScreen = lazy(() => import('./components/AddEditGroupScreen'))
 const GroupDetailsModal = lazy(() => import('./components/GroupDetailsModal'))
@@ -25,10 +26,12 @@ const GroupDetailsModal = lazy(() => import('./components/GroupDetailsModal'))
 export default function AdminGroups() {
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
+  const { timeZone: adminTimeZone, place: adminTimeZonePlace } = useAdminGroupTimeZone()
   const { id: routeGroupId } = useParams()
   const navigate = useNavigate()
   const [viewMode, setViewMode] = useState(routeGroupId ? 'edit-group' : 'list')
   const [groups, setGroups] = useState([])
+  const [statistics, setStatistics] = useState(null)
   const [pagination, setPagination] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedGroup, setSelectedGroup] = useState(null)
@@ -74,6 +77,7 @@ export default function AdminGroups() {
         _id: g._id || g.id,
       }))
       setGroups(items)
+      setStatistics(res?.statistics || res?.data?.statistics || null)
       if (res?.pagination) {
         setPagination(res.pagination)
       } else {
@@ -118,6 +122,7 @@ export default function AdminGroups() {
       }
     } else {
       if (viewMode === 'edit-group') {
+        setIsLoading(false)
         setViewMode('list')
         setSelectedGroup(null)
       }
@@ -139,25 +144,25 @@ export default function AdminGroups() {
     return result
   }, [groups, statusFilter, pagination])
   const metrics = useMemo(() => {
-    const total = pagination?.totalCount ?? groups.length
-    const pending = groups.filter((g) => {
+    const total = statistics?.total ?? pagination?.totalCount ?? groups.length
+    const pending = statistics?.pending ?? groups.filter((g) => {
       const s = String(g.status || '').toLowerCase()
       return s.includes('انتظار') || s === 'pending' || s === 'waiting'
     }).length
-    const active = groups.filter((g) => {
+    const active = statistics?.active ?? groups.filter((g) => {
       const s = String(g.status || '').toLowerCase()
       return s.includes('نشط') || s === 'active'
     }).length
-    const suspended = groups.filter((g) => {
+    const suspended = statistics?.stopped ?? statistics?.suspended ?? groups.filter((g) => {
       const s = String(g.status || '').toLowerCase()
       return s.includes('توقف') || s === 'suspended' || s === 'paused'
     }).length
-    const completed = groups.filter((g) => {
+    const completed = statistics?.completed ?? groups.filter((g) => {
       const s = String(g.status || '').toLowerCase()
       return s.includes('مكتمل') || s === 'completed'
     }).length
     return { total, pending, active, suspended, completed }
-  }, [groups, pagination])
+  }, [groups, pagination, statistics])
   const totalCount = pagination?.totalCount ?? filtered.length
   const totalPages = pagination?.numberOfPages ?? Math.max(1, Math.ceil(totalCount / itemsPerPage))
   const isPaginationDimmed = totalPages <= 1
@@ -340,9 +345,7 @@ export default function AdminGroups() {
     const groupId = groupForTeacherChange.id || groupForTeacherChange._id
     setIsLoading(true)
     try {
-      const teacherName = typeof teacherObj?.name === 'object'
-        ? (teacherObj.name.ar || teacherObj.name.en)
-        : (teacherObj?.name || 'المعلم الجديد')
+      const teacherName = getLocalizedValue(teacherObj?.name, isRtl) || t('adminDashboard.groups.unassigned', 'غير محدد')
       const res = await adminGroupsApi.changeTeacher(groupId, {
         teacher: teacherId,
         teacherId,
@@ -384,14 +387,18 @@ export default function AdminGroups() {
           group={viewMode === 'edit-group' ? selectedGroup : null}
           isRtl={isRtl}
           t={t}
+          adminTimeZone={adminTimeZone}
+          adminTimeZonePlace={adminTimeZonePlace}
           isSaving={isLoading}
           onSave={handleSaveGroup}
           onCancel={() => {
-            setSelectedGroup(null)
-            setViewMode('list')
             if (routeGroupId) {
               navigate('/dashboard/admin/groups')
+              return
             }
+            setIsLoading(false)
+            setSelectedGroup(null)
+            setViewMode('list')
           }}
         />
       </Suspense>
@@ -489,6 +496,8 @@ export default function AdminGroups() {
               onChangeTeacher={handleOpenChangeTeacher}
               t={t}
               isRtl={isRtl}
+              adminTimeZone={adminTimeZone}
+              adminTimeZonePlace={adminTimeZonePlace}
             />
           ))}
         </div>
@@ -552,7 +561,6 @@ export default function AdminGroups() {
             }}
             onRemoveStudent={handleRemoveStudent}
             onTransferStudent={handleTransferStudent}
-            allGroups={groups}
             onOpenAddStudents={() => {
               setShowStudentsModal(false)
               setShowAddStudentsModal(true)
@@ -561,6 +569,8 @@ export default function AdminGroups() {
             onChangeTeacher={handleOpenChangeTeacher}
             t={t}
             isRtl={isRtl}
+            adminTimeZone={adminTimeZone}
+            adminTimeZonePlace={adminTimeZonePlace}
           />
         </Suspense>
       )}

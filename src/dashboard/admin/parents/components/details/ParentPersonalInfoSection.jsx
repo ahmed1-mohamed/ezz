@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { getCountryName } from '@/shared/utils/countryUtils'
 
@@ -17,13 +17,17 @@ export default function ParentPersonalInfoSection({
   onImageChange,
 }) {
   const fileInputRef = useRef(null)
+  const [failedSrc, setFailedSrc] = useState(null)
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0]
     if (file && onImageChange) {
       onImageChange(file)
     }
   }
-  const avatarInitial = formData.name ? formData.name.trim().charAt(0) : '?'
+  const avatarName = isRtl ? formData.name : (formData.nameEn || formData.name)
+  const avatarInitial = avatarName ? avatarName.trim().charAt(0) : '?'
+  const imageSrc = formData.profileImage
+  const canShowImage = typeof imageSrc === 'string' && imageSrc.trim() && failedSrc !== imageSrc
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-slate-800/80 shadow-soft space-y-6">
       <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white text-start">
@@ -31,8 +35,8 @@ export default function ParentPersonalInfoSection({
       </h3>
       <div className="flex items-center gap-4">
         <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#00594C] text-white flex items-center justify-center font-bold text-2xl sm:text-3xl shrink-0 overflow-hidden shadow-xs">
-          {formData.profileImage ? (
-            <img src={formData.profileImage} alt="" className="w-full h-full object-cover" />
+          {canShowImage ? (
+            <img src={imageSrc} alt="" onError={() => setFailedSrc(imageSrc)} className="w-full h-full object-cover" />
           ) : (
             <span>{avatarInitial}</span>
           )}

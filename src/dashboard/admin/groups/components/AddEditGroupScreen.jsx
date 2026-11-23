@@ -30,14 +30,14 @@ class SafeErrorBoundary extends React.Component {
       return (
         <div className="p-8 bg-white dark:bg-slate-900 rounded-3xl border border-rose-200 dark:border-rose-900/40 text-center space-y-4">
           <p className="text-sm font-bold text-rose-600 dark:text-rose-400">
-            حدث خطأ أثناء عرض بيانات المجموعة
+            {this.props.t?.('adminDashboard.groups.renderError', this.props.isRtl ? 'حدث خطأ أثناء عرض بيانات المجموعة' : 'An error occurred while displaying group details')}
           </p>
           <button
             type="button"
             onClick={this.props.onCancel}
             className="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold rounded-2xl transition-all cursor-pointer shadow-md shadow-brand-500/20"
           >
-            العودة إلى قائمة المجموعات
+            {this.props.t?.('adminDashboard.groups.backToGroups', this.props.isRtl ? 'العودة إلى قائمة المجموعات' : 'Back to groups')}
           </button>
         </div>
       )
@@ -98,9 +98,11 @@ const normalizeScheduleList = (rawList) => {
   }).filter(Boolean)
 }
 
-function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSave, onCancel }) {
+function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSave, onCancel, adminTimeZone = '', adminTimeZonePlace = '' }) {
   const { t, i18n } = useTranslation()
   const isRtlResolved = isRtl !== undefined ? isRtl : i18n.language.startsWith('ar')
+  const normalizedGroupStatus = String(group?.rawStatus || group?.status || '').trim().toLowerCase()
+  const isCompletedGroup = Boolean(group) && ['completed', 'مكتملة', 'مكتمل'].includes(normalizedGroupStatus)
   const BackArrow = isRtlResolved ? ArrowRight : ArrowLeft
   const fileInputRef = useRef(null)
   const [formData, setFormData] = useState({
@@ -156,6 +158,10 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
   const [levels, setLevels] = useState([])
   const [teachers, setTeachers] = useState([])
   const [languages, setLanguages] = useState([])
+  const scheduleGroup = {
+    ...(group || {}),
+    country: countries.find((country) => String(country.id || country._id) === String(formData.country)) || group?.country,
+  }
   useEffect(() => {
     let isMounted = true
     const loadSelectOptions = async () => {
@@ -246,6 +252,7 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
   }
   const handleSave = (e) => {
     e.preventDefault()
+    if (isCompletedGroup) return
     const newErrors = {}
     const nameAr = (formData.nameAr || formData.name || '').trim()
     const nameEn = (formData.nameEn || '').trim()
@@ -354,6 +361,9 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
         />
         <GroupScheduleCard
           schedule={schedule}
+          group={scheduleGroup}
+          adminTimeZone={adminTimeZone}
+          adminTimeZonePlace={adminTimeZonePlace}
           newDay={newDay}
           setNewDay={setNewDay}
           newTimeFrom={newTimeFrom}
@@ -377,7 +387,7 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
           </button>
           <button
             type="submit"
-            disabled={isSaving}
+            disabled={isSaving || isCompletedGroup}
             className="px-8 py-3 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-bold shadow-lg shadow-brand-500/20 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -393,7 +403,7 @@ function AddEditGroupScreenContent({ group = null, isRtl, isSaving = false, onSa
 
 export default function AddEditGroupScreen(props) {
   return (
-    <SafeErrorBoundary onCancel={props.onCancel}>
+    <SafeErrorBoundary onCancel={props.onCancel} t={props.t} isRtl={props.isRtl}>
       <AddEditGroupScreenContent {...props} />
     </SafeErrorBoundary>
   )

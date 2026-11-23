@@ -24,6 +24,7 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
         avatar: user?.image || user?.photoUrl || user?.photo || '',
         isGoogleLinked: Boolean(user?.isGoogleLinked || user?.googleId),
     });
+    const [failedAvatar, setFailedAvatar] = useState(null);
     const [loadingProfile, setLoadingProfile] = useState(true);
     const [savingProfile, setSavingProfile] = useState(false);
     const [linkingGoogle, setLinkingGoogle] = useState(false);
@@ -222,8 +223,13 @@ export default function ProfileSettingsPanel({ itemVariants, onProfileLoaded }) 
             <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-8 text-start">{t('parentSettings.profile')}</h2>
             <div className="flex flex-col md:flex-row items-center justify-start gap-6 mb-8">
                 <div className="w-20 h-20 rounded-full bg-[#0f7a6c] text-white flex items-center justify-center text-3xl font-bold shrink-0 relative overflow-hidden shadow-sm">
-                    {profileData.avatar ? (
-                        <img src={profileData.avatar} alt="Profile Avatar" className="w-full h-full object-cover" />
+                    {profileData.avatar && failedAvatar !== profileData.avatar ? (
+                        <img
+                            src={profileData.avatar}
+                            alt="Profile Avatar"
+                            className="w-full h-full object-cover"
+                            onError={() => setFailedAvatar(profileData.avatar)}
+                        />
                     ) : (
                         userInitial
                     )}

@@ -1,6 +1,6 @@
 import { BookOpen, Calendar, User, Layers } from 'lucide-react'
 
-export default function StudentGroupCard({ student, isRtl, onOpenChangeGroup }) {
+export default function StudentGroupCard({ student, isRtl }) {
   const rawGroups = student?.groups || student?.Groups || []
   const groups = Array.isArray(rawGroups) ? rawGroups : (rawGroups ? [rawGroups] : [])
   return (
@@ -15,15 +15,6 @@ export default function StudentGroupCard({ student, isRtl, onOpenChangeGroup }) 
             {groups.length}
           </span>
         </div>
-        {onOpenChangeGroup && (
-          <button
-            type="button"
-            onClick={() => onOpenChangeGroup(null)}
-            className="px-3.5 py-1.5 bg-[#005953]/10 hover:bg-[#005953]/20 text-[#005953] dark:text-emerald-400 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/25 text-xs font-bold rounded-xl transition-all cursor-pointer hover:scale-102"
-          >
-            {isRtl ? 'تغيير المجموعة' : 'Change Group'}
-          </button>
-        )}
       </div>
       {groups.length === 0 ? (
         <div className="p-8 text-center bg-slate-50/50 dark:bg-slate-950/20 rounded-3xl border border-slate-100/60 dark:border-slate-800/40 space-y-2">
@@ -31,28 +22,37 @@ export default function StudentGroupCard({ student, isRtl, onOpenChangeGroup }) 
           <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
             {isRtl ? 'لا توجد مجموعات تعليمية مسجلة للطالب حالياً' : 'No educational groups currently enrolled'}
           </p>
-          <p className="text-xs text-slate-400 dark:text-slate-500">
-            {isRtl ? 'يمكنك تعيين الطالب إلى مجموعة تعليمية عبر الضغط على تغيير المجموعة' : 'You can assign the student to a group by clicking Change Group'}
-          </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {groups.map((grp, idx) => {
             const groupId = grp.id || grp._id || `group-${idx}`
             const groupName = typeof grp === 'string'
               ? grp
               : (typeof grp.name === 'object' && grp.name !== null
-                  ? (grp.name.ar || grp.name.en || '')
+                  ? ((isRtl ? grp.name.ar || grp.name.en : grp.name.en || grp.name.ar) || '')
                   : (grp.name || grp.title || `مجموعة ${idx + 1}`))
             const teacherName = typeof grp.teacher === 'object' && grp.teacher !== null
-              ? (grp.teacher.name?.ar || grp.teacher.name?.en || grp.teacher.name || '')
+              ? ((typeof grp.teacher.name === 'object' ? (isRtl ? grp.teacher.name.ar || grp.teacher.name.en : grp.teacher.name.en || grp.teacher.name.ar) : grp.teacher.name) || '')
               : (grp.teacherName || grp.teacher || '')
             const levelName = typeof grp.level === 'object' && grp.level !== null
-              ? (grp.level.name?.ar || grp.level.name?.en || grp.level.name || '')
+              ? (typeof grp.level.name === 'object' ? ((isRtl ? grp.level.name.ar || grp.level.name.en : grp.level.name.en || grp.level.name.ar) || '') : (grp.level.name || ''))
               : (grp.level || '')
             const studentsCount = grp.studentsCount || (Array.isArray(grp.students) ? grp.students.length : null)
             const maxStudents = grp.maxStudents || grp.capacity || null
             const schedule = grp.schedule || grp.days || grp.time || ''
+            const groupStatus = grp.status || (isRtl ? 'غير متاح' : 'Unavailable')
+            const normalizedStatus = String(grp.status || '').trim().toLowerCase()
+            const isActive = ['active', 'نشطة', 'نشط'].includes(normalizedStatus)
+            const isPending = ['pending', 'قيد الانتظار'].includes(normalizedStatus)
+            const isStopped = ['stopped', 'متوقفة', 'متوقف'].includes(normalizedStatus)
+            const statusStyle = isActive
+              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400'
+              : isPending
+                ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400'
+                : isStopped
+                  ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400'
+                  : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
             return (
               <div
                 key={groupId}
@@ -81,20 +81,10 @@ export default function StudentGroupCard({ student, isRtl, onOpenChangeGroup }) 
                     )}
                   </div>
                   <div className="flex items-center gap-2 self-start sm:self-center">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 me-1.5 animate-pulse" />
-                      {isRtl ? 'نشط' : 'Active'}
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${statusStyle}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full me-1.5 ${isActive ? 'bg-emerald-600 animate-pulse' : 'bg-current'}`} />
+                      {groupStatus}
                     </span>
-                    {onOpenChangeGroup && (
-                      <button
-                        type="button"
-                        onClick={() => onOpenChangeGroup(groupId)}
-                        className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-600 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-800 text-[11px] font-bold rounded-xl transition-all cursor-pointer hover:border-[#005953]"
-                        title={isRtl ? 'نقل الطالب من هذه المجموعة' : 'Transfer student from this group'}
-                      >
-                        {isRtl ? 'نقل من المجموعة' : 'Transfer'}
-                      </button>
-                    )}
                   </div>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/60 text-start">
@@ -113,7 +103,7 @@ export default function StudentGroupCard({ student, isRtl, onOpenChangeGroup }) 
                       {isRtl ? 'النوع' : 'Type'}
                     </span>
                     <span className="text-sm font-extrabold text-slate-700 dark:text-slate-205 mt-0.5 block">
-                      {grp.type || (isRtl ? 'مجموعة تعليمية' : 'Educational Group')}
+                      {grp.type || '-'}
                     </span>
                   </div>
                   <div>
@@ -121,7 +111,7 @@ export default function StudentGroupCard({ student, isRtl, onOpenChangeGroup }) 
                       {isRtl ? 'اللغة' : 'Language'}
                     </span>
                     <span className="text-sm font-extrabold text-slate-700 dark:text-slate-205 mt-0.5 block">
-                      {grp.language || (isRtl ? 'عربي' : 'Arabic')}
+                      {grp.language || '-'}
                     </span>
                   </div>
                 </div>

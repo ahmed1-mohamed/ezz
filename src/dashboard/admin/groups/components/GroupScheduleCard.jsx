@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Calendar, Trash2 } from 'lucide-react'
 import DaySelect from './fields/DaySelect'
+import { formatGroupScheduleSlot, getTimeZonePlace } from '../utils/groupTimeUtils'
 
 const WEEK_DAYS = [
   { key: 'sunday', ar: 'الأحد', en: 'Sunday' },
@@ -25,6 +26,9 @@ export default function GroupScheduleCard({
   t,
   isRtl,
   error,
+  group = null,
+  adminTimeZone = '',
+  adminTimeZonePlace = '',
 }) {
   const getDayLabel = (dayKey) => {
     if (!dayKey) return ''
@@ -116,18 +120,20 @@ export default function GroupScheduleCard({
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {safeSchedule.map((slot, index) => {
-                const startTime = typeof slot.startTime === 'string' ? slot.startTime : (slot.timeFrom || '')
-                const endTime = typeof slot.endTime === 'string' ? slot.endTime : (slot.timeTo || '')
+                const formatted = formatGroupScheduleSlot(slot, group, adminTimeZone, isRtl)
+                const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+                const countryName = typeof group?.country?.name === 'object' ? group.country.name[isRtl ? 'ar' : 'en'] : group?.country?.name
+                const place = adminTimeZone ? (adminTimeZonePlace || getTimeZonePlace(formatted.timeZone, isRtl)) : getTimeZonePlace(formatted.timeZone, isRtl, countryName)
                 const slotKey = typeof slot.day === 'object' && slot.day !== null
                   ? (slot.day.key || slot.day.en || slot.day.ar || index)
                   : String(slot.day || index)
                 return (
                   <tr key={`${slotKey}-${index}`} className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-950/20 transition-colors">
                     <td className="px-5 py-3 text-start font-medium text-slate-700 dark:text-slate-300">
-                      {getDayLabel(slot.day)}
+                      {t(`schedule.${days[formatted.dayIndex]}`, getDayLabel(slot.day))}
                     </td>
                     <td className="px-5 py-3 text-start text-slate-600 dark:text-slate-400 dir-ltr">
-                      {startTime} - {endTime}
+                      {formatted.range} <span className="text-xs">({t('common.timezoneLabel', 'بتوقيت {{place}}', { place })})</span>
                     </td>
                     <td className="px-4 py-3">
                       <button

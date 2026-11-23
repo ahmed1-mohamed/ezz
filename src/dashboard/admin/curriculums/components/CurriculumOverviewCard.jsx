@@ -1,3 +1,6 @@
+import { useState } from 'react'
+import { getImageUrl } from '@/shared/services/api/teachersApi'
+
 export default function CurriculumOverviewCard({
   curriculum,
   curriculumName,
@@ -6,6 +9,15 @@ export default function CurriculumOverviewCard({
   totalFiles,
   isRtl,
 }) {
+  const [failedImage, setFailedImage] = useState('')
+  const curriculumImage = typeof curriculum?.image === 'string' ? curriculum.image.trim() : ''
+  const localizedCurriculumName = typeof curriculum?.name === 'object' && curriculum.name !== null
+    ? (isRtl ? curriculum.name.ar : curriculum.name.en)
+    : curriculum?.name
+  const rawInitial = String(localizedCurriculumName || '').trim().charAt(0)
+  const curriculumInitial = rawInitial && (isRtl || !/[\u0600-\u06FF]/.test(rawInitial))
+    ? rawInitial.toLocaleUpperCase(isRtl ? 'ar' : 'en')
+    : (isRtl ? 'م' : 'C')
   const desc =
     typeof curriculum?.description === 'object'
       ? (isRtl ? curriculum?.description?.ar : curriculum?.description?.en) || curriculum?.description?.ar
@@ -46,15 +58,16 @@ export default function CurriculumOverviewCard({
       <div className="absolute top-0 end-0 w-80 h-80 bg-[#00594C]/5 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
       <div className="relative z-10 flex flex-col md:flex-row gap-6 lg:gap-8 items-start">
         <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl overflow-hidden shrink-0 border-4 border-slate-100 dark:border-slate-800 shadow-md bg-slate-50 dark:bg-slate-800/80 flex items-center justify-center">
-          {curriculum?.image && curriculum.image.trim() !== '' ? (
+          {curriculumImage && failedImage !== curriculumImage ? (
             <img
-              src={curriculum.image}
+              src={getImageUrl(curriculumImage)}
               alt={curriculumName}
               className="w-full h-full object-cover"
+              onError={() => setFailedImage(curriculumImage)}
             />
           ) : (
             <div className="w-full h-full bg-[#00594C]/10 text-[#00594C] dark:text-emerald-400 flex items-center justify-center text-5xl font-black">
-              {curriculumName?.charAt(0) || 'م'}
+              {curriculumInitial}
             </div>
           )}
         </div>

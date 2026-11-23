@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
+import { fetchCountries, resolveCountryIdFromLabel } from '@/shared/utils/countryUtils'
+import { getTeacherTimezoneLabel } from '../../utils/getTeacherTimezoneLabel'
 import { DAYS_OF_WEEK } from '../../utils/teacherConstants'
+import { formatAvailabilityTime } from '../../utils/formatAvailabilityTime'
 
 const localizedName = (name, isRtl) => (typeof name === 'object' && name !== null
   ? (isRtl ? name.ar || name.en : name.en || name.ar)
@@ -19,6 +22,13 @@ export default function TeacherDetailsAvailabilityCard({ teacher, isRtl = true }
     },
     staleTime: 10 * 60 * 1000,
   })
+  const { data: countries = [] } = useQuery({ queryKey: ['teacher-timezone-countries'], queryFn: () => fetchCountries(), staleTime: 10 * 60 * 1000 })
+  const rawCountry = teacher?.country || teacher?.user?.country || teacher?.userId?.country
+  const countryId = typeof rawCountry === 'object' && rawCountry !== null
+    ? rawCountry.id || rawCountry._id
+    : resolveCountryIdFromLabel(countries, rawCountry)
+  const country = (typeof rawCountry === 'object' && rawCountry?.timezone ? rawCountry : null) || countries.find((item) => String(item.id || item._id) === String(countryId))
+  const timezoneLabel = country ? getTeacherTimezoneLabel(country, isRtl) : ''
   const teacherSpecs = Array.isArray(teacher?.specializations) ? teacher.specializations : []
   const teacherSpecIds = teacherSpecs.map((s) => s?.id || s?._id).filter(Boolean)
   const subjects = curricula.length > 0 ? curricula : teacherSpecs
@@ -51,9 +61,12 @@ export default function TeacherDetailsAvailabilityCard({ teacher, isRtl = true }
         )}
       </section>
       <section className="bg-white dark:bg-slate-900 rounded-[28px] p-6 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800/60 space-y-5 text-start">
-        <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-          {isRtl ? 'أيام التدريس المتاحة أسبوعيا' : 'Weekly Available Teaching Days'}
-        </h2>
+        <div>
+          <h2 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
+            {isRtl ? 'أيام التدريس المتاحة أسبوعيا' : 'Weekly Available Teaching Days'}
+          </h2>
+          <p className="text-xs font-medium text-[#005953] dark:text-[#14a693] mt-1">{timezoneLabel}</p>
+        </div>
         <div className="flex flex-wrap gap-3">
           {DAYS_OF_WEEK.map((day) => {
             const slots = slotsByDay[day.key] || []
@@ -62,7 +75,7 @@ export default function TeacherDetailsAvailabilityCard({ teacher, isRtl = true }
                 <span>{isRtl ? day.ar : day.en}</span>
                 {slots.map((slot, idx) => (
                   <span key={idx} className="text-[11px] font-medium opacity-90" dir="ltr">
-                    {slot.startTime} - {slot.endTime}
+                    {formatAvailabilityTime(slot.startTime, isRtl)} - {formatAvailabilityTime(slot.endTime, isRtl)}
                   </span>
                 ))}
               </span>

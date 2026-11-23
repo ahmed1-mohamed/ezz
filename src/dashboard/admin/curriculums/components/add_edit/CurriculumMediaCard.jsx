@@ -1,13 +1,28 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { Image as ImageIcon, UploadCloud, Trash2, RefreshCw } from 'lucide-react'
+import { getImageUrl } from '@/shared/services/api/teachersApi'
 
 export default function CurriculumMediaCard({
   previewImage = null,
+  nameAr = '',
+  nameEn = '',
   onImageChange,
   onImageRemove,
   isRtl = true
 }) {
   const fileInputRef = useRef(null)
+  const [failedPreview, setFailedPreview] = useState('')
+  const imagePreview = typeof previewImage === 'string' ? previewImage.trim() : ''
+  const previewSrc = imagePreview && /^(https?:|data:|blob:)/i.test(imagePreview)
+    ? imagePreview
+    : imagePreview
+      ? getImageUrl(imagePreview)
+      : ''
+  const localizedName = (isRtl ? nameAr : nameEn).trim()
+  const rawInitial = localizedName.charAt(0)
+  const initial = rawInitial && (isRtl || !/[\u0600-\u06FF]/.test(rawInitial))
+    ? rawInitial.toLocaleUpperCase(isRtl ? 'ar' : 'en')
+    : (isRtl ? 'م' : 'C')
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-xs space-y-5 text-start">
       <div className="flex items-center justify-between">
@@ -28,17 +43,18 @@ export default function CurriculumMediaCard({
       <div
         onClick={() => fileInputRef.current?.click()}
         className={`relative w-full rounded-2xl border-2 border-dashed transition-all cursor-pointer overflow-hidden group flex flex-col items-center justify-center min-h-[220px] ${
-          previewImage
+          previewSrc
             ? 'border-[#00594C]/40 bg-slate-950/5'
             : 'border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/40 hover:border-[#00594C] hover:bg-[#00594C]/5'
         }`}
       >
-        {previewImage ? (
+        {previewSrc && failedPreview !== imagePreview ? (
           <div className="relative w-full h-[220px]">
             <img
-              src={previewImage}
+              src={previewSrc}
               alt="Curriculum cover"
               className="w-full h-full object-cover rounded-2xl"
+              onError={() => setFailedPreview(imagePreview)}
             />
             <div className="absolute inset-0 bg-slate-950/50 backdrop-blur-xs flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
               <span className="px-4 py-2 rounded-xl bg-white/90 text-slate-800 text-xs font-bold flex items-center gap-2 shadow-sm">
@@ -49,8 +65,9 @@ export default function CurriculumMediaCard({
           </div>
         ) : (
           <div className="p-8 text-center flex flex-col items-center space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 group-hover:text-[#00594C] group-hover:border-[#00594C]/40 shadow-xs transition-colors">
-              <UploadCloud size={28} />
+            <div className="relative w-14 h-14 rounded-2xl bg-[#00594C]/10 text-[#00594C] dark:bg-emerald-950/50 dark:text-emerald-300 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-2xl font-black shadow-xs transition-colors">
+              {initial}
+              <UploadCloud size={15} className="absolute -bottom-1 -end-1 rounded-full bg-white dark:bg-slate-800 p-0.5 text-slate-500" />
             </div>
             <div>
               <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
@@ -70,7 +87,7 @@ export default function CurriculumMediaCard({
         onChange={onImageChange}
         className="hidden"
       />
-      {previewImage && (
+      {previewSrc && (
         <div className="flex items-center justify-between pt-1">
           <button
             type="button"

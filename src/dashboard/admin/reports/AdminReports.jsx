@@ -21,7 +21,7 @@ export default function AdminReports() {
       desc: t('adminReports.financialOverview', 'الملخص المالي ومؤشرات الدخل وأرباح المعلمين التراكمية والشهرية'),
       icon: DollarSign,
       path: '/dashboard/admin/earnings',
-      badge: 'Financial',
+      badge: t('adminReports.earningsBadge', 'الأرباح'),
       color: 'text-emerald-600 dark:text-emerald-400',
       bg: 'bg-emerald-50 dark:bg-emerald-950/30',
     },
@@ -30,7 +30,7 @@ export default function AdminReports() {
       desc: t('adminReports.transactionsOverview', 'إدارة المعاملات المالية واشتراكات الباقات'),
       icon: CreditCard,
       path: '/dashboard/admin/payments',
-      badge: 'Billing',
+      badge: t('adminReports.paymentsBadge', 'المدفوعات'),
       color: 'text-blue-600 dark:text-blue-400',
       bg: 'bg-blue-50 dark:bg-blue-950/30',
     },
@@ -39,7 +39,7 @@ export default function AdminReports() {
       desc: t('adminReports.logsOverview', 'متابعة العمليات وسجل أنشطة مسؤولي النظام'),
       icon: FileText,
       path: '/dashboard/admin/logs',
-      badge: 'Audit',
+      badge: t('adminReports.logsBadge', 'سجل المراجعة'),
       color: 'text-purple-600 dark:text-purple-400',
       bg: 'bg-purple-50 dark:bg-purple-950/30',
     },
@@ -62,7 +62,7 @@ export default function AdminReports() {
         <div className="flex items-center gap-3">
           <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
             <TrendingUp size={14} className="text-[#00594C]" />
-            <span>مؤشرات مباشرة</span>
+            <span>{t('adminReports.liveIndicators', 'مؤشرات مباشرة')}</span>
           </span>
         </div>
       </div>

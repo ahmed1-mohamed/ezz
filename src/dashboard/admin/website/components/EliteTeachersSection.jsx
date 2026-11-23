@@ -1,7 +1,7 @@
-import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useTranslation } from 'react-i18next';
 import { Plus, Trash2 } from 'lucide-react';
 import Button from '@/shared/components/Button.jsx';
+import WebsiteAvatar from './WebsiteAvatar.jsx';
 
 export default function EliteTeachersSection({
   teachers,
@@ -33,12 +33,8 @@ export default function EliteTeachersSection({
           </div>
         ) : (
           teachers.map((teacher) => {
-            const userLetter = teacher.name ? teacher?.name?.trim().charAt(0) : 'ف';
-            const imageUrl = teacher.image && (teacher.image.startsWith('http') || teacher.image.startsWith('data:'))
-              ? teacher.image
-              : teacher.image
-                ? buildApiAssetUrl(teacher.image)
-                : null;
+            const displayName = isRtl ? teacher.name || teacher.nameEn : teacher.nameEn || teacher.name;
+            const userLetter = displayName?.trim()?.charAt(0) || (isRtl ? 'ف' : 'T');
             return (
               <div
                 key={teacher.id}
@@ -47,20 +43,16 @@ export default function EliteTeachersSection({
                 <div className="flex flex-col xl:flex-row items-center justify-between gap-4">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-center w-full">
                     <div className="lg:col-span-6 xl:col-span-7 flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-start">
-                      {imageUrl ? (
-                        <img
-                          src={imageUrl}
-                          alt={teacher.name}
-                          className="w-16 h-16 rounded-full object-cover shadow-sm border border-slate-200"
-                        />
-                      ) : (
-                        <div className="w-16 h-16 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-450 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-2xl shadow-sm shrink-0">
-                          {userLetter}
-                        </div>
-                      )}
+                      <WebsiteAvatar
+                        src={teacher.image}
+                        alt={displayName || ''}
+                        initial={userLetter}
+                        className="w-16 h-16 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-450 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-2xl shadow-sm shrink-0 overflow-hidden"
+                        imageClassName="w-full h-full rounded-full object-cover shadow-sm"
+                      />
                       <div className="mt-1 sm:mt-0">
                         <h4 className="font-extrabold text-lg text-slate-800 dark:text-slate-200">
-                          {teacher.name}
+                          {displayName}
                         </h4>
                       </div>
                     </div>

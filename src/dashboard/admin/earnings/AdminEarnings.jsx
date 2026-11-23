@@ -97,7 +97,7 @@ export default function AdminEarnings() {
               }`}
             >
               <Calendar size={14} />
-              <span>الشهري</span>
+              <span>{t('adminDashboard.earnings.monthlyTab', 'الشهري')}</span>
             </button>
             <button
               type="button"
@@ -109,7 +109,7 @@ export default function AdminEarnings() {
               }`}
             >
               <Sparkles size={14} />
-              <span>الكل حتى الآن</span>
+              <span>{t('adminDashboard.earnings.allTimeTab', 'الكل حتى الآن')}</span>
             </button>
           </div>
           {mode === 'monthly' ? (
@@ -118,7 +118,7 @@ export default function AdminEarnings() {
                 type="button"
                 onClick={isRtl ? handlePrevMonth : handleNextMonth}
                 disabled={isLoading}
-                aria-label={isRtl ? 'الشهر السابق' : 'Previous Month'}
+                aria-label={t('adminDashboard.earnings.previousMonth', 'الشهر السابق')}
                 className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 <ChevronRight size={18} />
@@ -131,7 +131,7 @@ export default function AdminEarnings() {
                 type="button"
                 onClick={isRtl ? handleNextMonth : handlePrevMonth}
                 disabled={isLoading}
-                aria-label={isRtl ? 'الشهر التالي' : 'Next Month'}
+                aria-label={t('adminDashboard.earnings.nextMonth', 'الشهر التالي')}
                 className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 <ChevronLeft size={18} />
@@ -140,14 +140,14 @@ export default function AdminEarnings() {
           ) : (
             <div className="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-teal-50 dark:bg-teal-950/40 text-[#0f7a6c] dark:text-emerald-400 border border-teal-100 dark:border-teal-900/40 text-xs font-bold">
               <ShieldCheck size={14} />
-              <span>إجمالي تراكمي شامل</span>
+              <span>{t('adminDashboard.earnings.allTimeBadge', 'إجمالي تراكمي شامل')}</span>
             </div>
           )}
           <button
             type="button"
             onClick={loadData}
             disabled={isLoading}
-            title="تحديث البيانات"
+            title={t('adminDashboard.earnings.refreshData', 'تحديث البيانات')}
             className="p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
           >
             <RotateCcw size={16} className={isLoading ? 'animate-spin' : ''} />

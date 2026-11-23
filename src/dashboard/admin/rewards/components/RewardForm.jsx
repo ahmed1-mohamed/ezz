@@ -34,15 +34,15 @@ const POPULAR_REWARD_EMOJIS = [
 ]
 
 const COLOR_PRESETS = [
-  { hex: '#4CAF50', name: 'أخضر زمردي' },
-  { hex: '#00594C', name: 'أخضر وقور' },
-  { hex: '#cca332', name: 'ذهبي فاخر' },
-  { hex: '#2563EB', name: 'أزرق ملكي' },
-  { hex: '#7C3AED', name: 'بنفسجي متألق' },
-  { hex: '#E11D48', name: 'وردي ياقوتي' },
-  { hex: '#D97706', name: 'عنبري مميز' },
-  { hex: '#0D9488', name: 'فيروزي راقي' },
-  { hex: '#475569', name: 'رمادي أنيق' },
+  { hex: '#4CAF50', nameKey: 'colorEmerald' },
+  { hex: '#00594C', nameKey: 'colorDeepGreen' },
+  { hex: '#cca332', nameKey: 'colorLuxuryGold' },
+  { hex: '#2563EB', nameKey: 'colorRoyalBlue' },
+  { hex: '#7C3AED', nameKey: 'colorVibrantPurple' },
+  { hex: '#E11D48', nameKey: 'colorRubyPink' },
+  { hex: '#D97706', nameKey: 'colorAmber' },
+  { hex: '#0D9488', nameKey: 'colorTurquoise' },
+  { hex: '#475569', nameKey: 'colorElegantGray' },
 ]
 
 export default function RewardForm({ onSave, onCancel, editingReward, isSaving = false }) {
@@ -199,7 +199,7 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
               type="text"
               required
               dir="rtl"
-              placeholder={isRtl ? 'مثال: وسام قارئ الأسبوع' : 'e.g. وسام قارئ الأسبوع'}
+              placeholder={t('adminDashboard.rewards.nameArPlaceholder', 'مثال: وسام قارئ الأسبوع')}
               value={nameAr}
               onChange={(e) => setNameAr(e.target.value)}
               className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] transition-all"
@@ -213,7 +213,7 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
               type="text"
               required
               dir="ltr"
-              placeholder="e.g. Reader of the Week Badge"
+              placeholder={t('adminDashboard.rewards.nameEnPlaceholder', 'e.g. Reader of the Week Badge')}
               value={nameEn}
               onChange={(e) => setNameEn(e.target.value)}
               className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] transition-all"
@@ -229,7 +229,7 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
               rows={3}
               required
               dir="rtl"
-              placeholder={isRtl ? 'مثال: مكافأة تشجيعية للطالب الأكثر التزاماً بالحضور والمشاركة...' : 'Arabic description...'}
+              placeholder={t('adminDashboard.rewards.descriptionArPlaceholder', 'مثال: مكافأة تشجيعية للطالب الأكثر التزاماً بالحضور والمشاركة...')}
               value={descriptionAr}
               onChange={(e) => setDescriptionAr(e.target.value)}
               className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] transition-all resize-none"
@@ -243,7 +243,7 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
               rows={3}
               required
               dir="ltr"
-              placeholder="e.g. Encouragement reward for the student with the best attendance and participation..."
+              placeholder={t('adminDashboard.rewards.descriptionEnPlaceholder', 'e.g. Encouragement reward for the student with the best attendance and participation...')}
               value={descriptionEn}
               onChange={(e) => setDescriptionEn(e.target.value)}
               className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C] transition-all resize-none"
@@ -278,7 +278,7 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
                 maxLength={10}
                 value={icon}
                 onChange={(e) => setIcon(e.target.value)}
-                placeholder={isRtl ? 'اختر أو اكتب إيموجي' : 'Select or type emoji'}
+                placeholder={t('adminDashboard.rewards.emojiPlaceholder', 'اختر أو اكتب إيموجي')}
                 className="flex-1 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-sm text-center font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00594C]/25 focus:border-[#00594C]"
               />
               <button
@@ -360,7 +360,7 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
                 value={backgroundColor}
                 onChange={(e) => setBackgroundColor(e.target.value)}
                 className="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer p-0.5 bg-transparent"
-                title="اختر لوناً مخصصاً"
+                title={t('adminDashboard.rewards.customColor', 'اختر لوناً مخصصاً')}
               />
             </div>
           </div>
@@ -383,7 +383,7 @@ export default function RewardForm({ onSave, onCancel, editingReward, isSaving =
                     style={{ backgroundColor: color.hex }}
                   />
                   <span className="text-[11px] truncate text-slate-700 dark:text-slate-300">
-                    {color.name}
+                    {t(`adminDashboard.rewards.${color.nameKey}`)}
                   </span>
                   {isSelected && <Check size={12} className="text-[#00594C] shrink-0" />}
                 </button>

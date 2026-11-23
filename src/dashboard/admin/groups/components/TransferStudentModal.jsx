@@ -1,12 +1,12 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { ArrowRightLeft, X, Loader2, Users, AlertCircle } from 'lucide-react'
 import { getLocalizedValue } from '../utils/groupUtils'
+import { adminGroupsApi } from '@/shared/services/api/adminGroupsApi'
 
 export default function TransferStudentModal({
   student,
   currentGroup,
-  groups = [],
   onClose,
   onConfirm,
   isRtl = true,
@@ -14,13 +14,40 @@ export default function TransferStudentModal({
 }) {
   const [selectedTargetGroupId, setSelectedTargetGroupId] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoadingGroups, setIsLoadingGroups] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const currentGroupId = String(currentGroup?.id || currentGroup?._id || '')
+  const curriculumId = currentGroup?.curriculum?.id || currentGroup?.curriculum?._id || currentGroup?.curriculumId || (typeof currentGroup?.curriculum === 'string' ? currentGroup.curriculum : '')
+  const [groups, setGroups] = useState([])
   const studentName = student?.name || t('adminDashboard.groups.student', 'طالب')
   const currentGroupName = getLocalizedValue(currentGroup?.name, isRtl) || t('adminDashboard.groups.title', 'المجموعة')
+  useEffect(() => {
+    let isMounted = true
+    const loadGroups = async () => {
+      if (!curriculumId) {
+        setGroups([])
+        return
+      }
+      setIsLoadingGroups(true)
+      try {
+        const response = await adminGroupsApi.fetchTransferableGroups(curriculumId)
+        const list = Array.isArray(response?.data) ? response.data : []
+        if (isMounted) setGroups(list)
+      } catch (error) {
+        console.error('Failed to load transferable groups:', error)
+        if (isMounted) {
+          setGroups([])
+          setErrorMsg(t('adminDashboard.groups.transferGroupsLoadError', 'تعذر تحميل المجموعات المتاحة'))
+        }
+      } finally {
+        if (isMounted) setIsLoadingGroups(false)
+      }
+    }
+    loadGroups()
+    return () => { isMounted = false }
+  }, [curriculumId, t])
   const availableTargetGroups = useMemo(() => {
-    const list = Array.isArray(groups) ? groups : []
-    return list.filter((g) => {
+    return groups.filter((g) => {
       const gId = String(g.id || g._id || '')
       return gId && gId !== currentGroupId
     })
@@ -92,7 +119,12 @@ export default function TransferStudentModal({
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 text-start">
               {t('adminDashboard.groups.selectTargetGroup', 'اختر المجموعة الجديدة')}
             </label>
-            {availableTargetGroups.length === 0 ? (
+            {isLoadingGroups ? (
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 rounded-2xl text-xs text-center flex items-center justify-center gap-2">
+                <Loader2 size={15} className="animate-spin" />
+                <span>{t('common.loading', 'جاري التحميل...')}</span>
+              </div>
+            ) : availableTargetGroups.length === 0 ? (
               <div className="p-4 bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 rounded-2xl text-xs text-start flex items-center gap-2">
                 <AlertCircle size={16} className="shrink-0" />
                 <span>{t('adminDashboard.groups.noOtherGroupsAvailable', 'لا توجد مجموعات أخرى متاحة للنقل')}</span>
@@ -110,12 +142,13 @@ export default function TransferStudentModal({
                 {availableTargetGroups.map((grp) => {
                   const gId = grp.id || grp._id
                   const name = getLocalizedValue(grp.name, isRtl)
+                  const countryFlag = grp.country?.flag || grp.countryFlag || ''
                   const teacher = getLocalizedValue(grp.teacher?.name, isRtl) || (typeof grp.teacher === 'string' ? grp.teacher : '')
                   const curCount = grp.currentStudentsCount ?? (Array.isArray(grp.students) ? grp.students.length : 0)
                   const maxCount = grp.maxStudents || 5
                   return (
                     <option key={gId} value={gId}>
-                      {name} {teacher ? `(${teacher})` : ''} - [{curCount}/{maxCount}]
+                      {countryFlag ? `${countryFlag} ` : ''}{name} {teacher ? `(${teacher})` : ''} - [{curCount}/{maxCount}]
                     </option>
                   )
                 })}

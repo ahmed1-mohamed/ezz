@@ -199,7 +199,8 @@ export default function PackageFormPanel({ isOpen, onClose, onSave, onRemoveDisc
                 onImageChange={handleImageChange}
                 label={p('packageImage')}
                 hint={p('imageHint')}
-                packageName={form.name || form.name_en}
+                packageName={isRtl ? form.name : form.name_en}
+                isRtl={isRtl}
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>

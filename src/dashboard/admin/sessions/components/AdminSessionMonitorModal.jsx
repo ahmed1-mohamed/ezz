@@ -4,11 +4,9 @@ import {
   X,
   Maximize2,
   Minimize2,
-  Video,
   Radio,
   Clock,
   Users,
-  ExternalLink,
   ShieldAlert,
   GraduationCap,
 } from 'lucide-react'
@@ -132,6 +130,7 @@ export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
     monitorData?.data?.zak ||
     ''
   const hasInteractiveZoom = Boolean(resolvedMeetingId || resolvedJoinUrl)
+  /*
   const handleJoinSession = () => {
     if (resolvedJoinUrl) {
       try {
@@ -167,6 +166,7 @@ export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
       }
     });
   }
+  */
   return createPortal(
     <div
       role="dialog"
@@ -218,6 +218,7 @@ export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            {/* Direct Zoom join is disabled; admin monitoring stays inside the platform.
             <button
               type="button"
               onClick={handleJoinSession}
@@ -228,6 +229,7 @@ export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
               <span>{isRtl ? 'انضمام' : 'Join'}</span>
               <ExternalLink size={13} />
             </button>
+            */}
             <button
               type="button"
               onClick={executeToggleFullscreen}
@@ -266,6 +268,8 @@ export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
               userEmail={finalAdminEmail}
               sessionTitle={session.title || session.groupName || (isRtl ? 'حصة دراسية' : 'Session')}
               className="w-full h-full"
+              showExternalJoinButton={false}
+              leaveUrl="/dashboard/admin/sessions"
               onRefreshJoinData={() => {
                 if (session?.id) {
                   adminSessionsApi.fetchMonitorJoinData(session.id).then((res) => {
@@ -285,8 +289,8 @@ export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                   {isRtl
-                    ? 'جاري تجهيز اتصال المراقبة المباشرة. يمكنك الضغط على زر انضمام أعلاه أو أدناه للدخول فوراً.'
-                    : 'The live monitor connection is preparing. You can click the Join button above or below to join directly.'}
+                    ? 'جاري تجهيز اتصال المراقبة المباشرة داخل المنصة.'
+                    : 'The in-platform live monitoring connection is preparing.'}
                 </p>
               </div>
               <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-start space-y-2 text-xs">
@@ -303,6 +307,7 @@ export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
                   <span className="font-mono text-slate-300">{session.id}</span>
                 </div>
               </div>
+              {/* Direct Zoom join is disabled; admin monitoring stays inside the platform.
               <div>
                 <button
                   type="button"
@@ -314,6 +319,7 @@ export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
                   <ExternalLink size={14} />
                 </button>
               </div>
+              */}
               {fetchError && (
                 <div className="text-xs text-slate-500 font-mono">
                   {fetchError}
@@ -330,6 +336,7 @@ export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
             </span>
           </div>
           <div className="flex items-center gap-3">
+            {/* Direct Zoom join is disabled; admin monitoring stays inside the platform.
             <button
               type="button"
               onClick={handleJoinSession}
@@ -339,6 +346,7 @@ export default function AdminSessionMonitorModal({ session, isOpen, onClose }) {
               <span>{isRtl ? 'انضمام مباشر للحصة' : 'Direct Join'}</span>
               <ExternalLink size={12} />
             </button>
+            */}
           </div>
         </div>
       </div>

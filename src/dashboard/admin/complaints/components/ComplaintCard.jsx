@@ -41,6 +41,61 @@ const STATUS_STYLES = {
 const isHexId = (val) => typeof val === 'string' && /^[0-9a-fA-F]{24}$/.test(val)
 const getAttachmentUrl = (attachment) => (typeof attachment === 'string' ? attachment : attachment?.url || '')
 
+const format12HourTime = (value, isRtl) => {
+  const match = String(value || '').match(/^(\d{1,2}):(\d{2})/)
+  if (!match) return value || ''
+  const hour = Number(match[1])
+  const hour12 = hour % 12 || 12
+  const suffix = hour >= 12 ? (isRtl ? 'م' : 'PM') : (isRtl ? 'ص' : 'AM')
+  return `${hour12}:${match[2]} ${suffix}`
+}
+
+const getLocalTimeUtcOffset = (dateValue, timeValue, timezone) => {
+  const date = String(dateValue || '').split('T')[0]
+  const timeMatch = String(timeValue || '').match(/^(\d{1,2}):(\d{2})/)
+  if (!date || !timeMatch || !timezone) return ''
+  const dateMatch = date.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!dateMatch) return ''
+  const targetLocalAsUtc = Date.UTC(
+    Number(dateMatch[1]),
+    Number(dateMatch[2]) - 1,
+    Number(dateMatch[3]),
+    Number(timeMatch[1]),
+    Number(timeMatch[2]),
+  )
+  let instant = targetLocalAsUtc
+  try {
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+      }).formatToParts(new Date(instant))
+      const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]))
+      const localAsUtc = Date.UTC(
+        Number(values.year),
+        Number(values.month) - 1,
+        Number(values.day),
+        Number(values.hour),
+        Number(values.minute),
+      )
+      const nextInstant = targetLocalAsUtc - (localAsUtc - instant)
+      if (nextInstant === instant) break
+      instant = nextInstant
+    }
+  } catch {
+    return ''
+  }
+  const offsetMinutes = Math.round((targetLocalAsUtc - instant) / 60000)
+  const sign = offsetMinutes >= 0 ? '+' : '-'
+  const absoluteOffset = Math.abs(offsetMinutes)
+  return `UTC${sign}${String(Math.floor(absoluteOffset / 60)).padStart(2, '0')}:${String(absoluteOffset % 60).padStart(2, '0')}`
+}
+
 function extractSafeString(val, isRtl = true) {
   if (val === null || val === undefined) return ''
   if (typeof val === 'string') {
@@ -278,11 +333,14 @@ export default function ComplaintCard({ item, isRtl, t, onDelete, onResolve, onR
     full.sessionName ||
     full.sessionTitle ||
     (typeof full.session === 'object' ? (full.session?.title || full.session?.name) : full.session) ||
-    (full.sessionNumber ? `حصة ${full.sessionNumber}` : '') ||
+    (full.sessionNumber ? t('adminDashboard.complaints.sessionNumber', { number: full.sessionNumber }) : '') ||
     ''
-  const proposedDate = full.proposedDate || full.suggestedDate || full.rescheduleDate || full.newDate || full.date || ''
+  const proposedDate = full.proposedNewDate || full.proposedDate || full.suggestedDate || full.rescheduleDate || full.newDate || full.date || ''
   const proposedStartTime = full.proposedStartTime || full.suggestedStartTime || full.newStartTime || full.startTime || ''
   const proposedEndTime = full.proposedEndTime || full.suggestedEndTime || full.newEndTime || full.endTime || ''
+  const proposedTimezone = full.proposedTimezone || full.group?.country?.timezone || ''
+  const proposedUtcOffset = getLocalTimeUtcOffset(proposedDate, proposedStartTime, proposedTimezone)
+  const proposedTimeLabel = [proposedStartTime, proposedEndTime].filter(Boolean).map((time) => format12HourTime(time, isRtl)).join(' - ')
   const teacherName =
     full.teacherName ||
     (typeof full.teacher === 'object' ? (full.teacher?.name || full.teacher?.displayName) : full.teacher) ||
@@ -394,7 +452,7 @@ export default function ComplaintCard({ item, isRtl, t, onDelete, onResolve, onR
                   <Clock size={15} className="text-amber-600 dark:text-amber-400 shrink-0" />
                   <span className="font-semibold text-slate-500 dark:text-slate-400">{t('adminDashboard.complaints.proposedTime', 'الوقت المقترح')}:</span>
                   <span className="font-bold font-mono" dir="ltr">
-                    {proposedStartTime}{proposedEndTime ? ` - ${proposedEndTime}` : ''}
+                    {proposedTimeLabel}{proposedUtcOffset ? ` (${proposedUtcOffset})` : ''}
                   </span>
                 </div>
               )}

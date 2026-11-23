@@ -2,34 +2,10 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Clock, Calendar, AlertCircle, Loader2 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
-
-function parseDateForInput(val) {
-  if (!val) return new Date().toISOString().split('T')[0]
-  if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val
-  const d = new Date(val)
-  if (!isNaN(d.getTime())) {
-    const y = d.getFullYear()
-    const m = String(d.getMonth() + 1).padStart(2, '0')
-    const day = String(d.getDate()).padStart(2, '0')
-    return `${y}-${m}-${day}`
-  }
-  return new Date().toISOString().split('T')[0]
-}
-
-function parseTimeForInput(val, fallback = '17:00') {
-  if (!val) return fallback
-  if (typeof val === 'string' && val.includes('T')) {
-    const d = new Date(val)
-    if (!isNaN(d.getTime())) {
-      const h = String(d.getHours()).padStart(2, '0')
-      const m = String(d.getMinutes()).padStart(2, '0')
-      return `${h}:${m}`
-    }
-  }
-  const match = String(val).match(/(\d{2}:\d{2})/)
-  if (match) return match[1]
-  return fallback
-}
+import {
+  formatDateInputInTimeZone,
+  formatClockInputInTimeZone,
+} from '@/shared/services/api/adminSessionsApi'
 
 function calculateEndTime(startTimeStr, durationMinutes = 90) {
   if (!startTimeStr) return '18:30'
@@ -41,17 +17,20 @@ function calculateEndTime(startTimeStr, durationMinutes = 90) {
   return `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`
 }
 
-export default function ReschedulePanel({ session, onConfirm, onCancel }) {
+function RescheduleForm({ session, onConfirm, onCancel, timeZone, timeZonePlace }) {
   const { t } = useTranslation()
-  const initialDate = parseDateForInput(session.date || session.startTime)
-  const initialStart = parseTimeForInput(session.startTime, '17:00')
-  const initialEnd = parseTimeForInput(
-    session.endTime,
-    calculateEndTime(initialStart, session.durationMinutes || 90)
-  )
-  const [date, setDate] = useState(initialDate)
-  const [startTime, setStartTime] = useState(initialStart)
-  const [endTime, setEndTime] = useState(initialEnd)
+  const getInitialValues = () => {
+    const initialStart = formatClockInputInTimeZone(session.startTime, timeZone) || '17:00'
+    return {
+      date: formatDateInputInTimeZone(session.startTime, timeZone) || session.date || new Date().toISOString().slice(0, 10),
+      startTime: initialStart,
+      endTime: formatClockInputInTimeZone(session.endTime, timeZone) || calculateEndTime(initialStart, session.durationMinutes || 90),
+    }
+  }
+  const initialValues = getInitialValues()
+  const [date, setDate] = useState(initialValues.date)
+  const [startTime, setStartTime] = useState(initialValues.startTime)
+  const [endTime, setEndTime] = useState(initialValues.endTime)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const handleStartTimeChange = (newStart) => {
@@ -97,7 +76,7 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
     session.groupName ||
     (typeof session.group === 'object' ? session.group?.name : session.group) ||
     session.title ||
-    'المجموعة'
+    t('adminDashboard.sessions.groupFallback')
   return (
     <form
       onSubmit={handleSubmit}
@@ -108,14 +87,14 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
           <Calendar className="w-4 h-4 text-brand-500" />
           <span>
             {t('adminDashboard.sessions.rescheduleTitle', {
-              defaultValue: `إعادة جدولة: {{name}}`,
+              defaultValue: `Reschedule: {{name}}`,
               name: groupDisplayName,
             })}
           </span>
         </p>
         {session.durationMinutes > 0 && (
           <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            (المدة: {session.durationMinutes} دقيقة)
+            {t('adminDashboard.sessions.durationValue', { minutes: session.durationMinutes })}
           </span>
         )}
       </div>
@@ -125,6 +104,9 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
           <span>{error}</span>
         </div>
       )}
+      <p className="text-xs text-slate-500 dark:text-slate-400">
+        {t('adminDashboard.sessions.inputTimeZone', 'مواعيد الإدخال بتوقيت {{place}}', { place: timeZonePlace || timeZone })}
+      </p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-bold text-slate-600 dark:text-slate-300 text-start flex items-center gap-1">
@@ -195,4 +177,17 @@ export default function ReschedulePanel({ session, onConfirm, onCancel }) {
       </div>
     </form>
   )
+}
+
+export default function ReschedulePanel({ timeZoneResolved, ...props }) {
+  const { t } = useTranslation()
+  if (!timeZoneResolved) {
+    return (
+      <div className="flex items-center gap-2 px-6 py-5 text-sm text-slate-500 dark:text-slate-400">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        <span>{t('adminDashboard.sessions.loadingTimeZone', 'جاري تحديد توقيت الأدمن...')}</span>
+      </div>
+    )
+  }
+  return <RescheduleForm {...props} />
 }

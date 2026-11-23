@@ -25,7 +25,19 @@ const buildGroupFormData = (data = {}, fields) => {
 
 export const adminGroupsApi = {
   fetchGroups: async (params = {}) => {
-    const response = await api.get('/api/v1/groups/private', { params });
+    const { status, ...query } = params;
+    const statusRoutes = {
+      pending: 'pending',
+      active: 'active',
+      suspended: 'stopped',
+      stopped: 'stopped',
+      completed: 'completed',
+    };
+    const route = statusRoutes[String(status || '').toLowerCase()];
+    const endpoint = route
+      ? `/api/v1/groups/private/${route}`
+      : '/api/v1/groups/private';
+    const response = await api.get(endpoint, { params: query });
     return response.data;
   },
 
@@ -59,6 +71,13 @@ export const adminGroupsApi = {
 
   fetchLocalizedCompletedGroups: async (params = {}) => {
     const response = await api.get('/api/v1/groups/private/localized/completed', { params });
+    return response.data;
+  },
+
+  fetchTransferableGroups: async (curriculum) => {
+    const response = await api.get('/api/v1/groups/private/localized/list', {
+      params: { curriculum },
+    });
     return response.data;
   },
 

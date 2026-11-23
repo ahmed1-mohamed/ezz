@@ -19,38 +19,23 @@ import { adminGroupsApi } from '@/shared/services/api/adminGroupsApi'
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert'
 import { getApiErrorText } from '@/shared/utils/errorHandler'
 import Spinner from '@/shared/components/Spinner'
+import { formatGroupScheduleSlot, getTimeZonePlace } from '@/dashboard/admin/groups/utils/groupTimeUtils'
 
 const SESSION_TYPES = [
   {
     key: 'extra',
-    labelAr: 'إضافية',
-    labelEn: 'Extra',
-    descAr: 'حصة إضافية لشرح مواضيع أو مراجعة',
-    descEn: 'Extra session for review or extra topics',
     color: 'emerald',
   },
   {
     key: 'makeup',
-    labelAr: 'تعويضية',
-    labelEn: 'Makeup',
-    descAr: 'حصة تعويضية عن حصة سابقة ملغاة',
-    descEn: 'Makeup session for a previously cancelled session',
     color: 'amber',
   },
   {
     key: 'regular',
-    labelAr: 'عادية',
-    labelEn: 'Regular',
-    descAr: 'حصة دراسية اعتيادية ضمن الجدول',
-    descEn: 'Standard academic session within curriculum',
     color: 'blue',
   },
   {
     key: 'trial',
-    labelAr: 'تجريبية',
-    labelEn: 'Trial',
-    descAr: 'حصة تجريبية لتقييم أو تجربة طالب',
-    descEn: 'Trial session for assessment or new students',
     color: 'purple',
   },
 ]
@@ -91,6 +76,8 @@ export default function CreateSessionModal({
   onSuccess,
   preselectedGroup = null,
   isRtl: customIsRtl,
+  adminTimeZone = '',
+  adminTimeZonePlace = '',
 }) {
   const { t, i18n } = useTranslation()
   const isRtl = customIsRtl !== undefined ? customIsRtl : i18n.language.startsWith('ar')
@@ -170,20 +157,18 @@ export default function CreateSessionModal({
   const validateForm = () => {
     const errors = {}
     if (!selectedGroupId) {
-      errors.group = isRtl ? 'يرجى اختيار المجموعة الدراسية' : 'Please select a group'
+      errors.group = t('adminDashboard.sessions.errors.groupRequired')
     }
     if (!date) {
-      errors.date = isRtl ? 'يرجى تحديد تاريخ الحصة' : 'Please select a date'
+      errors.date = t('adminDashboard.sessions.errors.dateRequired')
     }
     if (!startTime) {
-      errors.startTime = isRtl ? 'يرجى تحديد وقت البدء' : 'Please specify start time'
+      errors.startTime = t('adminDashboard.sessions.errors.startTimeRequired')
     }
     if (!endTime) {
-      errors.endTime = isRtl ? 'يرجى تحديد وقت الانتهاء' : 'Please specify end time'
+      errors.endTime = t('adminDashboard.sessions.errors.endTimeRequired')
     } else if (startTime && endTime && startTime >= endTime) {
-      errors.endTime = isRtl
-        ? 'وقت الانتهاء يجب أن يكون بعد وقت البدء'
-        : 'End time must be after start time'
+      errors.endTime = t('adminDashboard.sessions.errors.endTimeAfterStart')
     }
     setFormErrors(errors)
     return Object.keys(errors).length === 0
@@ -192,9 +177,7 @@ export default function CreateSessionModal({
     e.preventDefault()
     if (!validateForm()) {
       showErrorToast(
-        isRtl
-          ? 'يرجى استكمال ومراجعة جميع الحقول المطلوبة'
-          : 'Please review and fill all required fields',
+        t('adminDashboard.sessions.errors.reviewRequiredFields'),
         isRtl
       )
       return
@@ -218,7 +201,7 @@ export default function CreateSessionModal({
       const res = await adminSessionsApi.createExtraSession(payload)
       if (res && res.success) {
         showSuccessToast(
-          res.message || (isRtl ? 'تم إنشاء الحصة الدراسية بنجاح' : 'Session created successfully'),
+          res.message || t('adminDashboard.sessions.createSuccess'),
           isRtl
         )
         if (onSuccess) onSuccess(res.data)
@@ -226,14 +209,14 @@ export default function CreateSessionModal({
       } else {
         const errMsg = getApiErrorText(
           res?.error || res?.message,
-          isRtl ? 'فشل إنشاء الحصة الدراسية' : 'Failed to create session'
+          t('adminDashboard.sessions.createError')
         )
         showErrorToast(errMsg, isRtl)
       }
     } catch (err) {
       const errMsg = getApiErrorText(
         err,
-        isRtl ? 'حدث خطأ أثناء إنشاء الحصة' : 'An error occurred while creating session'
+        t('adminDashboard.sessions.createUnexpectedError')
       )
       showErrorToast(errMsg, isRtl)
     } finally {
@@ -420,14 +403,21 @@ export default function CreateSessionModal({
                   <span className="text-[10px] text-slate-400 font-semibold me-1">
                     {t('adminDashboard.groups.schedule', 'المواعيد المعتادة:')}
                   </span>
-                  {selectedGroup.weeklySchedule.map((slot, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-600 dark:text-slate-300"
-                    >
-                      {slot.day} ({slot.startTime} - {slot.endTime})
-                    </span>
-                  ))}
+                  {selectedGroup.weeklySchedule.map((slot, idx) => {
+                    const formatted = formatGroupScheduleSlot(slot, selectedGroup, adminTimeZone, isRtl)
+                    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+                    const countryName = typeof selectedGroup.country?.name === 'object' ? selectedGroup.country.name[isRtl ? 'ar' : 'en'] : selectedGroup.country?.name
+                    const place = adminTimeZone ? (adminTimeZonePlace || getTimeZonePlace(formatted.timeZone, isRtl)) : getTimeZonePlace(formatted.timeZone, isRtl, countryName)
+                    const fallbackDay = typeof slot.day === 'object' ? (slot.day[isRtl ? 'ar' : 'en'] || slot.day.ar || slot.day.en) : slot.day
+                    return (
+                      <span
+                        key={idx}
+                        className="px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-600 dark:text-slate-300"
+                      >
+                        {t(`schedule.${days[formatted.dayIndex]}`, fallbackDay)} ({formatted.range}) · {t('common.timezoneLabel', 'بتوقيت {{place}}', { place })}
+                      </span>
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -455,14 +445,14 @@ export default function CreateSessionModal({
                     }`}
                   >
                     <span className="text-xs sm:text-sm font-black">
-                      {isRtl ? tItem.labelAr : tItem.labelEn}
+                      {t(`adminDashboard.sessions.types.${tItem.key}.label`)}
                     </span>
                     <span
                       className={`text-[10px] leading-tight ${
                         isSelected ? 'text-white/80' : 'text-slate-400'
                       }`}
                     >
-                      {isRtl ? tItem.descAr : tItem.descEn}
+                      {t(`adminDashboard.sessions.types.${tItem.key}.description`)}
                     </span>
                   </button>
                 )
@@ -499,7 +489,7 @@ export default function CreateSessionModal({
                       : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'
                   }`}
                 >
-                  {isRtl ? 'مجانية (بدون خصم)' : 'Free (No Deduction)'}
+                  {t('adminDashboard.sessions.freeOption')}
                 </button>
                 <button
                   type="button"
@@ -510,7 +500,7 @@ export default function CreateSessionModal({
                       : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'
                   }`}
                 >
-                  {isRtl ? 'مدفوعة (تخصم من الرصيد)' : 'Paid (Deduct Balance)'}
+                  {t('adminDashboard.sessions.paidOption')}
                 </button>
               </div>
             </div>
@@ -524,7 +514,7 @@ export default function CreateSessionModal({
                 type="text"
                 value={titleAr}
                 onChange={(e) => setTitleAr(e.target.value)}
-                placeholder={isRtl ? 'مثال: مراجعة نهائية على الوحدة الأولى' : 'e.g. Unit 1 Revision'}
+                placeholder={t('adminDashboard.sessions.titleArabicPlaceholder')}
                 className="w-full bg-[#f8faf9] dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-xs sm:text-sm text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#005953]/20 focus:border-[#005953] transition-all"
               />
             </div>
@@ -536,7 +526,7 @@ export default function CreateSessionModal({
                 type="text"
                 value={titleEn}
                 onChange={(e) => setTitleEn(e.target.value)}
-                placeholder="e.g. Final Revision on Unit 1"
+                placeholder={t('adminDashboard.sessions.titleEnglishPlaceholder')}
                 className="w-full bg-[#f8faf9] dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-xs sm:text-sm text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#005953]/20 focus:border-[#005953] transition-all"
               />
             </div>

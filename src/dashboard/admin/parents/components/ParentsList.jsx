@@ -9,6 +9,24 @@ import {
   ChevronRight,
 } from 'lucide-react'
 
+function ParentAvatar({ src, name, initial }) {
+  const [failedSrc, setFailedSrc] = useState(null)
+  const imageSrc = typeof src === 'string' && src.trim() ? src.trim() : null
+
+  return imageSrc && failedSrc !== imageSrc ? (
+    <img
+      src={imageSrc}
+      alt={name}
+      onError={() => setFailedSrc(imageSrc)}
+      className="h-9 w-9 shrink-0 rounded-full object-cover shadow-sm border border-slate-100 dark:border-slate-800"
+    />
+  ) : (
+    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-500/10 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300 font-bold text-sm">
+      {initial}
+    </div>
+  )
+}
+
 export default function ParentsList({
   parents = [],
   pagination,
@@ -111,13 +129,7 @@ export default function ParentsList({
                     <tr key={parent.parent_id || parent._id || parent.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-950/20 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3 justify-start">
-                          {parent.image ? (
-                            <img src={parent.image} alt={nameStr} className="h-9 w-9 shrink-0 rounded-full object-cover shadow-sm border border-slate-100 dark:border-slate-800" />
-                          ) : (
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-500/10 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300 font-bold text-sm">
-                              {initial}
-                            </div>
-                          )}
+                          <ParentAvatar src={parent.image} name={nameStr} initial={initial} />
                           <div className="text-start">
                             <p className="font-semibold text-slate-800 dark:text-slate-200">{nameStr}</p>
                             <p className="text-xs text-slate-400 dark:text-slate-500">{parent.email}</p>

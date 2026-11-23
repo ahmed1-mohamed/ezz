@@ -2,6 +2,15 @@ import { useState } from 'react'
 import { Users, Plus, Eye } from 'lucide-react'
 import AddChildModal from './AddChildModal'
 
+function ChildAvatar({ src, name, initial }) {
+  const [failedSrc, setFailedSrc] = useState(null)
+  const imageSrc = typeof src === 'string' && src.trim() ? src.trim() : null
+
+  return imageSrc && failedSrc !== imageSrc ? (
+    <img src={imageSrc} alt={name} onError={() => setFailedSrc(imageSrc)} className="w-full h-full object-cover" />
+  ) : initial
+}
+
 export default function ParentChildrenSection({
   childrenList = [],
   isRtl = true,
@@ -93,11 +102,7 @@ export default function ParentChildrenSection({
                     <td className="py-4 px-4 sm:px-6 text-start">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-2xl bg-[#00594C]/10 text-[#00594C] dark:bg-emerald-500/20 dark:text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden">
-                          {child.image ? (
-                            <img src={child.image} alt={child.name} className="w-full h-full object-cover" />
-                          ) : (
-                            child.initial
-                          )}
+                          <ChildAvatar src={child.image} name={child.name} initial={child.initial} />
                         </div>
                         <div className="min-w-0">
                           <p className="font-bold text-slate-800 dark:text-white truncate">

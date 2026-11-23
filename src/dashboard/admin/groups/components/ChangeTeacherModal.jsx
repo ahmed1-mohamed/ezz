@@ -6,6 +6,34 @@ import { teachersApi } from '@/shared/services/api/teachersApi'
 import TeacherSelect from './fields/TeacherSelect'
 import { getLocalizedValue } from '../utils/groupUtils'
 
+function getLocalizedTeacherDetail(value, isRtl) {
+  if (value === null || value === undefined) return ''
+  if (typeof value === 'string' || typeof value === 'number') return String(value)
+  if (Array.isArray(value)) return value.map((item) => getLocalizedTeacherDetail(item, isRtl)).filter(Boolean).join(' · ')
+  if (typeof value !== 'object') return ''
+  const localized = isRtl ? value.ar || value.en : value.en || value.ar
+  if (localized) return getLocalizedTeacherDetail(localized, isRtl)
+  for (const key of ['name', 'label', 'title']) {
+    if (value[key]) return getLocalizedTeacherDetail(value[key], isRtl)
+  }
+  return ''
+}
+
+function getTeacherCurriculum(teacher, isRtl) {
+  const specializations = Array.isArray(teacher.specializations)
+    ? teacher.specializations.map((specialization) => {
+        if (typeof specialization === 'string' && /^[a-f\d]{24}$/i.test(specialization)) return ''
+        return specialization?.name || specialization?.title || specialization?.label || specialization
+      }).filter(Boolean)
+    : []
+  return getLocalizedTeacherDetail(
+    specializations.length
+      ? specializations
+      : (teacher.curriculum?.name || teacher.curriculum || teacher.subject),
+    isRtl,
+  )
+}
+
 export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: propIsRtl }) {
   const { t, i18n } = useTranslation()
   const isRtl = propIsRtl !== undefined ? propIsRtl : i18n.language.startsWith('ar')
@@ -14,7 +42,9 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
   const [selectedTeacher, setSelectedTeacher] = useState(null)
   const [isLoadingTeachers, setIsLoadingTeachers] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [failedTeacherImage, setFailedTeacherImage] = useState(null)
   const currentTeacherId = group?.teacher?.id || (typeof group?.teacher === 'string' ? group?.teacher : null)
+  const groupCurriculumId = group?.curriculum?.id || group?.curriculum?._id || group?.curriculumId || (typeof group?.curriculum === 'string' ? group.curriculum : '')
   const rawTeacherName = group?.teacher?.name || (typeof group?.teacher === 'string' ? group?.teacher : t('adminDashboard.groups.unassigned', 'غير محدد'))
   const currentTeacherName = getLocalizedValue(rawTeacherName, isRtl) || String(rawTeacherName || t('adminDashboard.groups.unassigned', 'غير محدد'))
   useEffect(() => {
@@ -22,7 +52,11 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
     const loadTeachers = async () => {
       setIsLoadingTeachers(true)
       try {
-        const res = await teachersApi.fetchTeachersList({ limit: 1000 })
+        if (!groupCurriculumId) {
+          setTeachers([])
+          return
+        }
+        const res = await teachersApi.fetchTeacherOptionsLocalized({ specializations: groupCurriculumId })
         const list = res?.data || (Array.isArray(res) ? res : [])
         if (!isMounted) return
         if (list.length > 0) {
@@ -41,7 +75,7 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [groupCurriculumId])
   const handleSubmit = async (e) => {
     e?.preventDefault()
     if (!selectedTeacher || isSubmitting) return
@@ -59,9 +93,20 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
     }
   }
   const selectedName = selectedTeacher
-    ? (typeof selectedTeacher.name === 'object'
-        ? (isRtl ? selectedTeacher.name.ar : selectedTeacher.name.en)
-        : selectedTeacher.name)
+    ? getLocalizedTeacherDetail(
+        selectedTeacher.name && typeof selectedTeacher.name === 'object'
+          ? selectedTeacher.name
+          : (isRtl
+              ? selectedTeacher.nameAr || selectedTeacher.name || selectedTeacher.displayName
+              : selectedTeacher.nameEn || selectedTeacher.name || selectedTeacher.displayName),
+        isRtl,
+      )
+    : ''
+  const selectedTeacherDetails = selectedTeacher
+    ? [
+        getTeacherCurriculum(selectedTeacher, isRtl),
+        getLocalizedTeacherDetail(selectedTeacher.degree || selectedTeacher.qualification, isRtl),
+      ].filter(Boolean).join(' · ')
     : ''
   const isCurrentSelected = selectedTeacher && String(selectedTeacher.id || selectedTeacher.teacher_id) === String(currentTeacherId)
   if (typeof document === 'undefined') return null
@@ -147,8 +192,8 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold text-base shrink-0 overflow-hidden shadow-sm">
-                  {selectedTeacher.image ? (
-                    <img src={selectedTeacher.image} alt="" className="w-full h-full object-cover" />
+                  {selectedTeacher.image && failedTeacherImage !== selectedTeacher.image ? (
+                    <img src={selectedTeacher.image} alt="" onError={() => setFailedTeacherImage(selectedTeacher.image)} className="w-full h-full object-cover" />
                   ) : (
                     selectedName.charAt(0) || <GraduationCap size={20} />
                   )}
@@ -157,9 +202,9 @@ export default function ChangeTeacherModal({ group, onClose, onConfirm, isRtl: p
                   <h4 className="text-sm font-bold text-slate-800 dark:text-white truncate">
                     {selectedName}
                   </h4>
-                  {(selectedTeacher.subject || selectedTeacher.degree) && (
+                  {selectedTeacherDetails && (
                     <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                      {[selectedTeacher.subject, selectedTeacher.degree].filter(Boolean).join(' · ')}
+                      {selectedTeacherDetails}
                     </p>
                   )}
                   {(selectedTeacher.phone || selectedTeacher.email) && (

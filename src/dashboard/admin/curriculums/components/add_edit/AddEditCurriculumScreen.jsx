@@ -198,6 +198,8 @@ export default function AddEditCurriculumScreen({
           <div className="lg:col-span-4 space-y-6">
             <CurriculumMediaCard
               previewImage={previewImage}
+              nameAr={nameAr}
+              nameEn={nameEn}
               onImageChange={handleImageChange}
               onImageRemove={handleImageRemove}
               isRtl={isRtl}

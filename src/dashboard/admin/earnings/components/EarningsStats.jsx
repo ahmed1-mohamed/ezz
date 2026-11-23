@@ -117,7 +117,7 @@ export default function EarningsStats({ stats, platform, currency = 'USD', mode 
             {item.isHero && (
               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100/60 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
                 <ShieldCheck size={12} />
-                <span>صافي الأرباح</span>
+                <span>{t('adminDashboard.earnings.netProfitBadge', 'صافي الأرباح')}</span>
               </span>
             )}
           </div>

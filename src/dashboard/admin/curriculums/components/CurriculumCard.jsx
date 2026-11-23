@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Trash2, Pencil, Eye, GraduationCap } from 'lucide-react'
+import { getImageUrl } from '@/shared/services/api/teachersApi'
 
 export default function CurriculumCard({ curriculum, onEdit, onDelete, onView }) {
   const { i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
+  const [failedImage, setFailedImage] = useState('')
   const name = typeof curriculum.name === 'object'
     ? (isRtl ? curriculum.name.ar : curriculum.name.en) || curriculum.name.ar || curriculum.name.en
     : curriculum.name;
@@ -28,15 +31,16 @@ export default function CurriculumCard({ curriculum, onEdit, onDelete, onView })
           </span>
         </div>
         <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-5 rounded-[20px] overflow-hidden flex items-center justify-center shrink-0">
-          {curriculum.image && curriculum.image.trim() !== '' ? (
+          {curriculum.image && curriculum.image.trim() !== '' && failedImage !== curriculum.image ? (
             <img
-              src={curriculum.image}
+              src={getImageUrl(curriculum.image)}
               alt={name || 'Curriculum'}
               className="w-full h-full shadow-sm shadow-slate-200 object-cover group-hover:scale-110 transition-transform duration-500"
+              onError={() => setFailedImage(curriculum.image)}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-[#0f7a6c]/10 text-[#0f7a6c] dark:bg-[#0f7a6c]/20 dark:text-[#0f7a6c] text-3xl font-bold shadow-sm shadow-slate-200 group-hover:scale-110 transition-transform duration-500 uppercase">
-              {name ? name.charAt(0) : '?'}
+              {String(name || '').trim().charAt(0) || (isRtl ? 'م' : 'C')}
             </div>
           )}
         </div>

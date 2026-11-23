@@ -90,6 +90,69 @@ export const formatTime12h = (timeStr, isRtl = true) => {
   return formatTimeRange12h(timeStr, null, 60, isRtl);
 };
 
+export const formatTimeRangeInTimeZone = (startTime, endTime, durationMinutes, timeZone, isRtl = true) => {
+  const format = (value) => {
+    if (!value || !String(value).includes('T')) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    try {
+      return new Intl.DateTimeFormat(isRtl ? 'ar-EG' : 'en-US', {
+        timeZone,
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      }).format(date);
+    } catch {
+      return '';
+    }
+  };
+  const start = format(startTime);
+  let end = format(endTime);
+  if (start && !end && Number(durationMinutes) > 0) {
+    const startDate = new Date(startTime);
+    if (!Number.isNaN(startDate.getTime())) {
+      end = format(new Date(startDate.getTime() + Number(durationMinutes) * 60_000).toISOString());
+    }
+  }
+  if (start && end) return `${start} - ${end}`;
+  if (start || end) return start || end;
+  return formatTimeRange12h(startTime, endTime, durationMinutes, isRtl);
+};
+
+const getDateTimePartsInTimeZone = (value, timeZone) => {
+  if (!value || !String(value).includes('T')) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  try {
+    return Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).formatToParts(date).map(({ type, value: partValue }) => [type, partValue]));
+  } catch {
+    return null;
+  }
+};
+
+export const formatDateInputInTimeZone = (value, timeZone) => {
+  if (!value) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(value))) return String(value);
+  const parts = getDateTimePartsInTimeZone(value, timeZone);
+  return parts ? `${parts.year}-${parts.month}-${parts.day}` : '';
+};
+
+export const formatClockInputInTimeZone = (value, timeZone) => {
+  if (!value) return '';
+  const parts = getDateTimePartsInTimeZone(value, timeZone);
+  if (parts) return `${parts.hour}:${parts.minute}`;
+  const match = String(value).match(/(\d{2}:\d{2})/);
+  return match?.[1] || '';
+};
+
 export const mapSessionData = (raw) => {
   if (!raw) return null;
   const item = raw.data || raw;
@@ -193,6 +256,10 @@ export const mapSessionData = (raw) => {
     group: item.group,
     groupId,
     groupName: groupName || 'مجموعة دراسية',
+    groupCountry: item.group && typeof item.group === 'object' ? item.group.country || null : null,
+    groupTimeZone: item.group && typeof item.group === 'object'
+      ? item.group.country?.timezone || item.group.country?.country?.timezone || ''
+      : '',
     teacher: teacherName || 'غير محدد',
     teacherId,
     teacherEmail,
@@ -216,6 +283,13 @@ export const mapSessionData = (raw) => {
 };
 
 export const adminSessionsApi = {
+  fetchTimezoneContext: async () => {
+    const response = await api.get('/api/v1/sessions/private/timezone-context', {
+      skipGlobalErrorToast: true,
+    });
+    return response.data?.data || response.data || {};
+  },
+
   fetchSessions: async (params = {}) => {
     const { page = 1, limit = 10, status, search, ...rest } = params;
     const queryParams = { page, limit, ...rest };
@@ -346,18 +420,17 @@ export const adminSessionsApi = {
     }
   },
 
-  cancelSession: async (id) => {
+  cancelSession: async (id, payload) => {
     try {
-      const response = await api.put(`/api/v1/sessions/private/${id}/cancel`);
-      return { success: true, data: response.data, message: 'Session cancelled' };
+      const response = await api.patch(`/api/v1/sessions/private/${id}/cancel`, payload);
+      return { success: true, data: response.data, message: response.data?.message };
     } catch (error) {
-      try {
-        const fallbackRes = await api.patch(`/api/v1/sessions/${id}`, { status: 'cancelled' });
-        return { success: true, data: fallbackRes.data, message: 'Session cancelled' };
-      } catch (err2) {
-        console.warn('cancelSession failed:', error);
-        return { success: false, error: err2 };
-      }
+      console.warn('cancelSession failed:', error);
+      return {
+        success: false,
+        error,
+        message: error.response?.data?.message || error.message || 'Failed to cancel session',
+      };
     }
   },
 

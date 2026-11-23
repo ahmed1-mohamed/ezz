@@ -1,5 +1,4 @@
 import api from './axiosConfig'
-import { adminSessionsApi } from './adminSessionsApi'
 
 const BASE_URL = '/api/v1/complaints-suggestions/private'
 
@@ -123,24 +122,9 @@ export const complaintsApi = {
     return response.data
   },
 
-  approvePostpone: async ({ id, notes, sessionId, date, startTime, endTime }) => {
-    if (sessionId && date && startTime && endTime) {
-      try {
-        await adminSessionsApi.rescheduleSession(sessionId, { date, startTime, endTime })
-      } catch (err) {
-        console.warn('Direct session reschedule failed, delegating to complaint approval:', err)
-      }
-    }
-    try {
-      const response = await api.patch(`${BASE_URL}/accept/${id}`, { notes, date, startTime, endTime }, { skipLang: true })
-      return response.data
-    } catch (err) {
-      if (err.response?.status === 404 || err.response?.status === 400) {
-        const fallbackRes = await api.patch(`${BASE_URL}/resolve/${id}`, { notes, date, startTime, endTime }, { skipLang: true })
-        return fallbackRes.data
-      }
-      throw err
-    }
+  approvePostpone: async ({ id, notes }) => {
+    const response = await api.patch(`${BASE_URL}/accept/${id}`, { notes }, { skipLang: true })
+    return response.data
   },
 
   rejectComplaint: async ({ id, notes }) => {

@@ -16,22 +16,23 @@ export default class AppErrorBoundary extends React.Component {
     window.location.reload();
   };
   handleGoHome = () => {
-    window.location.href = '/';
+    window.location.href = this.props.homePath || '/ar';
   };
   render() {
     if (this.state.hasError) {
+      const isRtl = Boolean(this.props.isRtl);
       return (
-        <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50 dark:bg-slate-950 font-sans" dir="rtl">
+        <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50 dark:bg-slate-950 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
           <div className="max-w-md w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-center space-y-6 shadow-sm">
             <div className="w-16 h-16 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center mx-auto">
               <AlertCircle className="w-8 h-8" />
             </div>
             <div className="space-y-2">
               <h2 className="text-xl font-black text-slate-800 dark:text-white">
-                عذراً، حدث خطأ غير متوقع
+                {this.props.errorTitle || (isRtl ? 'عذراً، حدث خطأ غير متوقع' : 'Sorry, something went wrong')}
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                يرجى إعادة تحميل الصفحة أو العودة إلى الصفحة الرئيسية للمتابعة.
+                {this.props.errorDescription || (isRtl ? 'يرجى إعادة تحميل الصفحة أو العودة إلى الصفحة الرئيسية للمتابعة.' : 'Please reload the page or return to the home page to continue.')}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
@@ -41,7 +42,7 @@ export default class AppErrorBoundary extends React.Component {
                 className="w-full sm:flex-1 py-3 px-5 rounded-2xl bg-[#0f7a6c] hover:bg-[#0c6559] text-white font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
               >
                 <RefreshCw className="w-4 h-4" />
-                <span>إعادة التحميل</span>
+                <span>{this.props.reloadLabel || (isRtl ? 'إعادة التحميل' : 'Reload page')}</span>
               </button>
               <button
                 type="button"
@@ -49,7 +50,7 @@ export default class AppErrorBoundary extends React.Component {
                 className="w-full sm:flex-1 py-3 px-5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Home className="w-4 h-4" />
-                <span>الرئيسية</span>
+                <span>{this.props.homeLabel || (isRtl ? 'الرئيسية' : 'Home')}</span>
               </button>
             </div>
           </div>

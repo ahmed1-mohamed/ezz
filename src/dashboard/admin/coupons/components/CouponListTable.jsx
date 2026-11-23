@@ -2,6 +2,7 @@
 import { Trash2, Copy, Check, Tag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
+import StudentAvatar from './StudentAvatar';
 
 const formatDate = (dateString) => {
     if (!dateString) return '-';
@@ -18,11 +19,6 @@ const getStudentName = (student, isRtl) => {
         return isRtl ? nameVal.ar || nameVal.en : nameVal.en || nameVal.ar;
     }
     return nameVal || '-';
-};
-
-const getStudentAvatar = (student) => {
-    if (!student) return null;
-    return student.image || student.profileImage || student.avatar;
 };
 
 function CouponListTable({ coupons, onDelete, onView }) {
@@ -67,8 +63,7 @@ function CouponListTable({ coupons, onDelete, onView }) {
                     {coupons.map((coupon) => {
                         const isActive = isCouponActive(coupon);
                         const studentName = getStudentName(coupon.student, isRtl);
-                        const studentAvatar = getStudentAvatar(coupon.student);
-                        const initials = studentName.trim().charAt(0) || 'ط';
+                        const studentAvatar = coupon.student?.image || coupon.student?.profileImage || coupon.student?.avatar;
                         return (
                             <motion.tr
                                 initial={{ opacity: 0 }}
@@ -88,17 +83,7 @@ function CouponListTable({ coupons, onDelete, onView }) {
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center justify-start gap-2.5">
-                                        {studentAvatar ? (
-                                            <img
-                                                src={studentAvatar}
-                                                alt={studentName}
-                                                className="w-8 h-8 rounded-full object-cover border border-slate-200"
-                                            />
-                                        ) : (
-                                            <div className="w-8 h-8 rounded-full bg-[#0f7a6c]/10 text-[#0f7a6c] dark:text-brand-400 flex items-center justify-center font-bold text-xs">
-                                                {initials}
-                                            </div>
-                                        )}
+                                        <StudentAvatar image={studentAvatar} name={studentName} />
                                         <span className="font-semibold text-slate-700 dark:text-slate-300">
                                             {studentName}
                                         </span>

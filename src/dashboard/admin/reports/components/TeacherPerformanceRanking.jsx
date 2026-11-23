@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
   Trophy,
@@ -11,6 +11,27 @@ import { useTranslation } from 'react-i18next'
 import { dashboardApi } from '@/shared/services/api/dashboardApi.js'
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions'
 import { getImageUrl } from '@/shared/services/api/teachersApi'
+
+function TeacherAvatar({ teacher, className, children }) {
+  const [failedImage, setFailedImage] = useState('')
+  const imageUrl = typeof teacher.avatar === 'string' ? getImageUrl(teacher.avatar) : ''
+  const showImage = imageUrl && failedImage !== imageUrl
+
+  return (
+    <div className={className}>
+      {showImage && (
+        <img
+          src={imageUrl}
+          alt={teacher.name}
+          className="absolute inset-0 w-full h-full object-cover rounded-[inherit]"
+          onError={() => setFailedImage(imageUrl)}
+        />
+      )}
+      {!showImage && <span>{teacher.name?.trim()?.[0] || 'T'}</span>}
+      {children}
+    </div>
+  )
+}
 
 export default function TeacherPerformanceRanking() {
   const { t, i18n } = useTranslation()
@@ -129,21 +150,14 @@ export default function TeacherPerformanceRanking() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
           <div className="order-2 md:order-1 rounded-3xl p-5 bg-gradient-to-br from-slate-50 to-slate-100/70 dark:from-slate-800/50 dark:to-slate-800/20 border border-slate-200 dark:border-slate-700/60 shadow-xs flex flex-col justify-between items-center text-center relative overflow-hidden">
             <span className="absolute top-3 left-3 text-2xl font-black text-slate-300 dark:text-slate-600">#2</span>
-            <div className="w-16 h-16 rounded-2xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-black text-xl text-slate-700 dark:text-slate-200 shadow-sm relative mt-2 overflow-hidden">
-              {topThree[1].avatar ? (
-                <img
-                  src={getImageUrl(topThree[1].avatar)}
-                  alt={topThree[1].name}
-                  className="w-full h-full object-cover rounded-2xl"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
-              ) : (
-                <span>{topThree[1].name[0]}</span>
-              )}
+            <TeacherAvatar
+              teacher={topThree[1]}
+              className="w-16 h-16 rounded-2xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-black text-xl text-slate-700 dark:text-slate-200 shadow-sm relative mt-2 overflow-hidden"
+            >
               <span className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-slate-300 dark:bg-slate-600 text-slate-800 dark:text-white flex items-center justify-center text-xs font-black border-2 border-white dark:border-slate-800">
                 🥈
               </span>
-            </div>
+            </TeacherAvatar>
             <div className="mt-4 space-y-1">
               <h4 className="font-extrabold text-base text-slate-800 dark:text-white">{topThree[1].name}</h4>
               {topThree[1].subject && (
@@ -166,21 +180,14 @@ export default function TeacherPerformanceRanking() {
               <Sparkles size={12} />
               <span>{t('teacherPerformance.topTeacher', 'المعلم الأول 🏆')}</span>
             </div>
-            <div className="w-20 h-20 rounded-3xl bg-amber-100 dark:bg-amber-900/40 border-2 border-amber-300 dark:border-amber-600 flex items-center justify-center font-black text-2xl text-amber-800 dark:text-amber-200 shadow-md relative mt-2 overflow-hidden">
-              {topThree[0].avatar ? (
-                <img
-                  src={getImageUrl(topThree[0].avatar)}
-                  alt={topThree[0].name}
-                  className="w-full h-full object-cover rounded-3xl"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
-              ) : (
-                <span>{topThree[0].name[0]}</span>
-              )}
+            <TeacherAvatar
+              teacher={topThree[0]}
+              className="w-20 h-20 rounded-3xl bg-amber-100 dark:bg-amber-900/40 border-2 border-amber-300 dark:border-amber-600 flex items-center justify-center font-black text-2xl text-amber-800 dark:text-amber-200 shadow-md relative mt-2 overflow-hidden"
+            >
               <span className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center text-sm font-black border-2 border-white dark:border-slate-900 shadow-sm">
                 🥇
               </span>
-            </div>
+            </TeacherAvatar>
             <div className="mt-4 space-y-1">
               <h4 className="font-black text-lg text-slate-900 dark:text-white">{topThree[0].name}</h4>
               {topThree[0].subject && (
@@ -200,21 +207,14 @@ export default function TeacherPerformanceRanking() {
           </div>
           <div className="order-3 md:order-3 rounded-3xl p-5 bg-gradient-to-br from-amber-900/5 to-slate-50 dark:from-amber-950/20 dark:to-slate-800/20 border border-amber-900/20 dark:border-amber-900/40 shadow-xs flex flex-col justify-between items-center text-center relative overflow-hidden">
             <span className="absolute top-3 left-3 text-2xl font-black text-slate-300 dark:text-slate-600">#3</span>
-            <div className="w-16 h-16 rounded-2xl bg-amber-100/70 dark:bg-amber-950/60 flex items-center justify-center font-black text-xl text-amber-800 dark:text-amber-300 shadow-sm relative mt-2 overflow-hidden">
-              {topThree[2].avatar ? (
-                <img
-                  src={getImageUrl(topThree[2].avatar)}
-                  alt={topThree[2].name}
-                  className="w-full h-full object-cover rounded-2xl"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
-              ) : (
-                <span>{topThree[2].name[0]}</span>
-              )}
+            <TeacherAvatar
+              teacher={topThree[2]}
+              className="w-16 h-16 rounded-2xl bg-amber-100/70 dark:bg-amber-950/60 flex items-center justify-center font-black text-xl text-amber-800 dark:text-amber-300 shadow-sm relative mt-2 overflow-hidden"
+            >
               <span className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-amber-700 text-white flex items-center justify-center text-xs font-black border-2 border-white dark:border-slate-800">
                 🥉
               </span>
-            </div>
+            </TeacherAvatar>
             <div className="mt-4 space-y-1">
               <h4 className="font-extrabold text-base text-slate-800 dark:text-white">{topThree[2].name}</h4>
               {topThree[2].subject && (
@@ -258,18 +258,10 @@ export default function TeacherPerformanceRanking() {
               >
                 #{idx + 1}
               </span>
-              <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center font-bold text-[#0f7a6c] dark:text-emerald-400 shrink-0 overflow-hidden">
-                {teacher.avatar ? (
-                  <img
-                    src={getImageUrl(teacher.avatar)}
-                    alt={teacher.name}
-                    className="w-full h-full object-cover rounded-2xl"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                  />
-                ) : (
-                  <span>{teacher.name[0]}</span>
-                )}
-              </div>
+              <TeacherAvatar
+                teacher={teacher}
+                className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center font-bold text-[#0f7a6c] dark:text-emerald-400 shrink-0 overflow-hidden relative"
+              />
               <div>
                 <h4 className="font-extrabold text-sm text-slate-800 dark:text-white">{teacher.name}</h4>
                 {teacher.subject && (

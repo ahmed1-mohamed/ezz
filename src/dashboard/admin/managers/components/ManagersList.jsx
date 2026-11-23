@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Search,
   Plus,
@@ -11,6 +12,25 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
+
+
+function SupervisorAvatar({ src, name, initial, isRtl }) {
+  const [failedSrc, setFailedSrc] = useState(null)
+  const imageSrc = typeof src === 'string' && src.trim() ? src.trim() : null
+
+  return imageSrc && failedSrc !== imageSrc ? (
+    <img
+      src={imageSrc}
+      alt={name}
+      onError={() => setFailedSrc(imageSrc)}
+      className="h-9 w-9 shrink-0 rounded-full object-cover shadow-sm border border-slate-100 dark:border-slate-800"
+    />
+  ) : (
+    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-500/10 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300 font-bold text-sm">
+      {initial || (isRtl ? 'م' : 'S')}
+    </div>
+  )
+}
 
 export default function ManagersList({
   supervisors,
@@ -206,8 +226,10 @@ export default function ManagersList({
                 </tr>
               ) : (
                 currentItems.map((supervisor, index) => {
-                  const sName = typeof supervisor.name === 'object' ? (supervisor.name.ar || supervisor.name.en || '') : (supervisor.name || '');
-                  const initial = sName.trim().charAt(0) || 'م';
+                  const sName = typeof supervisor.name === 'object'
+                    ? (isRtl ? supervisor.name.ar || supervisor.name.en : supervisor.name.en || supervisor.name.ar) || ''
+                    : (supervisor.name || '');
+                  const initial = sName.trim().charAt(0) || (isRtl ? 'م' : 'S');
                   const avatarUrl = supervisor.image || supervisor.photoUrl;
                   let displayRole = isRtl ? 'لا يوجد' : 'None';
                   if (supervisor.role) {
@@ -226,17 +248,7 @@ export default function ManagersList({
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3 justify-start">
-                          {avatarUrl ? (
-                            <img
-                              src={avatarUrl}
-                              alt={sName}
-                              className="h-9 w-9 shrink-0 rounded-full object-cover shadow-sm border border-slate-100 dark:border-slate-800"
-                            />
-                          ) : (
-                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-500/10 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300 font-bold text-sm">
-                              {initial}
-                            </div>
-                          )}
+                          <SupervisorAvatar src={avatarUrl} name={sName} initial={initial} isRtl={isRtl} />
                           <span className="font-semibold text-slate-800 dark:text-slate-200">
                             {sName}
                           </span>

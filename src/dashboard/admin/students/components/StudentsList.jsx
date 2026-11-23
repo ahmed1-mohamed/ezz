@@ -174,16 +174,16 @@ export default function StudentsList({
                   const studentId = student.student_id || student._id || student.id || student.user_id
                   const displayName = typeof student.name === 'string'
                     ? student.name
-                    : (student.name?.ar || student.name?.en || '-')
+                    : (isRtl ? student.name?.ar || student.name?.en : student.name?.en || student.name?.ar) || '-'
                   const initial = (displayName === '-' ? '?' : displayName).trim().charAt(0)
                   const imgUrl = student.image || student.profileImage
                   const rawLevel = student.studentLevel?.name || student.levelName || student.level || ''
                   const levelName = typeof rawLevel === 'object' && rawLevel !== null
-                    ? (rawLevel.ar || rawLevel.en || '')
+                    ? ((isRtl ? rawLevel.ar || rawLevel.en : rawLevel.en || rawLevel.ar) || '')
                     : String(rawLevel || '')
                   const rawParent = student.parent?.name || student.parentName || '-'
                   const parentName = typeof rawParent === 'object' && rawParent !== null
-                    ? (rawParent.ar || rawParent.en || '-')
+                    ? ((isRtl ? rawParent.ar || rawParent.en : rawParent.en || rawParent.ar) || '-')
                     : String(rawParent || '-')
                   const parentPhone = student.parent?.phone || student.parentPhone || ''
                   const rawBalance = student.sessionsBalance ?? student.remainingSessions ?? 0
@@ -194,7 +194,9 @@ export default function StudentsList({
                     : Number(rawBalance || 0)
                   const rawCountry = student.country || '-'
                   const countryDisplay = typeof rawCountry === 'object' && rawCountry !== null
-                    ? (rawCountry.name?.ar || rawCountry.name?.en || rawCountry.name || rawCountry.code || '-')
+                    ? (typeof rawCountry.name === 'object' && rawCountry.name !== null
+                        ? ((isRtl ? rawCountry.name.ar || rawCountry.name.en : rawCountry.name.en || rawCountry.name.ar) || rawCountry.code || '-')
+                        : (rawCountry.name || rawCountry.code || '-'))
                     : String(rawCountry || '-')
                   const rating = student.averageRating !== undefined && student.averageRating !== null
                     ? Number(student.averageRating).toFixed(1)

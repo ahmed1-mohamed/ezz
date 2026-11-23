@@ -2,12 +2,51 @@ import { useState, useRef, useEffect, useMemo } from 'react'
 import { ChevronDown, Search, X, Check, GraduationCap, Loader2 } from 'lucide-react'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 
-function getTeacherName(t, isRtl = true) {
-  if (!t) return ''
-  if (typeof t.name === 'object' && t.name !== null) {
-    return isRtl ? (t.name.ar || t.name.en || '') : (t.name.en || t.name.ar || '')
+function getLocalizedText(value, isRtl = true) {
+  if (value === null || value === undefined) return ''
+  if (typeof value === 'string' || typeof value === 'number') return String(value)
+  if (Array.isArray(value)) return value.map((item) => getLocalizedText(item, isRtl)).filter(Boolean).join(' · ')
+  if (typeof value !== 'object') return ''
+  const localized = isRtl ? value.ar || value.en : value.en || value.ar
+  if (localized) return getLocalizedText(localized, isRtl)
+  for (const key of ['name', 'displayName', 'fullName', 'label', 'title']) {
+    if (value[key]) return getLocalizedText(value[key], isRtl)
   }
-  return t.displayName || t.name || t.nameAr || t.nameEn || ''
+  return ''
+}
+
+function getTeacherName(teacher, isRtl = true) {
+  if (!teacher) return ''
+  const bilingualName = teacher.name && typeof teacher.name === 'object' ? teacher.name : null
+  return getLocalizedText(bilingualName, isRtl)
+    || getLocalizedText(isRtl ? teacher.nameAr || teacher.name : teacher.nameEn || teacher.name, isRtl)
+    || getLocalizedText(teacher.displayName, isRtl)
+    || getLocalizedText(teacher.fullName, isRtl)
+}
+
+function getTeacherCurriculum(teacher, isRtl) {
+  const specializations = Array.isArray(teacher.specializations)
+    ? teacher.specializations.map((specialization) => {
+        if (typeof specialization === 'string' && /^[a-f\d]{24}$/i.test(specialization)) return ''
+        return specialization?.name || specialization?.title || specialization?.label || specialization
+      }).filter(Boolean)
+    : []
+  return getLocalizedText(
+    specializations.length
+      ? specializations
+      : (teacher.curriculum?.name || teacher.curriculum || teacher.subject),
+    isRtl,
+  )
+}
+
+function TeacherAvatar({ src, name, className }) {
+  const [failedSrc, setFailedSrc] = useState(null)
+  const imageSrc = typeof src === 'string' && src.trim() ? src.trim() : null
+  return imageSrc && failedSrc !== imageSrc ? (
+    <img src={imageSrc} alt="" onError={() => setFailedSrc(imageSrc)} className="w-full h-full object-cover" />
+  ) : (
+    <span className={className}>{name?.trim()?.charAt(0) || <GraduationCap size={15} />}</span>
+  )
 }
 
 export default function TeacherSelect({
@@ -76,7 +115,7 @@ export default function TeacherSelect({
     }
   }, [isOpen])
   const selectedName = selectedTeacher ? getTeacherName(selectedTeacher, isRtl) : ''
-  const filteredTeachers = currentPool
+  const filteredTeachers = currentPool.filter((teacher) => teacher && typeof teacher === 'object')
   return (
     <div className="relative w-full" ref={containerRef} dir={isRtl ? 'rtl' : 'ltr'}>
       <button
@@ -89,13 +128,7 @@ export default function TeacherSelect({
       >
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 text-xs font-bold overflow-hidden">
-            {selectedTeacher?.image ? (
-              <img src={selectedTeacher.image} alt="" className="w-full h-full object-cover" />
-            ) : selectedTeacher ? (
-              selectedName.charAt(0) || <GraduationCap size={15} />
-            ) : (
-              <GraduationCap size={15} />
-            )}
+            {selectedTeacher ? <TeacherAvatar src={selectedTeacher.image} name={selectedName} className="font-bold" /> : <GraduationCap size={15} />}
           </div>
           <span className={`truncate font-medium ${selectedTeacher ? 'text-slate-800 dark:text-slate-100' : 'text-slate-400'}`}>
             {selectedTeacher ? selectedName : placeholder}
@@ -109,7 +142,7 @@ export default function TeacherSelect({
                 onSelect(null)
               }}
               className="p-1 hover:text-red-500 rounded-md transition-colors"
-              title="إلغاء التحديد"
+              title={isRtl ? 'إلغاء التحديد' : 'Clear selection'}
             >
               <X size={14} />
             </span>
@@ -157,6 +190,9 @@ export default function TeacherSelect({
               filteredTeachers.map((teacher) => {
                 const tId = teacher.id || teacher.teacher_id || teacher._id
                 const tName = getTeacherName(teacher, isRtl)
+                const curriculumText = getTeacherCurriculum(teacher, isRtl)
+                const degreeText = getLocalizedText(teacher.degree || teacher.qualification, isRtl)
+                const secondaryDetails = [curriculumText, degreeText, getLocalizedText(teacher.phone, isRtl)].filter(Boolean).join(' · ')
                 const isSelected = selectedTeacher && String(selectedTeacher.id || selectedTeacher.teacher_id || selectedTeacher._id) === String(tId)
                 const isCurrent = currentTeacherId && String(currentTeacherId) === String(tId)
                 return (
@@ -182,11 +218,7 @@ export default function TeacherSelect({
                             : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
                         }`}
                       >
-                        {teacher.image ? (
-                          <img src={teacher.image} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          tName.charAt(0) || <GraduationCap size={15} />
-                        )}
+                        <TeacherAvatar src={teacher.image} name={tName} className="font-bold" />
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
@@ -201,9 +233,9 @@ export default function TeacherSelect({
                             </span>
                           )}
                         </div>
-                        {(teacher.subject || teacher.degree || teacher.phone) && (
+                        {secondaryDetails && (
                           <p className={`text-[10px] truncate mt-0.5 ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
-                            {[teacher.subject, teacher.degree, teacher.phone].filter(Boolean).join(' · ')}
+                            {secondaryDetails}
                           </p>
                         )}
                       </div>

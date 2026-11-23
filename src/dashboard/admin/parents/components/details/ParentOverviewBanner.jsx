@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Users, Phone, Mail } from 'lucide-react'
 
 export default function ParentOverviewBanner({
@@ -5,19 +6,21 @@ export default function ParentOverviewBanner({
   isRtl = true,
   childrenCount = 0,
 }) {
+  const [failedSrc, setFailedSrc] = useState(null)
   const displayName = typeof parent?.name === 'object'
     ? (isRtl ? parent.name?.ar || parent.name?.en : parent.name?.en || parent.name?.ar)
     : (parent?.name || '-')
   const initialLetter = displayName && displayName !== '-' ? displayName.trim().charAt(0) : '?'
   const isActive = parent?.active !== false
   const imageSrc = parent?.profileImage || parent?.image || null
+  const canShowImage = typeof imageSrc === 'string' && imageSrc.trim() && failedSrc !== imageSrc
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800/80 shadow-soft">
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
         <div className="flex items-center gap-5 w-full lg:w-auto">
           <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#D79A2B] text-white flex items-center justify-center font-bold text-3xl sm:text-4xl shadow-sm shrink-0 overflow-hidden">
-            {imageSrc ? (
-              <img src={imageSrc} alt={displayName} className="w-full h-full object-cover" />
+            {canShowImage ? (
+              <img src={imageSrc} alt={displayName} onError={() => setFailedSrc(imageSrc)} className="w-full h-full object-cover" />
             ) : (
               <span>{initialLetter}</span>
             )}

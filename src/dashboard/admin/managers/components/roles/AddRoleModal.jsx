@@ -42,11 +42,13 @@ export default function AddRoleModal({
       }
     }
     document.addEventListener('keydown', handleKeyDown)
-    setTimeout(() => {
+    const focusTimer = window.setTimeout(() => {
       const firstInput = modalRef.current?.querySelector('input')
-      if (firstInput) firstInput.focus()
+      const focusIsInsideModal = modalRef.current?.contains(document.activeElement)
+      if (firstInput && !focusIsInsideModal) firstInput.focus()
     }, 100)
     return () => {
+      window.clearTimeout(focusTimer)
       document.removeEventListener('keydown', handleKeyDown)
     }
   }, [isOpen, onClose])

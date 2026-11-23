@@ -7,7 +7,7 @@ const formatDate = (value, isRtl) => {
   return date.toLocaleDateString(isRtl ? 'ar-EG' : 'en-GB', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
-export default function StudentSubscriptionCard({ student, isRtl }) {
+export default function StudentSubscriptionCard({ student, isRtl, className = '' }) {
   const rawBalance = student?.sessionsBalance
   const isObj = typeof rawBalance === 'object' && rawBalance !== null
   const total = isObj ? Number(rawBalance.total || 0) : Number(rawBalance || 0)
@@ -31,7 +31,7 @@ export default function StudentSubscriptionCard({ student, isRtl }) {
       ]
     : []
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
+    <div className={`bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start ${className}`}>
       <div className="flex items-center gap-2 text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <BookOpen className="text-[#005953]" size={20} />
         <h3 className="text-base font-bold">

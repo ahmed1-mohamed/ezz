@@ -7,13 +7,13 @@ import StatusBadge from './StatusBadge'
 import TransferStudentModal from './TransferStudentModal'
 import CreateSessionModal from '@/dashboard/admin/sessions/components/CreateSessionModal'
 import { getLocalizedValue } from '../utils/groupUtils'
+import { formatGroupScheduleSlot, getTimeZonePlace } from '../utils/groupTimeUtils'
 
 export default function GroupDetailsModal({
   group,
   onClose,
   onRemoveStudent,
   onTransferStudent,
-  allGroups = [],
   onOpenAddStudents,
   onAddStudent,
   onChangeTeacher,
@@ -21,6 +21,8 @@ export default function GroupDetailsModal({
   onEditSchedule,
   t,
   isRtl,
+  adminTimeZone = '',
+  adminTimeZonePlace = '',
 }) {
   const [availableStudents, setAvailableStudents] = useState([])
   const [selectedStudent, setSelectedStudent] = useState(null)
@@ -251,11 +253,17 @@ export default function GroupDetailsModal({
           <div className="flex items-center gap-2 min-w-0">
             <Calendar size={15} className="text-brand-600 dark:text-brand-400 shrink-0" />
             <div className="flex items-center gap-1.5 flex-wrap">
-              {(group.weeklySchedule || group.schedule || []).map((s, i) => (
-                <span key={i} className="text-[11px] px-2 py-0.5 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                  {getDayName(s.day)} ({s.startTime || s.timeFrom} - {s.endTime || s.timeTo})
-                </span>
-              ))}
+              {(group.weeklySchedule || group.schedule || []).map((s, i) => {
+                const formatted = formatGroupScheduleSlot(s, group, adminTimeZone, isRtl)
+                const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+                const countryName = typeof group.country?.name === 'object' ? group.country.name[isRtl ? 'ar' : 'en'] : group.country?.name
+                const place = adminTimeZone ? (adminTimeZonePlace || getTimeZonePlace(formatted.timeZone, isRtl)) : getTimeZonePlace(formatted.timeZone, isRtl, countryName)
+                return (
+                  <span key={i} className="text-[11px] px-2 py-0.5 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                    {t(`schedule.${days[formatted.dayIndex]}`, getDayName(s.day))} ({formatted.range}) · {t('common.timezoneLabel', 'بتوقيت {{place}}', { place })}
+                  </span>
+                )
+              })}
               {(!group.weeklySchedule || group.weeklySchedule.length === 0) && (
                 <span className="text-xs text-slate-400">{t('adminDashboard.groups.noSchedule', 'لا توجد مواعيد محددة')}</span>
               )}
@@ -353,7 +361,6 @@ export default function GroupDetailsModal({
           <TransferStudentModal
             student={studentToTransfer}
             currentGroup={group}
-            groups={allGroups}
             onClose={() => setStudentToTransfer(null)}
             onConfirm={async (targetGroupId) => {
               if (onTransferStudent) {
@@ -371,6 +378,8 @@ export default function GroupDetailsModal({
             onClose={() => setIsCreateSessionOpen(false)}
             preselectedGroup={group}
             isRtl={isRtl}
+            adminTimeZone={adminTimeZone}
+            adminTimeZonePlace={adminTimeZonePlace}
           />
         )}
       </div>

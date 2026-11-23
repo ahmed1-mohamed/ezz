@@ -5,7 +5,7 @@ export default function StudentProfileCard({
 }) {
   const studentDisplayName = typeof student?.name === 'string'
     ? student.name
-    : (student?.name?.ar || student?.name?.en || '-');
+    : (isRtl ? student?.name?.ar || student?.name?.en : student?.name?.en || student?.name?.ar) || '-';
   const initial = (studentDisplayName === '-' ? 'ط' : studentDisplayName).trim().charAt(0)
   const imageUrl = student?.image || student?.profileImage
   const isActive = student?.active === true || String(student?.active) === 'true'
