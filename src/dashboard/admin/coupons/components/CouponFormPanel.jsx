@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import Spinner from '@/shared/components/Spinner';
 import StudentSelectionModal from './StudentSelectionModal';
+import StudentAvatar from './StudentAvatar';
 
 const EMPTY_COUPON = {
     code: '',
@@ -206,13 +207,7 @@ function CouponFormPanel({ isOpen, onClose, onSave }) {
                                                             </td>
                                                             <td className="px-4 py-3 text-start">
                                                                 <div className="flex items-center gap-3">
-                                                                    {student.image ? (
-                                                                        <img src={student.image} alt="Student" className="w-8 h-8 rounded-full object-cover border border-slate-200" />
-                                                                    ) : (
-                                                                        <div className="w-8 h-8 rounded-full bg-[#0f7a6c]/10 text-[#0f7a6c] flex items-center justify-center font-bold text-xs">
-                                                                            {resolveStudentName(student.name).charAt(0) || 'S'}
-                                                                        </div>
-                                                                    )}
+                                                                    <StudentAvatar image={student.image} name={resolveStudentName(student.name)} />
                                                                     <span className="text-slate-800 dark:text-slate-205 font-bold">
                                                                         {resolveStudentName(student.name)}
                                                                     </span>

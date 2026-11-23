@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowRight,
@@ -29,8 +29,6 @@ import StudentSubscriptionCard from './details/StudentSubscriptionCard'
 import AddSessionsModal from './AddSessionsModal'
 import { getRemainingSessions } from '../utils/studentUtils'
 
-const ChangeGroupModal = lazy(() => import('./ChangeGroupModal'))
-
 export default function StudentDetailsScreen({
   student,
   isRtl,
@@ -38,12 +36,9 @@ export default function StudentDetailsScreen({
   onEdit,
   onToggleStatus,
   isTogglingStatus = false,
-  onChangeGroup,
   onAddSessions
 }) {
   const { t } = useTranslation()
-  const [isChangeGroupOpen, setIsChangeGroupOpen] = useState(false)
-  const [selectedSourceGroupId, setSelectedSourceGroupId] = useState(null)
   const [isAddSessionsOpen, setIsAddSessionsOpen] = useState(false)
   const [isAddingSessions, setIsAddingSessions] = useState(false)
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
@@ -55,10 +50,10 @@ export default function StudentDetailsScreen({
   const isSuspended = !isActive
   const studentDisplayName = typeof student.name === 'string'
     ? student.name
-    : (student.name?.ar || student.name?.en || '-')
+    : (isRtl ? student.name?.ar || student.name?.en : student.name?.en || student.name?.ar) || '-'
   const rawParent = typeof student.parent === 'object' && student.parent !== null ? student.parent : {}
   const rawParentName = typeof rawParent.name === 'object' && rawParent.name !== null
-    ? (rawParent.name.ar || rawParent.name.en || '-')
+    ? ((isRtl ? rawParent.name.ar || rawParent.name.en : rawParent.name.en || rawParent.name.ar) || '-')
     : (rawParent.name || '-')
   const parentInfo = {
     id: rawParent.parent_id || rawParent.id || '',
@@ -66,11 +61,6 @@ export default function StudentDetailsScreen({
     phone: rawParent.phone || '-',
     email: rawParent.email || '-',
     initial: String(rawParentName || '?').trim().charAt(0) || '?'
-  }
-  const handleOpenChangeGroup = (sourceGroupId = null) => {
-    const cleanId = typeof sourceGroupId === 'string' && sourceGroupId.trim() ? sourceGroupId.trim() : null
-    setSelectedSourceGroupId(cleanId)
-    setIsChangeGroupOpen(true)
   }
   const handlePasswordUpdate = async (e) => {
     if (e && e.preventDefault) e.preventDefault()
@@ -140,7 +130,9 @@ export default function StudentDetailsScreen({
     }
   ]
   const levelVal = typeof student.studentLevel === 'object' && student.studentLevel !== null
-    ? (student.studentLevel.name?.ar || student.studentLevel.name?.en || student.studentLevel.name || '')
+    ? (typeof student.studentLevel.name === 'object' && student.studentLevel.name !== null
+        ? ((isRtl ? student.studentLevel.name.ar || student.studentLevel.name.en : student.studentLevel.name.en || student.studentLevel.name.ar) || '')
+        : (student.studentLevel.name || ''))
     : String(student.studentLevel || student.levelName || '')
   const ageValue = student.age !== undefined && student.age !== null
     ? `${student.age} ${isRtl ? 'سنة' : 'years'}`
@@ -148,7 +140,13 @@ export default function StudentDetailsScreen({
   const detailsItems = [
     {
       label: isRtl ? 'الدولة' : 'Country',
-      value: typeof student.country === 'string' && student.country ? student.country : '-',
+      value: typeof student.country === 'string' && student.country
+        ? student.country
+        : (student.country && typeof student.country === 'object'
+            ? (typeof student.country.name === 'object'
+                ? ((isRtl ? student.country.name.ar || student.country.name.en : student.country.name.en || student.country.name.ar) || '-')
+                : (student.country.name || student.country.code || '-'))
+            : '-'),
       icon: Globe,
       iconColor: 'text-sky-500',
       bgClass: 'bg-sky-50/40 dark:bg-sky-900/10'
@@ -289,35 +287,27 @@ export default function StudentDetailsScreen({
         isRtl={isRtl}
         t={t}
       />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="space-y-6">
-          <StudentSubscriptionCard
-            student={student}
-            isRtl={isRtl}
-          />
-          <StudentGroupCard
-            student={student}
-            isRtl={isRtl}
-            onOpenChangeGroup={handleOpenChangeGroup}
-            t={t}
-          />
-        </div>
-        <div className="space-y-6">
-          <StudentSecurityCard
-            isRtl={isRtl}
-            newPassword={newPassword}
-            setNewPassword={setNewPassword}
-            confirmPassword={confirmPassword}
-            setConfirmPassword={setConfirmPassword}
-            handlePasswordUpdate={handlePasswordUpdate}
-            isUpdating={isUpdatingPassword}
-          />
-          <StudentParentCard
-            isRtl={isRtl}
-            parentInfo={parentInfo}
-          />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+        <StudentSubscriptionCard student={student} isRtl={isRtl} className="h-full" />
+        <div className="h-full flex flex-col gap-6">
+          <div className="flex-1">
+            <StudentSecurityCard
+              isRtl={isRtl}
+              newPassword={newPassword}
+              setNewPassword={setNewPassword}
+              confirmPassword={confirmPassword}
+              setConfirmPassword={setConfirmPassword}
+              handlePasswordUpdate={handlePasswordUpdate}
+              isUpdating={isUpdatingPassword}
+              className="h-full"
+            />
+          </div>
+          <div className="flex-1">
+            <StudentParentCard isRtl={isRtl} parentInfo={parentInfo} className="h-full" />
+          </div>
         </div>
       </div>
+      <StudentGroupCard student={student} isRtl={isRtl} />
       {isAddSessionsOpen && (
         <AddSessionsModal
           isOpen={isAddSessionsOpen}
@@ -328,21 +318,6 @@ export default function StudentDetailsScreen({
           onAddSessions={handleAddSessions}
         />
       )}
-      <Suspense fallback={null}>
-        {isChangeGroupOpen && (
-          <ChangeGroupModal
-            isOpen={isChangeGroupOpen}
-            onClose={() => {
-              setIsChangeGroupOpen(false)
-              setSelectedSourceGroupId(null)
-            }}
-            student={student}
-            isRtl={isRtl}
-            initialGroupId={selectedSourceGroupId}
-            onChangeGroup={onChangeGroup}
-          />
-        )}
-      </Suspense>
     </div>
   )
 }

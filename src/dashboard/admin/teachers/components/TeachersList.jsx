@@ -32,7 +32,7 @@ export default function TeachersList({
   const indexOfFirstItem = effectiveTotal > 0 ? (currentPage - 1) * limit : 0
   const indexOfLastItem = effectiveTotal > 0 ? Math.min(indexOfFirstItem + teachers.length, effectiveTotal) : 0
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-0">
       <TeachersListHeader
         searchVal={searchVal}
         onSearchChange={onSearchChange}

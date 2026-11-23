@@ -1,21 +1,14 @@
 import { useState, useEffect, memo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Mail, Phone, User, Check } from 'lucide-react';
+import { Search, Mail, Phone, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import Spinner from '@/shared/components/Spinner';
 import { studentsApi } from '@/shared/services/api/studentsApi';
-
-const resolveStudentName = (name) =>
-    typeof name === 'object' ? name?.ar || name?.en || '' : name || '';
+import StudentAvatar from './StudentAvatar';
 
 const getStudentId = (student) =>
     student.student_id || student._id || student.id;
-
-const getInitials = (name) => {
-    const str = resolveStudentName(name);
-    return str.charAt(0).toUpperCase() || 'S';
-};
 
 function StudentInfoRow({ icon: Icon, label, value, isLtr = false }) {
     return (
@@ -35,8 +28,10 @@ function StudentInfoRow({ icon: Icon, label, value, isLtr = false }) {
     );
 }
 
-function StudentCard({ student, isSelected, onToggle, t }) {
-    const studentName = resolveStudentName(student.name);
+function StudentCard({ student, isSelected, onToggle, t, isRtl }) {
+    const studentName = typeof student.name === 'object'
+        ? (isRtl ? student.name?.ar || student.name?.en : student.name?.en || student.name?.ar) || ''
+        : student.name || '';
     const studentImage = student.image || student.profileImage || student.avatar;
     return (
         <div
@@ -47,27 +42,14 @@ function StudentCard({ student, isSelected, onToggle, t }) {
                 }`}
         >
             <div className="flex items-center gap-4 mb-4">
-                <div className="relative w-10 h-10 shrink-0">
-                    {studentImage ? (
-                        <img
-                            src={studentImage}
-                            alt={studentName}
-                            className="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-sm"
-                        />
-                    ) : (
-                        <div
-                            className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg ${isSelected ? 'bg-[#0f7a6c]' : 'bg-slate-400'
-                                }`}
-                        >
-                            {isSelected ? <Check size={20} /> : getInitials(studentName)}
-                        </div>
-                    )}
-                    {isSelected && studentImage && (
-                        <div className="absolute inset-0 bg-[#0f7a6c]/80 rounded-full flex items-center justify-center text-white backdrop-blur-[1px]">
-                            <Check size={20} />
-                        </div>
-                    )}
-                </div>
+                <StudentAvatar
+                    image={studentImage}
+                    name={studentName}
+                    sizeClass="w-10 h-10"
+                    textClass="text-lg text-white"
+                    selected={isSelected}
+                    fallbackClass={isSelected ? 'bg-[#0f7a6c]' : 'bg-slate-400 text-white'}
+                />
                 <div className="font-bold text-slate-800 dark:text-white text-base truncate">
                     {studentName}
                 </div>
@@ -117,13 +99,15 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
     const fetchStudents = useCallback(async (query = '', isInitial = false) => {
         if (isInitial) setLoading(true);
         try {
-            const res = await studentsApi.fetchStudents({ search: query });
+            const res = await studentsApi.fetchLocalizedStudentsList(
+                query.trim() ? { search: query.trim() } : {}
+            );
             let studentList = [];
             if (Array.isArray(res)) studentList = res;
             else if (Array.isArray(res?.data)) studentList = res.data;
             else if (Array.isArray(res?.data?.data)) studentList = res.data.data;
             const available = studentList.filter(
-                (s) => !alreadySelectedIds.includes(getStudentId(s))
+                (s) => s.active === true && !alreadySelectedIds.includes(getStudentId(s))
             );
             setStudents(available);
         } catch (error) {
@@ -228,6 +212,7 @@ function StudentSelectionModal({ isOpen, onClose, onAdd, alreadySelectedIds = []
                                                     isSelected={isSelected}
                                                     onToggle={toggleStudent}
                                                     t={t}
+                                                    isRtl={isRtl}
                                                 />
                                             );
                                         })}

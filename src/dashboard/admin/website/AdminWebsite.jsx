@@ -19,7 +19,6 @@ import TestimonialFormModal from './components/TestimonialFormModal.jsx';
 
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { toast as hotToast } from 'react-hot-toast';
 import { useAdminPermissions } from '@/shared/hooks/useAdminPermissions';
 
 export default function AdminWebsite() {
@@ -29,11 +28,6 @@ export default function AdminWebsite() {
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const showNotification = (message, type = 'success') => {
     setToast({ show: true, message, type });
-    if (type === 'success') {
-      hotToast.success(message);
-    } else {
-      hotToast.error(message);
-    }
   };
   useEffect(() => {
     if (toast.show) {

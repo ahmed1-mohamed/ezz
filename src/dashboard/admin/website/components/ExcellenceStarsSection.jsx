@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Plus, Trash2 } from 'lucide-react';
 import Button from '@/shared/components/Button.jsx';
+import WebsiteAvatar from './WebsiteAvatar.jsx';
 
 export default function ExcellenceStarsSection({
   stars,
@@ -34,23 +35,23 @@ export default function ExcellenceStarsSection({
               </div>
             ) : (
               stars.map((star) => {
-                const userLetter = star.name ? star.name.trim().charAt(0) : 'أ';
+                const displayName = isRtl ? star.name || star.nameEn : star.nameEn || star.name;
+                const userLetter = displayName?.trim()?.charAt(0) || (isRtl ? 'ط' : 'S');
                 return (
                   <div
                     key={star.id || star._id}
                     className="flex flex-row items-center justify-between p-4 sm:p-5 bg-slate-50/50 dark:bg-slate-950/20 hover:bg-slate-50 dark:hover:bg-slate-900/40 rounded-2xl border border-slate-100/60 dark:border-slate-800/40 gap-4 transition-all duration-200"
                   >
                     <div className="flex items-center gap-3 sm:gap-4 flex-1">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-lg shadow-sm shrink-0 overflow-hidden relative">
-                        {star.image ? (
-                          <img src={star.image} alt={star.name} className="w-full h-full object-cover" />
-                        ) : (
-                          userLetter
-                        )}
-                      </div>
+                      <WebsiteAvatar
+                        src={star.image}
+                        alt={displayName || ''}
+                        initial={userLetter}
+                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-lg shadow-sm shrink-0 overflow-hidden relative"
+                      />
                       <div className="text-start">
                         <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm sm:text-base">
-                          {isRtl ? star.name : star.nameEn}
+                          {displayName}
                         </h4>
                       </div>
                     </div>

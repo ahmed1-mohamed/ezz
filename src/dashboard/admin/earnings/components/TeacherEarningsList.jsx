@@ -100,7 +100,7 @@ export default function TeacherEarningsList({
                 : t('adminDashboard.earnings.teachersListMonthly', 'أرباح ومستحقات المعلمين (الشهري)')}
             </h3>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-              {filteredTeachers.length} {t('common.teacherCount', 'معلماً')}
+              {filteredTeachers.length} {t('adminDashboard.earnings.teacherCount', 'معلماً')}
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
@@ -116,7 +116,7 @@ export default function TeacherEarningsList({
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={t('common.searchTeacher', 'بحث باسم المعلم...')}
+              placeholder={t('adminDashboard.earnings.searchTeacher', 'بحث باسم المعلم...')}
               className={`w-full ${isRtl ? 'pr-9 pl-3' : 'pl-9 pr-3'} py-2 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 text-xs text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/30`}
             />
           </div>
@@ -130,7 +130,7 @@ export default function TeacherEarningsList({
                   : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
               }`}
             >
-              الأعلى ربحاً
+              {t('adminDashboard.earnings.sortHighestEarned', 'الأعلى ربحاً')}
             </button>
             <button
               type="button"
@@ -141,7 +141,7 @@ export default function TeacherEarningsList({
                   : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
               }`}
             >
-              الأعلى استحقاقاً
+              {t('adminDashboard.earnings.sortHighestDue', 'الأعلى استحقاقاً')}
             </button>
           </div>
         </div>
@@ -149,7 +149,9 @@ export default function TeacherEarningsList({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/60 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 text-xs">
         <div className="flex items-center justify-between">
           <span className="text-slate-500 dark:text-slate-400 font-medium">
-            {mode === 'all-time' ? 'مجموع أرباح المعلمين الكلية:' : 'مجموع أرباح المعلمين لهذا الشهر:'}
+            {mode === 'all-time'
+              ? t('adminDashboard.earnings.totalTeachersEarnedAllTime', 'مجموع أرباح المعلمين الكلية:')
+              : t('adminDashboard.earnings.totalTeachersEarnedMonthly', 'مجموع أرباح المعلمين لهذا الشهر:')}
           </span>
           <span className="font-extrabold text-[#0f7a6c] dark:text-emerald-400 text-sm">
             {formatVal(totalEarnedSum, currency)}
@@ -157,7 +159,9 @@ export default function TeacherEarningsList({
         </div>
         <div className="flex items-center justify-between">
           <span className="text-slate-500 dark:text-slate-400 font-medium">
-            {mode === 'all-time' ? 'مجموع الأرصدة المستحقة حالياً:' : 'مجموع المستحق بنهاية الشهر:'}
+            {mode === 'all-time'
+              ? t('adminDashboard.earnings.totalDueAllTime', 'مجموع الأرصدة المستحقة حالياً:')
+              : t('adminDashboard.earnings.totalDueMonthly', 'مجموع المستحق بنهاية الشهر:')}
           </span>
           <span className="font-extrabold text-amber-600 dark:text-amber-400 text-sm">
             {formatVal(totalDueSum, currency)}
@@ -168,13 +172,15 @@ export default function TeacherEarningsList({
         <div className="py-12 text-center text-slate-400 space-y-2">
           <Users size={32} className="mx-auto text-slate-300 dark:text-slate-600" />
           <p className="font-bold text-sm">
-            {searchTerm ? 'لا توجد نتائج تطابق بحثك' : 'لا توجد بيانات أرباح معلمين مسجلة لهذه الفترة'}
+            {searchTerm
+              ? t('adminDashboard.earnings.noTeacherSearchResults', 'لا توجد نتائج تطابق بحثك')
+              : t('adminDashboard.earnings.noTeacherEarnings', 'لا توجد بيانات أرباح معلمين مسجلة لهذه الفترة')}
           </p>
         </div>
       ) : (
         <div className="space-y-3">
           {filteredTeachers.map((teacher, idx) => {
-            const teacherName = teacher.name || teacher.teacherName || teacher.fullName || 'معلم بدون اسم'
+            const teacherName = teacher.name || teacher.teacherName || teacher.fullName || t('adminDashboard.earnings.teacherWithoutName', 'معلم بدون اسم')
             const initial = String(teacherName).trim()[0] || 'م'
             const teacherCurr = teacher.currency || currency || 'USD'
             const earnedAmount = mode === 'all-time'
@@ -220,7 +226,7 @@ export default function TeacherEarningsList({
                 </div>
                 <div className="hidden lg:flex flex-col flex-1 max-w-xs px-2 space-y-1">
                   <div className="flex justify-between text-[10px] text-slate-400 font-bold">
-                    <span>نسبة الأرباح</span>
+                    <span>{t('adminDashboard.earnings.earningsShare', 'نسبة الأرباح')}</span>
                     <span>{Math.round(widthPct)}%</span>
                   </div>
                   <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -233,7 +239,9 @@ export default function TeacherEarningsList({
                 <div className="flex flex-wrap items-center gap-4 sm:gap-6 justify-between md:justify-end">
                   <div className="text-start">
                     <span className="text-[11px] font-bold text-slate-400 block">
-                      {mode === 'all-time' ? 'إجمالي الأرباح' : 'أرباح الشهر'}
+                      {mode === 'all-time'
+                        ? t('adminDashboard.earnings.totalEarned', 'إجمالي الأرباح')
+                        : t('adminDashboard.earnings.monthlyEarned', 'أرباح الشهر')}
                     </span>
                     <span className="font-black text-sm text-[#0f7a6c] dark:text-emerald-400">
                       {formatVal(earnedAmount, teacherCurr)}
@@ -241,7 +249,9 @@ export default function TeacherEarningsList({
                   </div>
                   <div className="text-start">
                     <span className="text-[11px] font-bold text-slate-400 block">
-                      {mode === 'all-time' ? 'إجمالي المدفوع' : 'المدفوع بالشهر'}
+                      {mode === 'all-time'
+                        ? t('adminDashboard.earnings.totalPaid', 'إجمالي المدفوع')
+                        : t('adminDashboard.earnings.monthlyPaid', 'المدفوع بالشهر')}
                     </span>
                     <span className="font-bold text-sm text-slate-700 dark:text-slate-300">
                       {formatVal(paidAmount, teacherCurr)}
@@ -250,7 +260,7 @@ export default function TeacherEarningsList({
                   {mode === 'monthly' && (
                     <div className="text-start">
                       <span className="text-[11px] font-bold text-slate-400 block">
-                        الرصيد الافتتاحي
+                        {t('adminDashboard.earnings.openingBalance', 'الرصيد الافتتاحي')}
                       </span>
                       <span className="font-bold text-sm text-slate-600 dark:text-slate-400">
                         {formatVal(openingDue, teacherCurr)}
@@ -259,7 +269,9 @@ export default function TeacherEarningsList({
                   )}
                   <div className="text-start min-w-[100px]">
                     <span className="text-[11px] font-bold text-slate-400 block">
-                      {mode === 'all-time' ? 'الرصيد المستحق' : 'المستحق بنهاية الشهر'}
+                      {mode === 'all-time'
+                        ? t('adminDashboard.earnings.dueBalance', 'الرصيد المستحق')
+                        : t('adminDashboard.earnings.dueAtMonthEnd', 'المستحق بنهاية الشهر')}
                     </span>
                     <span
                       className={`inline-block px-2.5 py-1 rounded-xl text-xs font-black mt-0.5 ${

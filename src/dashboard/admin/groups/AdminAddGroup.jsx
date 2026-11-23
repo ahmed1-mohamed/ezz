@@ -4,12 +4,14 @@ import { useTranslation } from 'react-i18next'
 import { adminGroupsApi } from '@/shared/services/api/adminGroupsApi'
 import AddEditGroupScreen from './components/AddEditGroupScreen'
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert'
+import useAdminGroupTimeZone from './hooks/useAdminGroupTimeZone'
 
 export default function AdminAddGroup() {
   const navigate = useNavigate()
   const location = useLocation()
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
+  const { timeZone: adminTimeZone, place: adminTimeZonePlace } = useAdminGroupTimeZone()
   const [isSaving, setIsSaving] = useState(false)
   const isPrivateGroup = location.pathname.includes('private-groups')
   const backPath = isPrivateGroup ? '/dashboard/admin/private-groups' : '/dashboard/admin/groups'
@@ -34,6 +36,8 @@ export default function AdminAddGroup() {
         group={initialGroup}
         isRtl={isRtl}
         t={t}
+        adminTimeZone={adminTimeZone}
+        adminTimeZonePlace={adminTimeZonePlace}
         isSaving={isSaving}
         onSave={handleSave}
         onCancel={() => navigate(backPath)}

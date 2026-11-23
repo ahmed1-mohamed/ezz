@@ -17,6 +17,11 @@ import StudentStep1 from './steps/StudentStep1'
 import StudentStep2 from './steps/StudentStep2'
 
 const getLevelName = (lvl) => (typeof lvl?.name === 'object' && lvl?.name !== null ? [lvl.name.ar, lvl.name.en] : [lvl?.name])
+const getLocalizedName = (name, isRtl) => (
+  typeof name === 'string'
+    ? name
+    : (isRtl ? name?.ar || name?.en : name?.en || name?.ar) || ''
+)
 
 const resolveLevelId = (levels, ...labels) => {
   const values = labels.filter(Boolean)
@@ -76,6 +81,20 @@ export default function AddEditStudentScreen({
       .catch((err) => console.error('Error fetching student levels:', err))
   }, [isRtl])
   useEffect(() => {
+    if (!selectedParentId) return
+    let active = true
+    api.get(`/api/v1/parents/localized/${selectedParentId}`, { skipCache: true })
+      .then((res) => {
+        if (!active) return
+        const parent = res.data?.data || res.data
+        if (parent?.name) setSelectedParentName(parent.name)
+      })
+      .catch((err) => console.error('Error fetching selected parent:', err))
+    return () => {
+      active = false
+    }
+  }, [selectedParentId, isRtl])
+  useEffect(() => {
     let active = true
     const trimmed = parentSearch.trim()
     const timer = setTimeout(async () => {
@@ -85,16 +104,20 @@ export default function AddEditStudentScreen({
         })
         if (!active) return
         const rawParents = res.data?.data || (Array.isArray(res.data) ? res.data : [])
-        setParentsList(rawParents.map((p) => {
-          const name = typeof p.name === 'string' ? p.name : (p.name?.ar || p.name?.en || '')
+        const collator = new Intl.Collator(isRtl ? 'ar' : 'en', { sensitivity: 'base' })
+        const localizedParents = rawParents.map((p) => {
+          const name = getLocalizedName(p.name, isRtl)
           return {
             id: p.parent_id || p.id || p._id,
             name,
+            rawName: p.name,
             email: p.email || '',
             phone: p.phone || '',
-            initial: (name || 'و').trim().charAt(0)
+            initial: (name || (isRtl ? 'و' : 'P')).trim().charAt(0)
           }
-        }))
+        })
+        localizedParents.sort((a, b) => collator.compare(a.name || '', b.name || ''))
+        setParentsList(localizedParents)
       } catch (err) {
         console.error('Error fetching parents:', err)
         if (active) setParentsList([])
@@ -104,7 +127,7 @@ export default function AddEditStudentScreen({
       active = false
       clearTimeout(timer)
     }
-  }, [parentSearch])
+  }, [parentSearch, isRtl])
   useEffect(() => {
     if (countryCodesList.length === 0) return
     if (student?.phone) {
@@ -149,7 +172,7 @@ export default function AddEditStudentScreen({
       if (!formData.country) return fail('الرجاء اختيار الدولة', 'Please select a country')
       if (!isEdit && !formData.birthDate) return fail('الرجاء إدخال تاريخ الميلاد', 'Please enter birth date')
       if (!formData.studentLevel) return fail('الرجاء اختيار المستوى التعليمي', 'Please select student level')
-      if (!selectedParentId) return fail('الرجاء اختيار ولي الأمر للطالب', 'Please select a parent for the student')
+      if (!isEdit && !selectedParentId) return fail('الرجاء اختيار ولي الأمر للطالب', 'Please select a parent for the student')
       if (!isEdit) {
         if (formData.password.length < 6) return fail('كلمة المرور يجب أن لا تقل عن 6 أحرف', 'Password must be at least 6 characters')
         if (formData.password !== formData.confirmPassword) return fail('كلمة المرور وتأكيد كلمة المرور غير متطابقتين', 'Passwords do not match')
@@ -173,6 +196,7 @@ export default function AddEditStudentScreen({
     setSelectedCountryCode(country)
     setIsDropdownOpen(false)
   }
+  const displayedSelectedParentName = getLocalizedName(selectedParentName, isRtl)
   const filteredParents = parentsList
   return (
     <div className="space-y-8 pb-10 text-start animate-fadeIn max-w-5xl mx-auto" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -220,7 +244,7 @@ export default function AddEditStudentScreen({
         parentSearch={parentSearch}
         setParentSearch={setParentSearch}
         selectedParentId={selectedParentId}
-        selectedParentName={selectedParentName}
+        selectedParentName={displayedSelectedParentName}
         handleParentSelect={handleParentSelect}
         filteredParents={filteredParents}
         isEdit={isEdit}

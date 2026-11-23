@@ -287,7 +287,7 @@ export default function AdminDashboard() {
                     {isLoadingStats && liveList.length === 0 ? (
                         <div className="py-8 flex items-center justify-center gap-2 text-slate-500 text-sm">
                             <div className="w-5 h-5 rounded-full border-2 border-red-500 border-t-transparent animate-spin" />
-                            <span>جاري التحميل...</span>
+                            <span>{t('common.loading', 'جاري التحميل...')}</span>
                         </div>
                     ) : liveList.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

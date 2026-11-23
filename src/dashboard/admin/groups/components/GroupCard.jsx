@@ -1,18 +1,26 @@
 import { Trash2, Pencil, UserCheck, Clock, Calendar, Users } from 'lucide-react'
 import { getLocalizedValue } from '../utils/groupUtils'
 import StatusBadge from './StatusBadge'
+import { formatGroupScheduleSlot, getTimeZonePlace } from '../utils/groupTimeUtils'
 
-export default function GroupCard({ group, onEdit, onViewStudents, onDelete, onChangeTeacher, onChangeStatus, onEditSchedule, t, isRtl }) {
+export default function GroupCard({ group, onEdit, onViewStudents, onDelete, onChangeTeacher, onChangeStatus, onEditSchedule, t, isRtl, adminTimeZone = '', adminTimeZonePlace = '' }) {
+  const normalizedGroupType = String(group.type || '').trim().toLowerCase()
+  const isPublicGroup = ['public', 'عامة'].includes(normalizedGroupType)
   const teacherName = getLocalizedValue(group.teacher?.name, isRtl) || (typeof group.teacher === 'string' ? group.teacher : t('adminDashboard.groups.unassigned', 'غير محدد'))
   const subjectText = getLocalizedValue(group.curriculum?.name || group.subject, isRtl)
   const levelText = getLocalizedValue(group.studentLevel?.name || group.level, isRtl)
   const subDetails = [subjectText, levelText].filter(Boolean).join(' · ')
   const studentsCount = group.currentStudentsCount ?? group.students?.length ?? 0
   const maxStudents = group.maxStudents || 0
-  const scheduleList = group.weeklySchedule || group.schedule || []
+  const scheduleList = Array.isArray(group.weeklySchedule)
+    ? group.weeklySchedule
+    : (Array.isArray(group.schedule) ? group.schedule : [])
   const getDayName = (rawDay) => {
     if (!rawDay) return ''
-    const key = rawDay.toString().trim().toLowerCase()
+    const dayValue = typeof rawDay === 'object'
+      ? (rawDay.key || rawDay.en || rawDay.ar || rawDay.name?.en || rawDay.name?.ar || '')
+      : rawDay
+    const key = String(dayValue).trim().toLowerCase()
     const map = {
       'sunday': t('schedule.sunday', 'الأحد'),
       'monday': t('schedule.monday', 'الاثنين'),
@@ -22,7 +30,7 @@ export default function GroupCard({ group, onEdit, onViewStudents, onDelete, onC
       'friday': t('schedule.friday', 'الجمعة'),
       'saturday': t('schedule.saturday', 'السبت'),
     }
-    return map[key] || rawDay
+    return map[key] || String(dayValue)
   }
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/60 shadow-soft p-5 flex flex-col justify-between gap-4 hover:shadow-md transition-all group">
@@ -61,7 +69,7 @@ export default function GroupCard({ group, onEdit, onViewStudents, onDelete, onC
             )}
             {group.type && (
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
-                {group.type === 'public'
+                {isPublicGroup
                   ? t('adminDashboard.groups.typePublic', 'عامة')
                   : t('adminDashboard.groups.typePrivate', 'خاصة')}
               </span>
@@ -110,17 +118,27 @@ export default function GroupCard({ group, onEdit, onViewStudents, onDelete, onC
       {scheduleList.length > 0 && (
         <div className="flex flex-col gap-1.5">
           <div className="flex flex-wrap gap-1.5 justify-start items-center">
-            {scheduleList.slice(0, 3).map((s, i) => (
-              <span
-                key={i}
-                className="text-[11px] font-medium px-2 py-0.5 bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 rounded-lg flex items-center gap-1"
-                title={s.startTime ? `${s.startTime} - ${s.endTime}` : (s.timeFrom ? `${s.timeFrom} - ${s.timeTo}` : '')}
-              >
-                <Clock size={10} className="opacity-60" />
-                <span>{getDayName(s.day)}</span>
-                {s.startTime && <span className="text-[9px] opacity-75 dir-ltr">{s.startTime}</span>}
-              </span>
-            ))}
+            {scheduleList.filter((slot) => slot && typeof slot === 'object').slice(0, 3).map((s, i) => {
+              const formatted = formatGroupScheduleSlot(s, group, adminTimeZone, isRtl)
+              const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+              const countryName = typeof group.country?.name === 'object' ? group.country.name[isRtl ? 'ar' : 'en'] : group.country?.name
+              const place = adminTimeZone ? (adminTimeZonePlace || getTimeZonePlace(formatted.timeZone, isRtl)) : getTimeZonePlace(formatted.timeZone, isRtl, countryName)
+              const dayLabel = Number.isInteger(formatted.dayIndex) && days[formatted.dayIndex]
+                ? t(`schedule.${days[formatted.dayIndex]}`, getDayName(s.day))
+                : getDayName(s.day)
+              return (
+                <span
+                  key={i}
+                  className="text-[11px] font-medium px-2 py-0.5 bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 rounded-lg flex items-center gap-1"
+                  title={`${dayLabel} · ${formatted.range} · ${t('common.timezoneLabel', 'بتوقيت {{place}}', { place })}`}
+                >
+                  <Clock size={10} className="opacity-60" />
+                  <span>{dayLabel}</span>
+                  <span className="text-[9px] opacity-75 dir-ltr">{formatted.range}</span>
+                  <span className="text-[9px] opacity-75">({t('common.timezoneLabel', 'بتوقيت {{place}}', { place })})</span>
+                </span>
+              )
+            })}
             {scheduleList.length > 3 && (
               <span className="text-[11px] font-medium px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-lg">
                 +{scheduleList.length - 3}

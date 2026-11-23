@@ -26,7 +26,6 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
   const [apiStudents, setApiStudents] = useState([])
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [studentSearchTab, setStudentSearchTab] = useState('name')
   const [studentSearch, setStudentSearch] = useState('')
   const [selectedStudents, setSelectedStudents] = useState([])
   const [showStudentSearch, setShowStudentSearch] = useState(false)
@@ -59,6 +58,7 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
       try {
         const res = await studentsApi.fetchStudents({
           search: trimmed || undefined,
+          unlinked: true,
           limit: 50
         })
         if (!active) return
@@ -73,7 +73,7 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
       active = false
       clearTimeout(timer)
     }
-  }, [studentSearch])
+  }, [studentSearch, isRtl])
   const dialCodes = useMemo(() => sortCountryCodes(toDialCodeOptions(apiCountries), isRtl), [apiCountries, isRtl])
   const handleChange = (key, value) =>
     setFormData((prev) => ({ ...prev, [key]: value }))
@@ -186,8 +186,6 @@ export default function AddEditParentScreen({ isRtl, isSaving = false, onSave, o
           setShowStudentSearch={setShowStudentSearch}
           selectedStudents={selectedStudents}
           toggleStudentSelect={toggleStudentSelect}
-          studentSearchTab={studentSearchTab}
-          setStudentSearchTab={setStudentSearchTab}
           studentSearch={studentSearch}
           setStudentSearch={setStudentSearch}
           filteredStudents={filteredStudents}

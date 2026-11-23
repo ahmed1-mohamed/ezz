@@ -7,10 +7,11 @@ export default function StudentSecurityCard({
   confirmPassword,
   setConfirmPassword,
   handlePasswordUpdate,
-  isUpdating = false
+  isUpdating = false,
+  className = ''
 }) {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
+    <div className={`bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start ${className}`}>
       <div className="flex items-center gap-2 text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <Lock className="text-[#005953]" size={18} />
         <h3 className="text-base font-bold">

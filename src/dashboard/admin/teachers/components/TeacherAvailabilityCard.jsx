@@ -2,11 +2,68 @@ import { useState } from 'react'
 import { Clock, Plus, Trash2, CalendarDays } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { DAYS_OF_WEEK } from '../utils/teacherConstants'
+import { formatAvailabilityTime } from '../utils/formatAvailabilityTime'
+
+const getTimeParts = (value) => {
+  const [hourValue = '00', minute = '00'] = String(value || '00:00').split(':')
+  const hour = Number(hourValue)
+  return {
+    hour: String(hour % 12 || 12),
+    minute,
+    period: hour >= 12 ? 'pm' : 'am',
+  }
+}
+
+const to24HourTime = ({ hour, minute, period }) => {
+  const normalizedHour = Number(hour) % 12 + (period === 'pm' ? 12 : 0)
+  return `${String(normalizedHour).padStart(2, '0')}:${minute}`
+}
+
+function Time12HourInput({ value, onChange, isRtl }) {
+  const parts = getTimeParts(value)
+  const inputClass = 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-[#005953] text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-2 outline-none text-xs sm:text-sm font-semibold'
+
+  return (
+    <div className="flex items-center gap-1.5" dir="ltr">
+      <select
+        aria-label={isRtl ? 'الساعة' : 'Hour'}
+        value={parts.hour}
+        onChange={(e) => onChange(to24HourTime({ ...parts, hour: e.target.value }))}
+        className={`${inputClass} min-w-0 flex-1`}
+      >
+        {Array.from({ length: 12 }, (_, index) => String(index + 1)).map((hour) => (
+          <option key={hour} value={hour}>{hour}</option>
+        ))}
+      </select>
+      <span className="font-bold text-slate-500">:</span>
+      <select
+        aria-label={isRtl ? 'الدقائق' : 'Minute'}
+        value={parts.minute}
+        onChange={(e) => onChange(to24HourTime({ ...parts, minute: e.target.value }))}
+        className={`${inputClass} min-w-0 flex-1`}
+      >
+        {Array.from({ length: 60 }, (_, index) => String(index).padStart(2, '0')).map((minute) => (
+          <option key={minute} value={minute}>{minute}</option>
+        ))}
+      </select>
+      <select
+        aria-label={isRtl ? 'صباحًا أو مساءً' : 'AM or PM'}
+        value={parts.period}
+        onChange={(e) => onChange(to24HourTime({ ...parts, period: e.target.value }))}
+        className={`${inputClass} shrink-0`}
+      >
+        <option value="am">{isRtl ? 'ص' : 'AM'}</option>
+        <option value="pm">{isRtl ? 'م' : 'PM'}</option>
+      </select>
+    </div>
+  )
+}
 
 export default function TeacherAvailabilityCard({
   formData = {},
   onChange,
-  isRtl = true
+  isRtl = true,
+  timezoneLabel = ''
 }) {
   const [selectedDay, setSelectedDay] = useState('sunday')
   const [startTime, setStartTime] = useState('16:00')
@@ -59,11 +116,12 @@ export default function TeacherAvailabilityCard({
                 ? 'تحديد الفترات الزمنية والأيام المتاحة لتقديم الدروس والحصص'
                 : 'Configure available days and time intervals for teaching'}
             </p>
+            {timezoneLabel && <p className="text-xs font-medium text-[#005953] dark:text-[#14a693] mt-2">{timezoneLabel}</p>}
           </div>
         </div>
       </div>
       <div className="bg-[#f8faf9] dark:bg-slate-950/40 p-5 rounded-2xl border border-slate-100 dark:border-slate-800/80 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4" dir={isRtl ? 'rtl' : 'ltr'}>
           <div>
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
               {isRtl ? 'اليوم' : 'Day'}
@@ -84,23 +142,13 @@ export default function TeacherAvailabilityCard({
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
               {isRtl ? 'من الساعة' : 'From'}
             </label>
-            <input
-              type="time"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-[#005953] text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-3 outline-none text-xs sm:text-sm font-semibold"
-            />
+            <Time12HourInput value={startTime} onChange={setStartTime} isRtl={isRtl} />
           </div>
           <div>
             <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
               {isRtl ? 'إلى الساعة' : 'To'}
             </label>
-            <input
-              type="time"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-[#005953] text-slate-800 dark:text-slate-100 rounded-xl py-2.5 px-3 outline-none text-xs sm:text-sm font-semibold"
-            />
+            <Time12HourInput value={endTime} onChange={setEndTime} isRtl={isRtl} />
           </div>
         </div>
         <div className="flex justify-end pt-1">
@@ -142,7 +190,7 @@ export default function TeacherAvailabilityCard({
                     {getDayLabel(slot.day)}
                   </span>
                   <span className="text-xs font-mono font-semibold text-[#005953] dark:text-[#14a693]" dir="ltr">
-                    {slot.startTime || '00:00'} - {slot.endTime || '00:00'}
+                    {formatAvailabilityTime(slot.startTime, isRtl)} - {formatAvailabilityTime(slot.endTime, isRtl)}
                   </span>
                 </div>
                 <button

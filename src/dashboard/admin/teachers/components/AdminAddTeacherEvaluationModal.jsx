@@ -16,7 +16,6 @@ import Spinner from '@/shared/components/Spinner'
 import { showSuccessToast, showErrorToast } from '@/shared/utils/sweetAlert'
 import { teachersApi, getImageUrl } from '@/shared/services/api/teachersApi'
 import { adminGroupsApi } from '@/shared/services/api/adminGroupsApi'
-import { adminSessionsApi } from '@/shared/services/api/adminSessionsApi'
 import { adminTeacherEvaluationsApi } from '@/shared/services/api/adminTeacherEvaluationsApi'
 
 const RATING_OPTIONS = [
@@ -69,12 +68,6 @@ const RATING_OPTIONS = [
     icon: Sparkles,
   },
 ]
-
-const resolveGroupId = (entity) => {
-  if (!entity) return ''
-  if (typeof entity === 'string') return entity
-  return String(entity.groupId || entity.id || entity._id || '')
-}
 
 export default function AdminAddTeacherEvaluationModal({
   isOpen,
@@ -154,13 +147,12 @@ export default function AdminAddTeacherEvaluationModal({
     const loadSessions = async () => {
       setIsLoadingSessions(true)
       try {
-        const res = await adminSessionsApi.fetchAllLocalizedSessions({
-          group: selectedGroupId,
-          status: 'completed',
-        })
+        const res = await adminTeacherEvaluationsApi.fetchAvailableEvaluationSessions(
+          selectedTeacherId,
+          selectedGroupId,
+        )
         if (!active) return
-        const list = res?.data || (Array.isArray(res) ? res : [])
-        setRawSessions(Array.isArray(list) ? list : [])
+        setRawSessions(res?.success && Array.isArray(res.data) ? res.data : [])
       } catch {
         if (!active) return
         setRawSessions([])
@@ -172,18 +164,15 @@ export default function AdminAddTeacherEvaluationModal({
     return () => {
       active = false
     }
-  }, [selectedGroupId])
+  }, [selectedTeacherId, selectedGroupId])
   const activeGroups = useMemo(() => {
     if (!selectedTeacherId) return []
     return groups
   }, [selectedTeacherId, groups])
-  const completedSessions = useMemo(() => {
-    if (!selectedGroupId) return []
-    return rawSessions.filter((session) => {
-      const sessionGroupId = resolveGroupId(session.group) || String(session.groupId || '')
-      return !sessionGroupId || sessionGroupId === String(selectedGroupId)
-    })
-  }, [rawSessions, selectedGroupId])
+  const completedSessions = useMemo(
+    () => (selectedGroupId ? rawSessions : []),
+    [rawSessions, selectedGroupId],
+  )
   const selectedGroup = useMemo(() => {
     return activeGroups.find((g) => (g.id || g._id) === selectedGroupId)
   }, [activeGroups, selectedGroupId])
@@ -216,10 +205,6 @@ export default function AdminAddTeacherEvaluationModal({
       showErrorToast(isRtl ? 'يرجى اختيار الحصة الدراسية المكتملة' : 'Please select a completed session')
       return
     }
-    if (!notes.trim()) {
-      showErrorToast(isRtl ? 'يرجى كتابة ملاحظات التقييم' : 'Please provide evaluation notes')
-      return
-    }
     setIsSubmitting(true)
     try {
       const teacherName = typeof selectedTeacher?.name === 'object'
@@ -236,7 +221,7 @@ export default function AdminAddTeacherEvaluationModal({
         session: selectedSessionId,
         grade: selectedRating,
         rating: selectedRating,
-        notes: notes.trim(),
+        notes: notes.trim() || undefined,
         teacherData: {
           id: selectedTeacherId,
           name: teacherName,
@@ -404,11 +389,11 @@ export default function AdminAddTeacherEvaluationModal({
                   {completedSessions.map((session) => {
                     const sid = session.id || session._id
                     const stitle = session.title || (session.sessionNumber ? `${isRtl ? 'حصة #' : 'Session #'}${session.sessionNumber}` : (isRtl ? 'حصة دراسية' : 'Session'))
-                    const sdate = session.date ? ` - ${session.date}` : ''
-                    const stime = session.time ? ` (${session.time})` : (session.startTime ? ` (${session.startTime})` : '')
+                    const dateValue = session.date ? String(session.date).split('T')[0] : ''
+                    const sdate = dateValue ? new Date(`${dateValue}T00:00:00`).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US') : ''
                     return (
                       <option key={sid} value={sid}>
-                        [{isRtl ? 'مكتملة' : 'Completed'}] {stitle}{sdate}{stime}
+                        {stitle}{sdate ? ` — ${sdate}` : ''}
                       </option>
                     )
                   })}
@@ -453,12 +438,11 @@ export default function AdminAddTeacherEvaluationModal({
           </div>
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-              {isRtl ? '5. ملاحظات وتوجيهات الإدارة للمعلم' : '5. Administration Notes & Directives'} *
+              {isRtl ? '5. ملاحظات وتوجيهات الإدارة للمعلم (اختياري)' : '5. Administration Notes & Directives (Optional)'}
             </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              required
               rows={4}
               placeholder={
                 isRtl

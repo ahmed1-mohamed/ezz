@@ -1,7 +1,7 @@
-import { buildApiAssetUrl } from '@/shared/config/apiConfig.js'
 import { useTranslation } from 'react-i18next';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import Button from '@/shared/components/Button.jsx';
+import WebsiteAvatar from './WebsiteAvatar.jsx';
 
 export default function ParentTestimonialsSection({
   testimonials,
@@ -40,29 +40,20 @@ export default function ParentTestimonialsSection({
             const reviewStr = typeof testimonial.review === 'object' && testimonial.review !== null
               ? (isRtl ? testimonial.review.ar || testimonial.review.en : testimonial.review.en || testimonial.review.ar)
               : testimonial.review || '';
-            const userLetter = parentNameStr ? parentNameStr.trim().charAt(0) : 'و';
-            const imageUrl = testimonial.image && (testimonial.image.startsWith('http') || testimonial.image.startsWith('data:'))
-              ? testimonial.image
-              : testimonial.image
-                ? buildApiAssetUrl(testimonial.image)
-                : null;
+            const userLetter = parentNameStr?.trim()?.charAt(0) || (isRtl ? 'و' : 'P');
             return (
               <div
                 key={testimonial.id || testimonial._id}
                 className="relative bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-md transition-all duration-300 flex flex-col h-full"
               >
                 <div className="flex items-center gap-4 mb-4">
-                  {imageUrl ? (
-                    <img
-                      src={imageUrl}
-                      alt={parentNameStr}
-                      className="w-14 h-14 rounded-full object-cover shadow-sm border border-slate-200"
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-450 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-xl shadow-sm shrink-0">
-                      {userLetter}
-                    </div>
-                  )}
+                  <WebsiteAvatar
+                    src={testimonial.image}
+                    alt={parentNameStr}
+                    initial={userLetter}
+                    className="w-14 h-14 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-450 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-xl shadow-sm shrink-0 overflow-hidden"
+                    imageClassName="w-full h-full rounded-full object-cover shadow-sm"
+                  />
                   <div>
                     <h4 className="font-bold text-base text-slate-800 dark:text-slate-200">
                       {parentNameStr}

@@ -1,4 +1,4 @@
-import {  useMemo } from 'react'
+import {  useMemo, useState } from 'react'
 import { Upload } from 'lucide-react'
 import SelectField from './fields/SelectField'
  import { sortCountries, getCountryName } from '@/shared/utils/countryUtils'
@@ -26,13 +26,11 @@ export default function GroupInfoCard({
   errors = {},
   isLoadingEndpoints = false,
 }) {
-  const initial = (
-    typeof formData.name === 'string'
-      ? formData.name.trim()
-      : (typeof formData.nameAr === 'string'
-          ? formData.nameAr.trim()
-          : (typeof formData.name?.ar === 'string' ? formData.name.ar.trim() : 'م'))
-  ).charAt(0) || 'م'
+  const [failedImage, setFailedImage] = useState(null)
+  const localizedName = isRtl
+    ? (formData.nameAr || formData.name?.ar || formData.name)
+    : (formData.nameEn || formData.name?.en || formData.name)
+  const initial = (typeof localizedName === 'string' ? localizedName.trim().charAt(0) : '') || (isRtl ? 'م' : 'M')
   const resolvedCountries = useMemo(() => Array.isArray(countries) ? countries : [], [countries])
   const resolvedCurricula = useMemo(() => Array.isArray(curricula) ? curricula : [], [curricula])
   const resolvedLevels = useMemo(() => Array.isArray(levels) ? levels : [], [levels])
@@ -238,8 +236,8 @@ export default function GroupInfoCard({
       <div className="flex flex-col items-center gap-3">
         <div className="relative">
           <div className="h-20 w-20 rounded-full bg-brand-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg overflow-hidden">
-            {formData.image ? (
-              <img src={formData.image} alt="" className="w-full h-full object-cover" />
+            {formData.image && failedImage !== formData.image ? (
+              <img src={formData.image} alt="" onError={() => setFailedImage(formData.image)} className="w-full h-full object-cover" />
             ) : (
               <span>{initial}</span>
             )}
@@ -284,7 +282,7 @@ export default function GroupInfoCard({
               handleChange('nameAr', e.target.value)
               handleChange('name', e.target.value)
             }}
-            placeholder="مجموعة الإتقان - المستوى الثاني (بنين)"
+            placeholder={t('adminDashboard.groups.nameArPlaceholder', 'مثال: مجموعة الإتقان - المستوى الثاني')}
             dir="rtl"
             className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border ${
               errors.nameAr ? 'border-red-500 bg-red-50/20' : 'border-transparent focus:border-brand-500/20'
@@ -411,7 +409,7 @@ export default function GroupInfoCard({
           value={formData.maxStudents || 5}
           onChange={(val) => handleChange('maxStudents', Number(val))}
           options={maxStudentOptions}
-          placeholder="5 طلاب"
+            placeholder={t('adminDashboard.groups.maxStudentsPlaceholder', '5')}
           isRtl={isRtl}
           error={errors.maxStudents}
           required

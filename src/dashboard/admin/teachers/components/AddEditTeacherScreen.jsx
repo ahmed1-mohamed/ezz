@@ -10,6 +10,7 @@ import { landingApi } from '@/shared/services/api/landingApi'
 import { adminCurriculaApi } from '@/shared/services/api/adminCurriculaApi'
 import { sortCountries, normalizeCountries, resolveCountryIdFromLabel } from '@/shared/utils/countryUtils'
 import TeacherSecurityCard from './TeacherSecurityCard'
+import { getTeacherTimezoneLabel } from '../utils/getTeacherTimezoneLabel'
 
 const normalizeAchievements = (ach) => {
   if (!ach) return []
@@ -88,14 +89,30 @@ const getInitialBioEn = (teacher) => {
   return teacher.aboutEn || ''
 }
 
-const getInitialFormData = (teacher) => ({
+const getInitialFormData = (teacher) => {
+  const rawCountry = teacher?.country || teacher?.user?.country || teacher?.userId?.country || ''
+  const countryId = typeof rawCountry === 'object' && rawCountry !== null
+    ? (rawCountry.id || rawCountry._id || '')
+    : (/^[a-f\d]{24}$/i.test(String(rawCountry)) ? rawCountry : '')
+  const countryLabel = typeof rawCountry === 'object' && rawCountry !== null
+    ? (typeof rawCountry.name === 'object' ? (rawCountry.name.ar || rawCountry.name.en || '') : (rawCountry.name || rawCountry.nameAr || rawCountry.nameEn || ''))
+    : rawCountry
+  return {
+  ...teacher,
   name: getInitialNameAr(teacher),
   nameEn: getInitialNameEn(teacher),
   email: teacher?.email || '',
   phone: teacher?.phone || '',
-  country: '',
-  countryLabel: teacher?.country || '',
-  hourlyRate: '',
+  country: countryId,
+  countryLabel,
+  rating: teacher?.rating ?? teacher?.averageRating ?? 0,
+  totalSessions: teacher?.totalSessions ?? teacher?.totalLessons ?? teacher?.sessionsCount ?? 0,
+  dueEarnings: teacher?.dueEarnings ?? 0,
+  totalEarnings: teacher?.totalEarnings ?? 0,
+  groupsCount: teacher?.groupsCount ?? teacher?.totalGroups ?? (Array.isArray(teacher?.groups) ? teacher.groups.length : 0),
+  subject: teacher?.subject || '',
+  status: teacher?.status || (teacher?.active === false ? 'Suspended' : 'Active'),
+  hourlyRate: teacher?.hourlyRate ?? '',
   yearsOfExperience: teacher?.yearsOfExperience ?? 0,
   degreeAr: getInitialDegreeAr(teacher),
   degreeEn: getInitialDegreeEn(teacher),
@@ -113,7 +130,8 @@ const getInitialFormData = (teacher) => ({
   profileImageFile: null,
   password: '',
   confirmPassword: '',
-})
+  }
+}
 
 export default function AddEditTeacherScreen({
   teacher = null,
@@ -157,12 +175,7 @@ export default function AddEditTeacherScreen({
   const handleFieldChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: typeof value === 'function' ? value(prev[key]) : value }))
   }
-  useEffect(() => {
-    if (!formData.country && formData.countryLabel && apiCountries.length > 0) {
-      const countryId = resolveCountryIdFromLabel(apiCountries, formData.countryLabel)
-      if (countryId) setFormData((prev) => ({ ...prev, country: countryId }))
-    }
-  }, [apiCountries, formData.country, formData.countryLabel])
+  const resolvedCountryId = formData.country || resolveCountryIdFromLabel(apiCountries, formData.countryLabel)
   const handleSubmit = (e) => {
     e.preventDefault()
     const fail = (ar, en) => showErrorToast(isRtl ? ar : en, isRtl)
@@ -171,7 +184,7 @@ export default function AddEditTeacherScreen({
     if (nameAr.length < 2 || nameEn.length < 2) return fail('الرجاء إدخال الاسم بالعربية والإنجليزية', 'Please enter the Arabic and English names')
     if (!teacher && !/^\S+@\S+\.\S+$/.test(String(formData.email || '').trim())) return fail('الرجاء إدخال بريد إلكتروني صالح', 'Please enter a valid email')
     if (!/^\+\d{7,15}$/.test(String(formData.phone || '').replace(/\s+/g, ''))) return fail('الرجاء إدخال رقم هاتف صحيح مع مفتاح الدولة', 'Please enter a valid phone number with country code')
-    if (!formData.country) return fail('الرجاء اختيار الدولة', 'Please select a country')
+    if (!resolvedCountryId) return fail('الرجاء اختيار الدولة', 'Please select a country')
     if (!teacher) {
       if (formData.hourlyRate === '' || Number(formData.hourlyRate) < 0) return fail('الرجاء إدخال سعر الساعة', 'Please enter the hourly rate')
       if (String(formData.password || '').length < 6) return fail('كلمة المرور يجب أن لا تقل عن 6 أحرف', 'Password must be at least 6 characters')
@@ -180,7 +193,7 @@ export default function AddEditTeacherScreen({
     onSave({
       name: { ar: nameAr, en: nameEn },
       phone: String(formData.phone).replace(/\s+/g, ''),
-      country: formData.country,
+      country: resolvedCountryId,
       bio: { ar: String(formData.aboutAr || '').trim(), en: String(formData.aboutEn || '').trim() },
       degree: { ar: String(formData.degreeAr || '').trim(), en: String(formData.degreeEn || '').trim() },
       specializations: formData.specializations,
@@ -243,7 +256,7 @@ export default function AddEditTeacherScreen({
       )}
        <div className="space-y-6">
          <TeacherPersonalInfoCard
-          formData={formData}
+          formData={{ ...formData, country: resolvedCountryId }}
           onChange={handleFieldChange}
           isRtl={isRtl}
           countries={apiCountries}
@@ -265,6 +278,7 @@ export default function AddEditTeacherScreen({
           formData={formData}
           onChange={handleFieldChange}
           isRtl={isRtl}
+          timezoneLabel={apiCountries.length ? getTeacherTimezoneLabel(apiCountries.find((item) => String(item.id || item._id) === String(resolvedCountryId)), isRtl) : ''}
         />
         {!teacher && (
           <TeacherSecurityCard

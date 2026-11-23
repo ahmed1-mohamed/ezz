@@ -33,10 +33,12 @@ export default function StudentAchievementsCard({ student, isRtl, t }) {
             const rewardTitle = typeof reward === 'string'
               ? reward
               : (typeof reward.title === 'object' && reward.title !== null
-                  ? (reward.title.ar || reward.title.en)
+                  ? (isRtl ? reward.title.ar || reward.title.en : reward.title.en || reward.title.ar)
                   : (reward.title || reward.name?.ar || reward.name?.en || reward.name || `شارة ${index + 1}`))
             const rewardDesc = typeof reward === 'object' && reward !== null
-              ? (reward.description?.ar || reward.description?.en || reward.description || reward.desc || '')
+              ? (typeof reward.description === 'object' && reward.description !== null
+                  ? (isRtl ? reward.description.ar || reward.description.en : reward.description.en || reward.description.ar)
+                  : (reward.description || reward.desc || ''))
               : ''
             const rewardImg = typeof reward === 'object' && (reward.image || reward.iconUrl || reward.badge)
             const rewardEmoji = typeof reward === 'object' && (reward.emoji || reward.icon)

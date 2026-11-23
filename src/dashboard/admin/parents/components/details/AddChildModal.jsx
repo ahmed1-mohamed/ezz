@@ -25,6 +25,7 @@ export default function AddChildModal({
       try {
         const res = await studentsApi.fetchStudents({
           search: trimmed || undefined,
+          unlinked: true,
           limit: 50
         })
         if (!active) return

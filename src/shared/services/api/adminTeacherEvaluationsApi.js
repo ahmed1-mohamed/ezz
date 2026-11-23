@@ -192,6 +192,28 @@ export const adminTeacherEvaluationsApi = {
     }
   },
 
+  fetchAvailableEvaluationSessions: async (teacherId, groupId) => {
+    try {
+      const response = await api.get(
+        `/api/v1/teachers/private/${teacherId}/admin-evaluations/available-sessions`,
+        { params: { groupId } },
+      )
+      const resData = response.data || {}
+      return {
+        success: true,
+        data: Array.isArray(resData.data) ? resData.data : [],
+        message: resData.message || null,
+      }
+    } catch (error) {
+      return {
+        success: false,
+        data: [],
+        error,
+        message: error.response?.data?.message || error.message || 'Failed to load sessions',
+      }
+    }
+  },
+
   createAdminEvaluation: async (teacherIdOrPayload, maybePayload = {}) => {
     const isFirstArgId = typeof teacherIdOrPayload === 'string'
     const teacherId = isFirstArgId
@@ -204,7 +226,7 @@ export const adminTeacherEvaluationsApi = {
     const body = {
       sessionId,
       grade,
-      notes,
+      ...(notes.trim() ? { notes: notes.trim() } : {}),
     }
     const endpoint = teacherId
       ? `/api/v1/teachers/private/${teacherId}/admin-evaluations`

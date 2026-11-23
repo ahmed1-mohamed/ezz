@@ -8,15 +8,18 @@ export default function EditProfileCard({
   isRtl,
   roleName
 }) {
-  const [imgError, setImgError] = useState(false)
+  const [failedImageUrl, setFailedImageUrl] = useState(null)
   const avatarLetter = useMemo(() => {
-    return formData.name ? formData.name.trim().charAt(0) : 'ن'
-  }, [formData.name])
+    const localizedName = isRtl ? (formData.name || formData.nameEn) : (formData.nameEn || formData.name)
+    return localizedName ? localizedName.trim().charAt(0) : (isRtl ? 'م' : 'S')
+  }, [formData.name, formData.nameEn, isRtl])
+  const displayName = isRtl ? (formData.name || formData.nameEn) : (formData.nameEn || formData.name)
   const rawImage = formData.photoUrl || formData.image || formData.photo || formData.avatar
   const imageUrl = useMemo(() => {
-    if (!rawImage || typeof rawImage !== 'string' || imgError) return null
-    return getImageUrl(rawImage)
-  }, [rawImage, imgError])
+    if (!rawImage || typeof rawImage !== 'string') return null
+    const resolvedUrl = getImageUrl(rawImage)
+    return resolvedUrl && resolvedUrl !== failedImageUrl ? resolvedUrl : null
+  }, [rawImage, failedImageUrl])
   const displayRole = useMemo(() => {
     if (!roleName) return ''
     return typeof roleName === 'object' ? (isRtl ? roleName.ar || roleName.en : roleName.en || roleName.ar) : roleName
@@ -29,8 +32,8 @@ export default function EditProfileCard({
             {imageUrl ? (
               <img
                 src={imageUrl}
-                alt={formData.name || ''}
-                onError={() => setImgError(true)}
+                alt={displayName || ''}
+                onError={() => setFailedImageUrl(imageUrl)}
                 className="w-full h-full object-cover rounded-2xl"
               />
             ) : (
@@ -40,7 +43,7 @@ export default function EditProfileCard({
           <div className="space-y-2">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
               <h3 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                <span>{formData.name}</span>
+                <span>{displayName}</span>
               </h3>
               {displayRole && (
                 <span className="px-3 py-1 bg-[#e9f6f3] text-[#0f7a6c] dark:bg-[#0f7a6c]/20 dark:text-[#14a693] rounded-full text-xs font-bold">

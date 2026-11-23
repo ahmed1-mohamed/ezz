@@ -3,7 +3,8 @@ import { UserCheck, Phone, Mail } from 'lucide-react'
 
 export default function StudentParentCard({
   isRtl,
-  parentInfo
+  parentInfo,
+  className = ''
 }) {
   const navigate = useNavigate()
   const handleViewParent = () => {
@@ -14,7 +15,7 @@ export default function StudentParentCard({
     }
   }
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start">
+    <div className={`bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6 text-start ${className}`}>
       <div className="flex items-center gap-2 text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800/60 pb-3">
         <UserCheck className="text-[#005953]" size={20} />
         <h3 className="text-base font-bold">

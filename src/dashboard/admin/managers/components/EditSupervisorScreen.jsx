@@ -225,6 +225,7 @@ export default function EditSupervisorScreen({
         <EditProfileCard
           formData={{
             name: typeof supervisor.name === 'object' ? (supervisor.name?.ar || '') : (supervisor.name || ''),
+            nameEn: typeof supervisor.name === 'object' ? (supervisor.name?.en || '') : (supervisor.nameEn || ''),
             email: supervisor.email || '',
             phone: initialPhone,
             phonePrefix: initialPrefix,

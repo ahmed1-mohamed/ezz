@@ -56,7 +56,9 @@ export default function StudentStep2({
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3">
           <h3 className="text-base font-bold text-slate-800 dark:text-white">
-            {isRtl ? 'ربط ولي الأمر *' : 'Link Parent *'}
+            {isEdit
+              ? (isRtl ? 'ولي الأمر (اختياري)' : 'Parent (Optional)')
+              : (isRtl ? 'ربط ولي الأمر *' : 'Link Parent *')}
           </h3>
           {selectedParentName && (
             <span className="text-xs font-bold text-[#005953] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-1 rounded-xl">
@@ -90,7 +92,7 @@ export default function StudentStep2({
               return (
                 <div
                   key={pid}
-                  onClick={() => handleParentSelect(pid, parent.name)}
+                  onClick={() => handleParentSelect(pid, parent.rawName ?? parent.name)}
                   className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${
                     isSelected
                       ? 'border-[#005953] bg-emerald-50/20 dark:bg-slate-950/40 ring-1 ring-[#005953]'

@@ -2,7 +2,8 @@ import { RefreshCw, UserX, X, Users, Clock, Radio } from 'lucide-react'
 import StatusBadge from './StatusBadge'
 import ReschedulePanel from './ReschedulePanel'
 import ChangeTeacherPanel from './ChangeTeacherPanel'
-import { formatTimeRange12h } from '@/shared/services/api/adminSessionsApi'
+import CancelSessionPanel from './CancelSessionPanel'
+import { formatTimeRangeInTimeZone } from '@/shared/services/api/adminSessionsApi'
 import { useTranslation } from 'react-i18next'
 
 const safeText = (val, fallback = '') => {
@@ -26,6 +27,9 @@ export default function SessionRow({
   onMonitorSession,
   teachers,
   t,
+  timeZone,
+  timeZonePlace,
+  timeZoneResolved,
 }) {
   const isCancelled = session.status === 'cancelled'
   const isCompleted = session.status === 'completed'
@@ -39,7 +43,17 @@ export default function SessionRow({
   const teacherContact = safeText(session.teacherPhone || session.teacherEmail)
   const date = safeText(session.date, '-')
   const day = safeText(session.day)
-  const time = formatTimeRange12h(session.startTime || session.time, session.endTime, session.durationMinutes, isRtl)
+  const time = formatTimeRangeInTimeZone(
+    session.startTime || session.time,
+    session.endTime,
+    session.durationMinutes,
+    timeZone,
+    isRtl,
+  )
+  const groupCountryName = typeof session.groupCountry?.name === 'object'
+    ? (isRtl ? session.groupCountry.name.ar || session.groupCountry.name.en : session.groupCountry.name.en || session.groupCountry.name.ar)
+    : session.groupCountry?.name
+  const displayedTimeZonePlace = timeZonePlace || groupCountryName || timeZone
   const studentsCount = Number(session.studentsCount) || 0
   return (
     <div className="group">
@@ -92,6 +106,9 @@ export default function SessionRow({
             <Clock size={13} className="text-slate-400 shrink-0" />
             <span>{time}</span>
           </div>
+          <p className="text-[11px] text-slate-400 mt-0.5">
+            {t('common.timezoneLabel', 'بتوقيت {{place}}', { place: displayedTimeZonePlace })}
+          </p>
           {session.durationMinutes > 0 && (
             <p className="text-xs text-slate-400 mt-0.5">
               {t('adminDashboard.sessions.minutesValue', {
@@ -150,7 +167,7 @@ export default function SessionRow({
               </button>
               <button
                 type="button"
-                onClick={() => handleCancelSession(session.id)}
+                onClick={() => handleTogglePanel(session.id, 'cancel')}
                 title={t('adminDashboard.sessions.actions.cancel', 'إلغاء الحصة')}
                 className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-100 transition-all shrink-0 whitespace-nowrap cursor-pointer"
               >
@@ -197,6 +214,9 @@ export default function SessionRow({
           <div>
             <span className="text-slate-400 text-[11px] block">{t('adminDashboard.sessions.headers.time', 'الوقت')}</span>
             <span className="font-medium text-slate-700 dark:text-slate-300">{time}</span>
+            <span className="block text-[10px] text-slate-400 mt-0.5">
+              {t('common.timezoneLabel', 'بتوقيت {{place}}', { place: displayedTimeZonePlace })}
+            </span>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap pt-1">
@@ -230,7 +250,7 @@ export default function SessionRow({
               </button>
               <button
                 type="button"
-                onClick={() => handleCancelSession(session.id)}
+                onClick={() => handleTogglePanel(session.id, 'cancel')}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/40 transition-all cursor-pointer"
               >
                 <X size={12} />
@@ -243,6 +263,9 @@ export default function SessionRow({
       {isExpanded && expandedPanel === 'reschedule' && (
         <ReschedulePanel
           session={session}
+          timeZone={timeZone}
+          timeZonePlace={timeZonePlace}
+          timeZoneResolved={timeZoneResolved}
           onConfirm={(rescheduleData) => handleReschedule(session.id, rescheduleData)}
           onCancel={() => handleTogglePanel(session.id, 'reschedule')}
         />
@@ -253,6 +276,12 @@ export default function SessionRow({
           onConfirm={(tid, tname, reason) => handleChangeTeacher(session.id, tid, tname, reason)}
           onCancel={() => handleTogglePanel(session.id, 'teacher')}
           teachers={teachers}
+        />
+      )}
+      {isExpanded && expandedPanel === 'cancel' && (
+        <CancelSessionPanel
+          onConfirm={(reason, notes) => handleCancelSession(session.id, reason, notes)}
+          onCancel={() => handleTogglePanel(session.id, 'cancel')}
         />
       )}
     </div>

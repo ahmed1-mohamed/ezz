@@ -125,6 +125,7 @@ export default memo(function AdminLayout() {
   const { user, logout } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [failedAvatar, setFailedAvatar] = useState(null)
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   const isRtl = i18n.language.startsWith('ar')
@@ -190,19 +191,16 @@ export default memo(function AdminLayout() {
             <div
               className="w-9 h-9 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/30 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-sm shrink-0 overflow-hidden"
             >
-              {(() => {
-                const rawImg = user?.image || user?.avatar || user?.photoUrl || user?.photo;
-                const cleanImg = typeof rawImg === 'string' && rawImg.trim() !== '' ? rawImg.trim() : null;
-                return cleanImg ? (
-                  <img
-                    src={cleanImg}
-                    alt={resolvedName || 'User profile'}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  userInitial
-                );
-              })()}
+              {userAvatar && failedAvatar !== userAvatar ? (
+                <img
+                  src={userAvatar}
+                  alt={resolvedName || 'User profile'}
+                  className="w-full h-full object-cover"
+                  onError={() => setFailedAvatar(userAvatar)}
+                />
+              ) : (
+                userInitial
+              )}
             </div>
           </Link>
         </div>
@@ -282,8 +280,13 @@ export default memo(function AdminLayout() {
               className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/40 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-xs shrink-0 overflow-hidden hover:scale-105 transition-transform"
               title={resolvedName || t('adminDashboard.adminName', 'أحمد الإداري')}
             >
-              {userAvatar ? (
-                <img src={userAvatar} alt={resolvedName || 'User profile'} className="w-full h-full object-cover" />
+              {userAvatar && failedAvatar !== userAvatar ? (
+                <img
+                  src={userAvatar}
+                  alt={resolvedName || 'User profile'}
+                  className="w-full h-full object-cover"
+                  onError={() => setFailedAvatar(userAvatar)}
+                />
               ) : (
                 userInitial
               )}
@@ -295,8 +298,13 @@ export default memo(function AdminLayout() {
               className="flex items-center gap-3 p-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900 border border-transparent hover:border-slate-100 dark:hover:border-slate-800 transition-colors group cursor-pointer"
             >
               <div className="w-10 h-10 rounded-full bg-[#0f7a6c]/10 dark:bg-emerald-950/40 text-[#0f7a6c] dark:text-emerald-400 border border-[#0f7a6c]/20 flex items-center justify-center font-bold text-sm shadow-xs shrink-0 overflow-hidden">
-                {userAvatar ? (
-                  <img src={userAvatar} alt={resolvedName || 'User profile'} className="w-full h-full object-cover" />
+                {userAvatar && failedAvatar !== userAvatar ? (
+                  <img
+                    src={userAvatar}
+                    alt={resolvedName || 'User profile'}
+                    className="w-full h-full object-cover"
+                    onError={() => setFailedAvatar(userAvatar)}
+                  />
                 ) : (
                   userInitial
                 )}

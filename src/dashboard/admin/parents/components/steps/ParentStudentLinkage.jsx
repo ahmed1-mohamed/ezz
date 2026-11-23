@@ -1,4 +1,40 @@
+import { useState } from 'react'
 import { Plus, X, Search, Check } from 'lucide-react'
+
+function getStudentDisplayName(student, isRtl) {
+  if (typeof student?.name === 'object' && student.name !== null) {
+    return isRtl
+      ? student.name.ar || student.name.en || ''
+      : student.name.en || student.name.ar || ''
+  }
+
+  return isRtl
+    ? student?.nameAr || student?.name || student?.nameEn || ''
+    : student?.nameEn || student?.name || student?.nameAr || ''
+}
+
+function StudentAvatar({ student, name, isRtl }) {
+  const [imageFailed, setImageFailed] = useState(false)
+  const image = student.image || student.profileImage
+  const initial = (student.initial || name.trim().charAt(0) || (isRtl ? 'ط' : 'S')).toLocaleUpperCase(isRtl ? 'ar' : 'en')
+
+  if (image && !imageFailed) {
+    return (
+      <img
+        src={image}
+        alt={name}
+        onError={() => setImageFailed(true)}
+        className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+      />
+    )
+  }
+
+  return (
+    <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-[#005953] dark:text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
+      {initial}
+    </div>
+  )
+}
 
 export default function ParentStudentLinkage({
   isRtl,
@@ -6,8 +42,6 @@ export default function ParentStudentLinkage({
   setShowStudentSearch,
   selectedStudents,
   toggleStudentSelect,
-  studentSearchTab,
-  setStudentSearchTab,
   studentSearch,
   setStudentSearch,
   filteredStudents,
@@ -42,44 +76,21 @@ export default function ParentStudentLinkage({
               >
                 <X size={12} />
               </button>
-              <span>{s.name}</span>
+              <span>{getStudentDisplayName(s, isRtl)}</span>
             </div>
           ))}
         </div>
       )}
       {showStudentSearch && (
         <div className="border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden animate-fadeIn">
-          <div className="flex items-center justify-end gap-2 p-3 bg-slate-50 dark:bg-slate-950/30 border-b border-slate-100 dark:border-slate-800">
-            {[
-              { key: 'phone', label: isRtl ? 'بحث بالجوال' : 'By Phone' },
-              { key: 'email', label: isRtl ? 'بحث بالبريد' : 'By Email' },
-              { key: 'name', label: isRtl ? 'بحث بالاسم' : 'By Name' },
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => { setStudentSearchTab(tab.key); setStudentSearch('') }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${studentSearchTab === tab.key
-                    ? 'bg-brand-600 text-white'
-                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                  }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
           <div className="p-3 border-b border-slate-100 dark:border-slate-800">
             <div className="relative">
               <Search size={16} className={`absolute top-1/2 -translate-y-1/2 ${isRtl ? 'right-3' : 'left-3'} text-slate-400`} />
               <input
                 type="text"
-                placeholder={
-                  studentSearchTab === 'name'
-                    ? (isRtl ? 'ابحث بالاسم...' : 'Search by name...')
-                    : studentSearchTab === 'email'
-                      ? (isRtl ? 'ابحث بالبريد الإلكتروني...' : 'Search by email...')
-                      : (isRtl ? 'ابحث برقم الهاتف...' : 'Search by phone number...')
-                }
+                placeholder={isRtl
+                  ? 'ابحث باسم الطالب أو بريده الإلكتروني أو رقم جواله...'
+                  : 'Search by student name, email, or phone...'}
                 value={studentSearch}
                 onChange={(e) => setStudentSearch(e.target.value)}
                 className={`w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-brand-500/20 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-2.5 ${isRtl ? 'pr-10 pl-4 text-start' : 'pl-10 pr-4 text-start'} outline-none transition-all text-xs placeholder-slate-400`}
@@ -90,6 +101,7 @@ export default function ParentStudentLinkage({
             {filteredStudents.length > 0 ? (
               filteredStudents.map((s) => {
                 const selected = isStudentSelected(s.id)
+                const studentName = getStudentDisplayName(s, isRtl)
                 return (
                   <div
                     key={s.id}
@@ -108,15 +120,13 @@ export default function ParentStudentLinkage({
                     <div className="flex items-center gap-3">
                       <div className="text-start">
                         <h4 className="text-xs font-bold text-slate-800 dark:text-white">
-                          {s.name}
+                          {studentName}
                         </h4>
                         <p className="text-[10px] text-slate-450 dark:text-slate-500 font-bold">
                           {s.level} · {s.groupName}
                         </p>
                       </div>
-                      <div className="w-8 h-8 rounded-full bg-emerald-50 text-[#005953] flex items-center justify-center font-bold text-xs">
-                        {s.initial}
-                      </div>
+                      <StudentAvatar student={s} name={studentName} isRtl={isRtl} />
                     </div>
                   </div>
                 )

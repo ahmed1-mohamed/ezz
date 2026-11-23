@@ -17,6 +17,7 @@ import {
   Loader2,
 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
+import { useTranslation } from 'react-i18next'
 import { teachersApi } from '@/shared/services/api/teachersApi'
 import { formatPaymentMethodInfo } from '@/shared/utils/paymentMethodUtils'
 
@@ -37,6 +38,8 @@ export default function AdminRecordPayoutModal({
   isRtl = true,
   onSuccess,
 }) {
+  const { t } = useTranslation()
+  const p = (key, fallback, options) => t(`adminDashboard.earnings.${key}`, { defaultValue: fallback, ...options })
   const teacherIdProp = teacher?.id || teacher?.teacher_id || teacher?._id || ''
   const [selectedTeacherId, setSelectedTeacherId] = useState(teacherIdProp)
   const [paymentMethods, setPaymentMethods] = useState([])
@@ -101,7 +104,7 @@ export default function AdminRecordPayoutModal({
     const file = e.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith('image/')) {
-      toast.error(isRtl ? 'يرجى اختيار ملف صورة صالح (PNG, JPG, WEBP)' : 'Please select a valid image file')
+      toast.error(p('validImageRequired', 'يرجى اختيار ملف صورة صالح (PNG, JPG, WEBP)'))
       return
     }
     setProofImageFile(file)
@@ -124,12 +127,12 @@ export default function AdminRecordPayoutModal({
     e.preventDefault()
     setErrorMessage('')
     if (!activeTeacherId) {
-      setErrorMessage(isRtl ? 'يرجى اختيار المعلم أولاً' : 'Please select a teacher first')
+      setErrorMessage(p('selectTeacherFirst', 'يرجى اختيار المعلم أولاً'))
       return
     }
     const numAmount = Number(amount)
     if (isNaN(numAmount) || numAmount <= 0) {
-      setErrorMessage(isRtl ? 'يرجى إدخال مبلغ تحويل صحيح أكبر من صفر' : 'Please enter a valid amount greater than 0')
+      setErrorMessage(p('validAmountRequired', 'يرجى إدخال مبلغ تحويل صحيح أكبر من صفر'))
       return
     }
     setIsSubmitting(true)
@@ -150,16 +153,14 @@ export default function AdminRecordPayoutModal({
       }
       await teachersApi.createTeacherPayout(activeTeacherId, fd)
       toast.success(
-        isRtl
-          ? 'تم تسجيل التحويل المالي وإرسال إثبات الدفع بنجاح'
-          : 'Payment recorded and transfer proof sent successfully'
+        p('payoutSuccess', 'تم تسجيل التحويل المالي وإرسال إثبات الدفع بنجاح')
       )
       onSuccess?.()
       onClose()
     } catch (err) {
       console.error('Failed to create teacher payout:', err)
       const resMsg = err.response?.data?.message
-      const msg = Array.isArray(resMsg) ? resMsg.join(' - ') : (resMsg || (isRtl ? 'فشل تسجيل التحويل المالي' : 'Failed to record payout'))
+      const msg = Array.isArray(resMsg) ? resMsg.join(' - ') : (resMsg || p('payoutFailure', 'فشل تسجيل التحويل المالي'))
       setErrorMessage(msg)
       toast.error(msg)
     } finally {
@@ -185,10 +186,10 @@ export default function AdminRecordPayoutModal({
             </div>
             <div>
               <h3 className="font-black text-base sm:text-lg text-slate-800 dark:text-white">
-                {isRtl ? 'تسجيل تحويل مالي للمعلم (طلب دفع)' : 'Record Teacher Payout'}
+                {p('recordPayoutTitle', 'تسجيل تحويل مالي للمعلم (طلب دفع)')}
               </h3>
               <p className="text-xs text-slate-400">
-                {isRtl ? 'توثيق عملية التحويل البنكي أو المحفظة وإرفاق إيصال الدفع' : 'Record teacher payment proof and receipt'}
+                {p('recordPayoutSubtitle', 'توثيق عملية التحويل البنكي أو المحفظة وإرفاق إيصال الدفع')}
               </p>
             </div>
           </div>
@@ -211,7 +212,7 @@ export default function AdminRecordPayoutModal({
           {!teacher && (
             <div>
               <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1.5">
-                {isRtl ? 'اختر المعلم' : 'Select Teacher'} <span className="text-rose-500">*</span>
+                {p('selectTeacher', 'اختر المعلم')} <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
                 <select
@@ -220,10 +221,12 @@ export default function AdminRecordPayoutModal({
                   required
                   className={`w-full py-2.5 ${isRtl ? 'pr-9 pl-3' : 'pl-9 pr-3'} rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/30`}
                 >
-                  <option value="">{isRtl ? '-- اختر المعلم المستحق --' : '-- Select Teacher --'}</option>
+                  <option value="">{p('selectEligibleTeacher', '-- اختر المعلم المستحق --')}</option>
                   {teachersList.map((tItem) => {
                     const tId = tItem.teacher_id || tItem.id || tItem._id || tItem.user_id
-                    const tName = typeof tItem.name === 'object' ? (tItem.name?.ar || tItem.name?.en) : (tItem.name || 'معلم')
+                    const tName = typeof tItem.name === 'object'
+                      ? (isRtl ? tItem.name?.ar || tItem.name?.en : tItem.name?.en || tItem.name?.ar)
+                      : (tItem.name || p('teacherFallback', 'معلم'))
                     return (
                       <option key={tId} value={tId}>
                         {tName}
@@ -239,34 +242,46 @@ export default function AdminRecordPayoutModal({
             <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
               <div className="flex items-center gap-2">
                 <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200">
-                  {isRtl ? 'طريقة الاستلام المستخدمة' : 'Payment Method Used'}
+                  {p('receiptMethodUsed', 'طريقة الاستلام المستخدمة')}
                 </label>
                 {paymentMethods.length > 0 && (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60">
-                    {paymentMethods.length} {isRtl ? (paymentMethods.length === 1 ? 'حساب متاح' : paymentMethods.length === 2 ? 'حسابان متاحان' : 'حسابات متاحة') : 'available accounts'}
+                    {paymentMethods.length} {p(
+                      paymentMethods.length === 1
+                        ? 'availableAccountOne'
+                        : paymentMethods.length === 2
+                          ? 'availableAccountTwo'
+                          : 'availableAccounts',
+                      paymentMethods.length === 1
+                        ? 'حساب متاح'
+                        : paymentMethods.length === 2
+                          ? 'حسابان متاحان'
+                          : 'حسابات متاحة',
+                      { count: paymentMethods.length },
+                    )}
                   </span>
                 )}
               </div>
               {isMethodsLoading ? (
                 <span className="text-[10px] text-[#0f7a6c] flex items-center gap-1 font-bold">
                   <Loader2 size={12} className="animate-spin" />
-                  <span>{isRtl ? 'جاري جلب طرق الدفع...' : 'Loading methods...'}</span>
+                  <span>{p('loadingPaymentMethods', 'جاري جلب طرق الدفع...')}</span>
                 </span>
               ) : (
                 <span className="text-[10px] text-slate-400 font-normal">
-                  ({isRtl ? 'اختياري - سيتم استخدام الافتراضية إن لم تحدد' : 'Optional - default will be used'})
+                  ({p('optionalDefaultPaymentMethod', 'اختياري - سيتم استخدام الافتراضية إن لم تحدد')})
                 </span>
               )}
             </div>
             {!activeTeacherId ? (
               <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-200 dark:border-slate-700 text-center text-xs text-slate-400 font-medium">
-                {isRtl ? 'اختر المعلم أولاً لعرض طرق الدفع المتاحة له' : 'Select a teacher first to view payment methods'}
+                {p('selectTeacherToShowMethods', 'اختر المعلم أولاً لعرض طرق الدفع المتاحة له')}
               </div>
             ) : paymentMethods.length === 0 && !isMethodsLoading ? (
               <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/40 text-amber-800 dark:text-amber-300 text-xs font-medium space-y-1">
-                <span className="font-bold block">{isRtl ? 'تنبيه: لم يقم المعلم بإضافة طرق دفع بعد' : 'Notice: No payment methods added by teacher yet'}</span>
+                <span className="font-bold block">{p('noTeacherPaymentMethods', 'تنبيه: لم يقم المعلم بإضافة طرق دفع بعد')}</span>
                 <span className="text-[11px] block text-slate-500 dark:text-slate-400">
-                  {isRtl ? 'يمكنك المتابعة بالتحويل المالي المباشر وكتابة التفاصيل في الملاحظات' : 'You can still proceed and enter details in notes'}
+                  {p('directTransferAllowed', 'يمكنك المتابعة بالتحويل المالي المباشر وكتابة التفاصيل في الملاحظات')}
                 </span>
               </div>
             ) : (
@@ -300,7 +315,7 @@ export default function AdminRecordPayoutModal({
                             {m.isDefault && (
                               <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 font-bold inline-flex items-center gap-0.5">
                                 <Star size={10} className="fill-current" />
-                                {isRtl ? 'افتراضية' : 'Default'}
+                                {p('defaultPaymentMethod', 'افتراضية')}
                               </span>
                             )}
                           </div>
@@ -311,7 +326,7 @@ export default function AdminRecordPayoutModal({
                           )}
                           {info.accountHolder && (
                             <span className="text-[10px] text-slate-400 block">
-                              {isRtl ? 'الاسم:' : 'Name:'} {info.accountHolder}
+                              {p('accountHolderLabel', 'الاسم:')} {info.accountHolder}
                             </span>
                           )}
                         </div>
@@ -329,7 +344,7 @@ export default function AdminRecordPayoutModal({
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200">
-                  {isRtl ? 'المبلغ المحول ($)' : 'Amount ($)'} <span className="text-rose-500">*</span>
+                  {p('amountTransferred', 'المبلغ المحول ($)')} <span className="text-rose-500">*</span>
                 </label>
                 {Number(dueEarnings) > 0 && (
                   <button
@@ -337,7 +352,7 @@ export default function AdminRecordPayoutModal({
                     onClick={handleSetFullDue}
                     className="text-[10px] font-bold text-[#0f7a6c] hover:underline cursor-pointer"
                   >
-                    {isRtl ? 'كامل المستحق' : 'Full balance'} ({dueEarnings}$)
+                    {p('fullDue', 'كامل المستحق')} ({dueEarnings}$)
                   </button>
                 )}
               </div>
@@ -354,7 +369,7 @@ export default function AdminRecordPayoutModal({
             </div>
             <div>
               <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1">
-                {isRtl ? 'رقم العملية المرجعي' : 'Reference Number'}
+                {p('referenceNumber', 'رقم العملية المرجعي')}
               </label>
               <input
                 type="text"
@@ -367,19 +382,19 @@ export default function AdminRecordPayoutModal({
           </div>
           <div>
             <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1">
-              {isRtl ? 'ملاحظات التحويل' : 'Admin Notes'}
+              {p('transferNotes', 'ملاحظات التحويل')}
             </label>
             <input
               type="text"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder={isRtl ? 'مثال: راتب شهر أكتوبر / دفعة مستحقات' : 'e.g. October payout'}
+              placeholder={p('transferNotesPlaceholder', 'مثال: راتب شهر أكتوبر / دفعة مستحقات')}
               className="w-full py-2.5 px-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f7a6c]/30"
             />
           </div>
           <div>
             <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1">
-              {isRtl ? 'صورة إيصال التحويل (إثبات الدفع)' : 'Proof of Payment Receipt'}
+              {p('proofReceiptLabel', 'صورة إيصال التحويل (إثبات الدفع)')}
             </label>
             {proofPreviewUrl ? (
               <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-2 flex items-center justify-between">
@@ -394,7 +409,7 @@ export default function AdminRecordPayoutModal({
                   type="button"
                   onClick={handleRemoveFile}
                   className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                  title={isRtl ? 'حذف الإيصال' : 'Remove'}
+                  title={p('removeReceipt', 'حذف الإيصال')}
                 >
                   <Trash2 size={16} />
                 </button>
@@ -403,9 +418,9 @@ export default function AdminRecordPayoutModal({
               <label className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-[#0f7a6c] dark:hover:border-emerald-500 bg-slate-50/60 dark:bg-slate-800/40 transition-colors cursor-pointer">
                 <Upload size={22} className="text-[#0f7a6c] mb-1.5" />
                 <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
-                  {isRtl ? 'اضغط لاختيار صورة إيصال التحويل' : 'Click to select receipt image'}
+                  {p('chooseReceiptImage', 'اضغط لاختيار صورة إيصال التحويل')}
                 </span>
-                <span className="text-[10px] text-slate-400 mt-0.5">PNG, JPG, WEBP (حتى 5 ميجابايت)</span>
+                <span className="text-[10px] text-slate-400 mt-0.5">{p('proofImageLimits', 'PNG, JPG, WEBP (حتى 5 ميجابايت)')}</span>
                 <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
               </label>
             )}
@@ -417,7 +432,7 @@ export default function AdminRecordPayoutModal({
               disabled={isSubmitting}
               className="px-5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
-              {isRtl ? 'إلغاء' : 'Cancel'}
+              {p('cancel', 'إلغاء')}
             </button>
             <button
               type="submit"
@@ -427,12 +442,12 @@ export default function AdminRecordPayoutModal({
               {isSubmitting ? (
                 <>
                   <Loader2 size={15} className="animate-spin" />
-                  <span>{isRtl ? 'جاري الإرسال...' : 'Submitting...'}</span>
+                  <span>{p('submittingPayout', 'جاري الإرسال...')}</span>
                 </>
               ) : (
                 <>
                   <Send size={15} />
-                  <span>{isRtl ? 'إرسال وتوثيق التحويل' : 'Submit Payout'}</span>
+                  <span>{p('submitPayout', 'إرسال وتوثيق التحويل')}</span>
                 </>
               )}
             </button>

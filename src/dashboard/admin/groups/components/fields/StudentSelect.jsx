@@ -105,7 +105,7 @@ export default function StudentSelect({
                 onSelect(null)
               }}
               className="p-1 hover:text-red-500 rounded-md transition-colors"
-              title="إلغاء التحديد"
+              title={isRtl ? 'إلغاء التحديد' : 'Clear selection'}
             >
               <X size={14} />
             </span>

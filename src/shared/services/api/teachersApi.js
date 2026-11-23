@@ -337,6 +337,14 @@ export const teachersApi = {
     return teachersApi.fetchTeachersList(params);
   },
 
+  fetchTeacherOptionsLocalized: async (params = {}) => {
+    const response = await api.get('/api/v1/teachers/private/localized/list', { params });
+    const resData = response.data || {};
+    const rawList = resData.data?.teachers || resData.teachers || resData.data || (Array.isArray(resData) ? resData : []);
+    const items = Array.isArray(rawList) ? rawList.map(mapTeacherData).filter(Boolean) : [];
+    return { success: true, data: items };
+  },
+
   fetchTeachersList: async (params = {}) => {
     try {
       const response = await api.get('/api/v1/teachers/private/list', { params });

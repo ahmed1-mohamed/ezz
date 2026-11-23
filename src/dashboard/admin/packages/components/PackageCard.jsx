@@ -1,10 +1,13 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Pencil, Trash2, Package, Check, Globe, Users, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { getCountryName } from '@/shared/utils/countryUtils'
+import { getImageUrl } from '@/shared/services/api/teachersApi'
 
 export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguages = [], countries = [] }) {
   const { t, i18n } = useTranslation()
+  const [imageFailed, setImageFailed] = useState(false)
   const p = (key) => t(`adminDashboard.packages.${key}`)
   const accentColor = '#005953'
   const cardBg = 'bg-[#005953]/5 dark:bg-[#005953]/10'
@@ -21,6 +24,12 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
     : (pkg.country || '')
   const countryFlag = countryObj?.flag || ''
   const displayName = isRtl ? (pkg.name || pkg.name_en) : (pkg.name_en || pkg.name)
+  const localizedName = isRtl ? pkg.name : pkg.name_en
+  const rawInitial = String(localizedName || '').trim().charAt(0)
+  const initial = rawInitial && (isRtl || !/[\u0600-\u06FF]/.test(rawInitial))
+    ? rawInitial.toLocaleUpperCase(isRtl ? 'ar' : 'en')
+    : (isRtl ? 'ب' : 'P')
+  const packageImage = typeof pkg.image === 'string' ? pkg.image.trim() : ''
   const isFamily = pkg.type === 'family'
   const hasDiscount = pkg.priceAfterDiscount !== null && pkg.priceAfterDiscount !== undefined && Number(pkg.priceAfterDiscount) < Number(pkg.price)
   const discountPct = hasDiscount
@@ -43,23 +52,19 @@ export default function PackageCard({ pkg, onEdit, onDelete, explanationLanguage
           className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm mt-1 overflow-hidden"
           style={{ backgroundColor: accentColor }}
         >
-          {pkg.image ? (
+          {packageImage && !imageFailed ? (
             <img
-              src={pkg.image}
+              src={getImageUrl(packageImage)}
               alt={displayName}
               className="w-full h-full object-cover"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none'
-                const fallbackIcon = e.currentTarget.parentElement.querySelector('.pkg-fallback-icon')
-                if (fallbackIcon) fallbackIcon.style.display = 'flex'
-              }}
+              onError={() => setImageFailed(true)}
             />
           ) : null}
           <div
             className="w-full h-full flex items-center justify-center text-white font-bold text-2xl uppercase pkg-fallback-icon"
-            style={{ display: pkg.image ? 'none' : 'flex' }}
+            style={{ display: packageImage && !imageFailed ? 'none' : 'flex' }}
           >
-            {displayName?.trim()?.charAt(0) || <Package size={24} className="text-white" />}
+            {initial || <Package size={24} className="text-white" />}
           </div>
         </div>
         <div className="text-center space-y-2">

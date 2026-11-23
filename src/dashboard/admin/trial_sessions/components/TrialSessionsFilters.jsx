@@ -6,7 +6,6 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  CheckCheck,
 } from 'lucide-react'
 
 export default function TrialSessionsFilters({
@@ -29,9 +28,8 @@ export default function TrialSessionsFilters({
   ] : [
     { key: 'all', label: isRtl ? 'الكل' : 'All', count: stats.total, icon: Sparkles },
     { key: 'pending', label: isRtl ? 'بانتظار التسكين' : 'Pending', count: stats.pending, icon: Clock, activeClass: 'bg-amber-600 text-white' },
-    { key: 'scheduled', label: isRtl ? 'مجدولة' : 'Scheduled', count: stats.scheduled ?? stats.assigned, icon: CheckCircle2, activeClass: 'bg-emerald-600 text-white' },
-    { key: 'completed', label: isRtl ? 'مكتملة' : 'Completed', count: stats.completed, icon: CheckCheck, activeClass: 'bg-teal-600 text-white' },
-    { key: 'cancelled', label: isRtl ? 'ملغاة' : 'Cancelled', count: stats.cancelled, icon: XCircle, activeClass: 'bg-rose-600 text-white' },
+    { key: 'scheduled', label: isRtl ? 'تم التسكين' : 'Assigned', count: stats.scheduled ?? stats.assigned, icon: CheckCircle2, activeClass: 'bg-emerald-600 text-white' },
+    { key: 'cancelled', label: isRtl ? 'مرفوضة' : 'Rejected', count: stats.cancelled, icon: XCircle, activeClass: 'bg-rose-600 text-white' },
   ]
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-100 dark:border-slate-800 shadow-sm space-y-4 text-start" dir={isRtl ? 'rtl' : 'ltr'}>

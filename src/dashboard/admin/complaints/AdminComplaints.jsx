@@ -104,25 +104,17 @@ export default function AdminComplaints() {
     const isPostpone = item.type === 'postpone' || item.type === 'postponement' || item.type === 'reschedule' || item.type === 'reschedule_request' || item.type === 'delay'
     const isSuggestion = item.type === 'suggestion'
     if (isPostpone) {
-      const sessionId = item.sessionId || item.session?.id || item.session?._id || (typeof item.session === 'string' ? item.session : null)
-      const proposedDate = item.proposedDate || item.suggestedDate || item.rescheduleDate || item.newDate || item.date || ''
-      const proposedStartTime = item.proposedStartTime || item.suggestedStartTime || item.newStartTime || item.startTime || ''
-      const proposedEndTime = item.proposedEndTime || item.suggestedEndTime || item.newEndTime || item.endTime || ''
       const notes = await showNotesPrompt({
         isRtl,
         title: t('adminDashboard.complaints.approvePostponeTitle', 'الموافقة على طلب التأجيل وإعادة جدولة الحصة'),
         confirmText: t('adminDashboard.complaints.approveReschedule', 'قبول وإعادة الجدولة'),
         confirmColor: CONFIRM_GREEN,
       })
-      if (!notes) return
+      if (notes === null) return
       statusMutation.mutate({
         action: 'approvePostpone',
         id: item.id || item._id,
         notes,
-        sessionId,
-        date: proposedDate,
-        startTime: proposedStartTime,
-        endTime: proposedEndTime,
       })
       return
     }
@@ -136,7 +128,7 @@ export default function AdminComplaints() {
         : t('adminDashboard.complaints.markResolved', 'تحديد كمحلولة'),
       confirmColor: CONFIRM_GREEN,
     })
-    if (!notes) return
+    if (notes === null) return
     statusMutation.mutate({
       action: isSuggestion ? 'acceptSuggestion' : 'resolveComplaint',
       id: item.id || item._id,
@@ -150,7 +142,7 @@ export default function AdminComplaints() {
       confirmText: t('adminDashboard.complaints.reject', 'رفض'),
       confirmColor: CONFIRM_RED,
     })
-    if (!notes) return
+    if (notes === null) return
     statusMutation.mutate({ action: 'rejectComplaint', id: item.id || item._id, notes })
   }
   const errorMessage = isListError

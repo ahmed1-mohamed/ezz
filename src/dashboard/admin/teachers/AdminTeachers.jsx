@@ -164,7 +164,7 @@ export default function AdminTeachers() {
     }
   }
   return (
-    <div className="space-y-8 p-1 md:p-6 relative" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="space-y-8 p-1 md:p-6 relative min-w-0" dir={isRtl ? 'rtl' : 'ltr'}>
       {isLoading && viewMode === 'list' && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm rounded-3xl">
           <Spinner />
@@ -257,7 +257,7 @@ export default function AdminTeachers() {
               </span>
             </button>
           </div>
-          <div className="flex flex-col lg:flex-row gap-8 items-start">
+          <div className="flex flex-col lg:flex-row gap-8 items-start min-w-0">
              <div className="w-full lg:w-80 shrink-0">
               <TeacherProfileCard
                 teacher={selectedTeacher}
@@ -269,7 +269,7 @@ export default function AdminTeachers() {
                 onViewDetails={handleViewDetails}
               />
             </div>
-             <div className="flex-1 w-full">
+             <div className="flex-1 w-full min-w-0">
               <TeachersList
                 teachers={teachers}
                 selectedTeacherId={selectedTeacherId}

@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
-import { Image as ImageIcon, ChevronDown } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { ChevronDown } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { sortCountries, getCountryName, fetchCountries, DEFAULT_DIAL_CODE } from '@/shared/utils/countryUtils'
+import { getImageUrl } from '@/shared/services/api/teachersApi'
 
 export default function TeacherPersonalInfoCard({
   formData,
@@ -11,6 +12,7 @@ export default function TeacherPersonalInfoCard({
   isEdit = false
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [failedProfileImage, setFailedProfileImage] = useState('')
   const [fetchedCountries, setFetchedCountries] = useState([])
   useEffect(() => {
     let isMounted = true
@@ -79,22 +81,15 @@ export default function TeacherPersonalInfoCard({
   const selectedCountry = useMemo(() => {
     if (userSelectedCountry) return userSelectedCountry
     if (activeCountries.length === 0) return null
-    const byCountryId = formData.country ? activeCountries.find(c => c.id === formData.country) : null
-    if (parsedCountry) {
-      return byCountryId && byCountryId.code === parsedCountry.code ? byCountryId : parsedCountry
-    }
-    return byCountryId || activeCountries.find(c => c.code === DEFAULT_DIAL_CODE) || activeCountries[0]
-  }, [userSelectedCountry, parsedCountry, activeCountries, formData.country])
-  const onChangeRef = useRef(onChange)
-  useEffect(() => {
-    onChangeRef.current = onChange
-  })
-  useEffect(() => {
-    if (activeCountries.length > 0 && !formData.country && selectedCountry?.id) {
-      onChangeRef.current('country', selectedCountry.id)
-    }
-  }, [activeCountries, formData.country, selectedCountry])
+    if (parsedCountry) return parsedCountry
+    return activeCountries.find(c => c.code === DEFAULT_DIAL_CODE) || activeCountries[0]
+  }, [userSelectedCountry, parsedCountry, activeCountries])
   const phoneNumberOnly = parsedPhone
+  const rawProfileImage = formData.profileImage || formData.image || ''
+  const profileImageSrc = rawProfileImage.startsWith('blob:') ? rawProfileImage : (rawProfileImage ? getImageUrl(rawProfileImage) : '')
+  const showProfileImage = Boolean(profileImageSrc && profileImageSrc !== failedProfileImage)
+  const profileName = isRtl ? (formData.name || '') : (formData.nameEn || '')
+  const profileInitial = profileName.trim().charAt(0).toLocaleUpperCase() || (isRtl ? 'م' : 'T')
   const handlePhoneNumChange = (value) => {
     const cleanVal = value.replace(/[^\d]/g, '')
     if (selectedCountry?.code) {
@@ -106,7 +101,6 @@ export default function TeacherPersonalInfoCard({
   const selectCountryCode = (country) => {
     setUserSelectedCountry(country)
     setIsDropdownOpen(false)
-    onChange('country', country.id)
     onChange('phone', phoneNumberOnly ? `${country.code}${phoneNumberOnly}` : '')
   }
   return (
@@ -116,16 +110,17 @@ export default function TeacherPersonalInfoCard({
       </h2>
       <div className="flex flex-col items-center justify-center pt-1 pb-4">
         <label className="relative cursor-pointer group flex flex-col items-center justify-center w-44 h-44 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-[#005953] bg-[#f8faf9] dark:bg-slate-950/20 transition-all overflow-hidden">
-          {formData.profileImage || formData.image ? (
+          {showProfileImage ? (
             <img
-              src={formData.profileImage || formData.image}
+              src={profileImageSrc}
               alt="Profile"
+              onError={() => setFailedProfileImage(profileImageSrc)}
               className="w-full h-full object-cover"
             />
           ) : (
             <div className="flex flex-col items-center justify-center text-center p-4 space-y-2.5">
-              <div className="p-3 bg-white dark:bg-slate-900 rounded-2xl text-slate-350 dark:text-slate-500 shadow-xs transition-transform group-hover:scale-105">
-                <ImageIcon size={28} className="text-slate-300 dark:text-slate-500" />
+              <div className="w-20 h-20 rounded-full bg-brand-500/10 text-brand-700 dark:bg-brand-500/20 dark:text-brand-300 flex items-center justify-center text-3xl font-black shadow-xs transition-transform group-hover:scale-105">
+                {profileInitial}
               </div>
               <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
                 {isRtl ? 'اضغط لرفع صورة شخصية' : 'Click to upload photo'}
@@ -199,6 +194,21 @@ export default function TeacherPersonalInfoCard({
             />
           </div>
         )}
+        <div>
+          <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
+            {isRtl ? 'الدولة' : 'Country'}
+          </label>
+          <select
+            value={formData.country || ''}
+            onChange={(e) => onChange('country', e.target.value)}
+            className="w-full bg-[#f3f7f6] dark:bg-slate-950 border border-transparent focus:border-[#005953]/30 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl py-3.5 px-4 outline-none transition-all text-sm font-medium"
+          >
+            <option value="">{isRtl ? 'اختر الدولة' : 'Select country'}</option>
+            {activeCountries.map((country, idx) => (
+              <option key={country.id || idx} value={country.id}>{country.flag} {getCountryName(country, isRtl)}</option>
+            ))}
+          </select>
+        </div>
         <div>
           <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
             {isRtl ? 'رقم الهاتف' : 'Phone Number'}
