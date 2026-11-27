@@ -304,6 +304,27 @@
   <script src="/zoom-sdk/vendor/react-redux.min.js"></script>
   <script src="/zoom-sdk/vendor/lodash.min.js"></script>
 
+  <script>
+    // Expose Zoom's PiP action to the dashboard toolbar so a user click can open it.
+    (function exposeZoomPiPAction() {
+      const mediaSession = navigator.mediaSession;
+      if (!mediaSession || typeof mediaSession.setActionHandler !== 'function') return;
+      const originalSetActionHandler = mediaSession.setActionHandler.bind(mediaSession);
+      mediaSession.setActionHandler = function(action, handler) {
+        if (action === 'enterpictureinpicture') {
+          window.__zoomPiPAction = typeof handler === 'function' ? handler : null;
+          if (window.parent !== window) {
+            window.parent.postMessage({
+              type: 'ZOOM_PIP_ACTION_READY',
+              available: typeof window.__zoomPiPAction === 'function'
+            }, window.location.origin);
+          }
+        }
+        return originalSetActionHandler(action, handler);
+      };
+    })();
+  </script>
+
    <script src="/zoom-sdk/zoom-meeting.min.js"></script>
   <script src="/zoom-sdk/zoom-meeting-embedded.min.js"></script>
 </head>
@@ -701,6 +722,7 @@
           patchJsMedia: true,
           screenShare: true,
           disablePreview: true,
+          disablePictureInPicture: false,
           theme: 'dark',
           success: function() {
             console.log('[ZoomEmbed v2] ZoomMtg.init succeeded');
