@@ -7,12 +7,15 @@ import { useQuery } from '@tanstack/react-query'
 
 export default React.memo(function CurriculumUnits() {
     const { t, i18n } = useTranslation()
-    const isRtl = i18n.language === 'ar'
+    const currentLang = i18n.language?.startsWith('en') ? 'en' : 'ar'
+    const isRtl = currentLang === 'ar'
     const tabRefs = useRef({})
     const { data: curriculaData, isLoading: isCurriculaLoading } = useQuery({
-        queryKey: ['public-curricula', i18n.language],
+        queryKey: ['public-curricula', currentLang],
         queryFn: async () => {
-            const res = await api.get('/api/v1/curricula/public');
+            const res = await api.get('/api/v1/curricula/public', {
+                headers: { 'Accept-Language': currentLang },
+            });
             const items = res.data?.data || [];
             return items.map(item => item.data || item);
         },
@@ -35,10 +38,12 @@ export default React.memo(function CurriculumUnits() {
     const [openLevel, setOpenLevel] = useState(null);
     const [showAllLevels, setShowAllLevels] = useState(false);
     const { data: activeCurriculumData } = useQuery({
-        queryKey: ['public-curriculum-details', activeTabId, i18n.language],
+        queryKey: ['public-curriculum-details', activeTabId, currentLang],
         queryFn: async () => {
             if (!activeTabId) return null;
-            const res = await api.get(`/api/v1/curricula/public/${activeTabId}`);
+            const res = await api.get(`/api/v1/curricula/public/${activeTabId}`, {
+                headers: { 'Accept-Language': currentLang },
+            });
             let curr = res.data?.data || res.data;
             if (Array.isArray(curr)) {
                 curr = curr[0]?.data || curr[0] || {};

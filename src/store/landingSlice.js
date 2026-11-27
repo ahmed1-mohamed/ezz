@@ -14,7 +14,9 @@ export const fetchLandingPage = createAsyncThunk(
   {
     condition: (lang, { getState }) => {
       const { landing } = getState();
-      if (landing.loading) return false;
+      if (landing.landingPageLoading) {
+        return landing.landingPageLoadingLang !== lang;
+      }
       if (landing.landingData && landing.landingLang === lang) return false;
       return true;
     }
@@ -98,6 +100,9 @@ const initialState = {
   contactInfo: null,
   publicFeaturedStudents: null,
   publicFeaturedStudentsLang: null,
+  landingPageLoading: false,
+  landingPageLoadingLang: null,
+  landingPageRequestId: null,
   messageSubmitStatus: 'idle',
   loading: false,
   error: null,
@@ -114,17 +119,28 @@ const landingSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchLandingPage.pending, (state) => {
+      .addCase(fetchLandingPage.pending, (state, action) => {
         state.loading = true;
         state.error = null;
+        state.landingPageLoading = true;
+        state.landingPageLoadingLang = action.meta.arg;
+        state.landingPageRequestId = action.meta.requestId;
       })
       .addCase(fetchLandingPage.fulfilled, (state, action) => {
+        if (state.landingPageRequestId !== action.meta.requestId) return;
         state.loading = false;
+        state.landingPageLoading = false;
+        state.landingPageLoadingLang = null;
+        state.landingPageRequestId = null;
         state.landingData = action.payload?.data || null;
         state.landingLang = action.meta.arg;
       })
       .addCase(fetchLandingPage.rejected, (state, action) => {
+        if (state.landingPageRequestId !== action.meta.requestId) return;
         state.loading = false;
+        state.landingPageLoading = false;
+        state.landingPageLoadingLang = null;
+        state.landingPageRequestId = null;
         state.error = action.payload;
       })
       .addCase(fetchPackagesAndFaqs.pending, (state) => {

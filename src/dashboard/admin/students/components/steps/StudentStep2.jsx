@@ -56,9 +56,7 @@ export default function StudentStep2({
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 p-6 shadow-soft space-y-6">
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3">
           <h3 className="text-base font-bold text-slate-800 dark:text-white">
-            {isEdit
-              ? (isRtl ? 'ولي الأمر (اختياري)' : 'Parent (Optional)')
-              : (isRtl ? 'ربط ولي الأمر *' : 'Link Parent *')}
+            {isRtl ? 'ولي الأمر (اختياري)' : 'Parent (Optional)'}
           </h3>
           {selectedParentName && (
             <span className="text-xs font-bold text-[#005953] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-1 rounded-xl">

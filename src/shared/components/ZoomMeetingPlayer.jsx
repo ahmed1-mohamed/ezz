@@ -9,6 +9,7 @@ import {
   Minimize2,
   RotateCcw,
   ExternalLink,
+  PictureInPicture2,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import DevicePreviewModal from './DevicePreviewModal.jsx';
@@ -38,6 +39,7 @@ export default function ZoomMeetingPlayer({
   const [iframeKey, setIframeKey] = useState(1);
   const [isMicMuted, setIsMicMuted] = useState(false);
   const [isCameraOff, setIsCameraOff] = useState(false);
+  const [isPipReady, setIsPipReady] = useState(false);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [mountedAt] = useState(() => Date.now());
   const cleanMeetingId = String(meetingId || '').replace(/\s/g, '');
@@ -110,13 +112,26 @@ export default function ZoomMeetingPlayer({
       );
     }
   };
+  const handleOpenFloatingWindow = () => {
+    const enterPictureInPicture = iframeRef.current?.contentWindow?.__zoomPiPAction;
+    if (typeof enterPictureInPicture !== 'function') return;
+
+    try {
+      Promise.resolve(enterPictureInPicture({ action: 'enterpictureinpicture', reason: 'user' }))
+        .catch((error) => console.error('[Zoom PiP] Could not open floating window:', error));
+    } catch (error) {
+      console.error('[Zoom PiP] Could not open floating window:', error);
+    }
+  };
   const handleReloadStream = () => {
+    setIsPipReady(false);
     setIframeKey((prev) => prev + 1);
   };
   const handleRefreshServerData = () => {
     if (onRefreshJoinData) {
       onRefreshJoinData();
     }
+    setIsPipReady(false);
     setIframeKey((prev) => prev + 1);
   };
   useEffect(() => {
@@ -134,6 +149,12 @@ export default function ZoomMeetingPlayer({
         if (typeof event.data.isVideoOff === 'boolean') {
           setIsCameraOff(event.data.isVideoOff);
         }
+      } else if (
+        event.data?.type === 'ZOOM_PIP_ACTION_READY' &&
+        event.origin === window.location.origin &&
+        event.source === iframeRef.current?.contentWindow
+      ) {
+        setIsPipReady(Boolean(event.data.available));
       }
     };
     document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -245,6 +266,19 @@ export default function ZoomMeetingPlayer({
             <Sliders className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">{isRtl ? 'فحص الأجهزة' : 'Check Devices'}</span>
           </button>
+          <button
+            type="button"
+            onClick={handleOpenFloatingWindow}
+            disabled={!isPipReady}
+            className="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 text-teal-200 hover:text-teal-100 border border-teal-400/30 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-45 disabled:cursor-not-allowed"
+            title={isPipReady
+              ? (isRtl ? 'فتح الحصة في نافذة عائمة' : 'Open meeting in a floating window')
+              : (isRtl ? 'تتوفر بعد الاتصال بالحصة' : 'Available after joining the meeting')}
+            aria-label={isRtl ? 'نافذة عائمة' : 'Picture-in-Picture'}
+          >
+            <PictureInPicture2 className="w-3.5 h-3.5" />
+            <span>{isRtl ? 'نافذة عائمة' : 'Picture-in-Picture'}</span>
+          </button>
           {onRefreshJoinData && (
             <button
               type="button"
@@ -303,7 +337,7 @@ export default function ZoomMeetingPlayer({
             src={embedUrl}
             title="Zoom Live Meeting Stream"
             className="w-full h-full min-h-[320px] sm:min-h-[360px] border-0 relative z-10 flex-1"
-            allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write; speaker-selection; unload"
+            allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write; speaker-selection; picture-in-picture; unload"
           />
         )}
       </div>

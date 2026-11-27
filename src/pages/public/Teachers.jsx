@@ -13,7 +13,8 @@ const ITEMS_PER_PAGE = 10
 
 export default function Teachers() {
   const { t, i18n } = useTranslation()
-  const isRtl = i18n.language === 'ar'
+  const currentLang = i18n.language?.startsWith('en') ? 'en' : 'ar'
+  const isRtl = currentLang === 'ar'
   const gridRef = useRef(null)
   const [searchInput, setSearchInput] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
@@ -26,16 +27,16 @@ export default function Teachers() {
     isError,
     refetch
   } = useQuery({
-    queryKey: ['publicTeachers', searchTerm],
+    queryKey: ['publicTeachers', currentLang, searchTerm],
     queryFn: () => teachersApi.fetchPublicTeachers({
       page: 1,
       limit: 100,
-      search: searchTerm
+      search: searchTerm,
+      lang: currentLang,
     }),
-    placeholderData: (previousData) => previousData,
   })
   const { data: rawCountries = [] } = useQuery({
-    queryKey: ['countries', i18n.language],
+    queryKey: ['countries', currentLang],
     queryFn: () => fetchCountries({ sort: 'name' }),
     staleTime: 1000 * 60 * 10,
   })

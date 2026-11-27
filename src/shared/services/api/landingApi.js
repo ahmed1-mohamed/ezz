@@ -7,7 +7,8 @@ export const landingApi = {
   fetchLandingPageData: async (lang) => {
     try {
       const response = await api.get('/api/v1/landing-page', {
-        params: lang ? { lang } : undefined
+        params: lang ? { lang } : undefined,
+        headers: lang ? { 'Accept-Language': lang } : undefined,
       });
       return response.data;
     } catch (error) {
@@ -113,9 +114,11 @@ export const landingApi = {
     }
   },
 
-  fetchPublicCurrentWeekTimetable: async (params) => {
+  fetchPublicCurrentWeekTimetable: async (lang) => {
     try {
-      const response = await api.get('/api/v1/timetable/public/current-week', { params });
+      const response = await api.get('/api/v1/timetable/public/current-week', {
+        headers: lang ? { 'Accept-Language': lang } : undefined,
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching public current week timetable:', error);
