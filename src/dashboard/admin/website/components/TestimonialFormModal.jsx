@@ -10,8 +10,7 @@ const testimonialSchema = z.object({
   parentNameAr: z.string().min(2, 'الاسم بالعربية مطلوب ويجب أن يكون حرفين على الأقل'),
   parentNameEn: z.string().optional(),
   reviewAr: z.string().min(5, 'رأي ولي الأمر بالعربية مطلوب'),
-  reviewEn: z.string().optional(),
-  image: z.any().refine(val => val !== null && val !== undefined && val !== '', 'الصورة الشخصية إجبارية')
+  reviewEn: z.string().optional()
 });
 
 export default function TestimonialFormModal({
@@ -188,7 +187,7 @@ export default function TestimonialFormModal({
                   <div>
                     <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                       <ImageIcon size={16} />
-                      {t('adminDashboard.website.personalImageRequired', 'صورة شخصية')} <span className="text-red-500">*</span>
+                      {t('adminDashboard.website.personalImageOptional', 'الصورة الشخصية (اختياري)')}
                     </h4>
                     <div className="mt-2 flex flex-col gap-1">
                       <div className="flex items-center gap-3">

@@ -10,7 +10,8 @@ import ScheduleEmptyState from './components/Schedule/ScheduleEmptyState.jsx';
 
 export default function SchedulePage() {
     const { t, i18n } = useTranslation();
-    const isRtl = i18n.language?.startsWith('ar') ?? true;
+    const currentLang = i18n.language?.startsWith('en') ? 'en' : 'ar';
+    const isRtl = currentLang === 'ar';
     const [timetableData, setTimetableData] = useState({ week: {}, days: [] });
     const [loading, setLoading] = useState(true);
     const [activeDayIndex, setActiveDayIndex] = useState(0);
@@ -21,7 +22,7 @@ export default function SchedulePage() {
         const loadTimetable = async () => {
             setLoading(true);
             try {
-                const res = await landingApi.fetchPublicCurrentWeekTimetable();
+                const res = await landingApi.fetchPublicCurrentWeekTimetable(currentLang);
                 const data = res?.data || res;
                 if (isMounted && data) {
                     const week = data.currentWeek || data.week || {};
@@ -50,7 +51,7 @@ export default function SchedulePage() {
         return () => {
             isMounted = false;
         };
-    }, [i18n.language]);
+    }, [currentLang]);
     const days = useMemo(() => timetableData?.days || [], [timetableData]);
     const activeDay = useMemo(() => {
         if (!days || days.length === 0) return null;

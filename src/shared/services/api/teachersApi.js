@@ -226,7 +226,10 @@ export const teachersApi = {
       if (params.country && typeof params.country === 'string' && params.country.trim()) {
         apiParams.country = params.country.trim();
       }
-      const response = await api.get('/api/v1/teachers/public', { params: apiParams });
+      const response = await api.get('/api/v1/teachers/public', {
+        params: apiParams,
+        headers: params.lang ? { 'Accept-Language': params.lang } : undefined,
+      });
       const resData = response.data || {};
       const rawList = resData.data || (Array.isArray(resData) ? resData : []);
       const items = Array.isArray(rawList) ? rawList.map(mapTeacherData).filter(Boolean) : [];

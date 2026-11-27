@@ -37,7 +37,11 @@ export default function SessionRow({
   const { i18n } = useTranslation()
   const isRtl = i18n?.language?.startsWith('ar') ?? true
   const groupName = safeText(session.groupName, 'مجموعة دراسية')
-  const sessionTitle = safeText(session.title)
+  const sessionTitle = typeof session.title === 'object' && session.title !== null
+    ? (isRtl
+      ? session.title.ar || session.title.en || session.title.name || session.title.title
+      : session.title.en || session.title.ar || session.title.name || session.title.title) || ''
+    : safeText(session.title)
   const sessionNum = safeText(session.sessionNumber)
   const teacher = safeText(session.teacher, 'غير محدد')
   const teacherContact = safeText(session.teacherPhone || session.teacherEmail)

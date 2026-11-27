@@ -172,7 +172,6 @@ export default function AddEditStudentScreen({
       if (!formData.country) return fail('الرجاء اختيار الدولة', 'Please select a country')
       if (!isEdit && !formData.birthDate) return fail('الرجاء إدخال تاريخ الميلاد', 'Please enter birth date')
       if (!formData.studentLevel) return fail('الرجاء اختيار المستوى التعليمي', 'Please select student level')
-      if (!isEdit && !selectedParentId) return fail('الرجاء اختيار ولي الأمر للطالب', 'Please select a parent for the student')
       if (!isEdit) {
         if (formData.password.length < 6) return fail('كلمة المرور يجب أن لا تقل عن 6 أحرف', 'Password must be at least 6 characters')
         if (formData.password !== formData.confirmPassword) return fail('كلمة المرور وتأكيد كلمة المرور غير متطابقتين', 'Passwords do not match')

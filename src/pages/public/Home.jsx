@@ -55,7 +55,7 @@ const SectionSkeleton = () => <div className="h-40 rounded-2xl bg-slate-100 dark
 
 export default memo(function Home() {
     const { t, i18n } = useTranslation()
-    const currentLang = i18n.language === 'en' ? 'en' : 'ar'
+    const currentLang = i18n.language?.startsWith('en') ? 'en' : 'ar'
     const isRtl = currentLang === 'ar'
     const dispatch = useDispatch()
     const [searchParams] = useSearchParams()
@@ -64,9 +64,9 @@ export default memo(function Home() {
     const [localData] = useState(readLocalStorage)
     useEffect(() => {
         if (!hasPaymentParam) {
-            dispatch(fetchLandingPage(i18n.language))
+            dispatch(fetchLandingPage(currentLang))
         }
-    }, [dispatch, i18n.language, hasPaymentParam])
+    }, [dispatch, currentLang, hasPaymentParam])
     if (hasPaymentParam) {
         return (
             <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="w-9 h-9 border-3 border-[#0f7a6c] border-t-transparent rounded-full animate-spin" /></div>}>
@@ -168,7 +168,7 @@ export default memo(function Home() {
                 <EducationalPrograms curricula={landingData?.curricula} />
             </Suspense>
             <Suspense fallback={<SectionSkeleton />}>
-                <StarsSection featuredStudents={localData.stars || landingData?.featuredStudents} />
+                <StarsSection featuredStudents={landingData?.featuredStudents ?? localData.stars} />
             </Suspense>
             <Suspense fallback={<SectionSkeleton />}>
                 <JourneySteps />
@@ -177,7 +177,7 @@ export default memo(function Home() {
                 <TeachersSection eliteTeachers={landingData?.eliteTeachers} />
             </Suspense>
             <Suspense fallback={<SectionSkeleton />}>
-                <TestimonialsSection testimonials={localData.testimonials || landingData?.testimonials} />
+                <TestimonialsSection testimonials={landingData?.testimonials ?? localData.testimonials} />
             </Suspense>
             <Suspense fallback={<SectionSkeleton />}>
                 <CTASection />
