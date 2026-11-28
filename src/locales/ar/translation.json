@@ -694,6 +694,7 @@
     "completedSessionTitle": "حصة مكتملة",
     "liveSessionTitle": "حصة مباشرة",
     "startingSession": "جاري بدء الجلسة...",
+    "safariPipUnavailable": "النافذة العائمة غير متاحة على Safari حاليًا",
     "rescheduleDetailsMinLength": "إذا أضفت تفاصيل، يجب ألا تقل عن 5 أحرف",
     "currentSession": "الحصة الحالية",
     "rescheduleTimezoneNote": "الأوقات المقترحة تُفسَّر حسب منطقة الدولة المسجلة في حسابك، ثم موقع الاتصال، ثم توقيت الإمارات.",

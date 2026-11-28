@@ -11,7 +11,16 @@
     <title>منصة منارة العز التعليمية | Manarat Al-Ezz Educational Platform</title>
     <meta name="description" content="حصص أونلاين مباشرة مع معلمين متخصصين لتحفيظ القرآن وتعليم اللغة العربية، وشرح جميع المواد الدراسية لطلاب المدارس الدولية. احجز حصتك التجريبية الآن." />
     <meta name="keywords" content="تعليم, منارة العز, تجويد, قرآن كريم, لغة عربية, إدارة الطلاب, منصة تعليمية, لوحة تحكم" />
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+    <script>
+      // Keep HTTPS upgrades in deployed environments, but let local Vite use HTTP.
+      const localHosts = ["localhost", "127.0.0.1", "::1", "[::1]"];
+      if (!localHosts.includes(window.location.hostname) && !window.location.hostname.endsWith(".localhost")) {
+        const csp = document.createElement("meta");
+        csp.httpEquiv = "Content-Security-Policy";
+        csp.content = "upgrade-insecure-requests";
+        document.head.appendChild(csp);
+      }
+    </script>
     <meta name="referrer" content="no-referrer-when-downgrade" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="author" content="أكاديمية منارة العز التعليمية" />
