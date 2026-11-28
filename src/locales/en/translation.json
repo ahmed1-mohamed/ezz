@@ -694,6 +694,7 @@
     "completedSessionTitle": "Completed Session",
     "liveSessionTitle": "Live Session",
     "startingSession": "Starting session...",
+    "safariPipUnavailable": "Picture-in-Picture isn’t available on Safari right now",
     "rescheduleDetailsMinLength": "If you add details, they must be at least 5 characters long",
     "currentSession": "Current session",
     "rescheduleTimezoneNote": "Proposed times use the timezone resolved from your account country, then your connection location, with UAE time as the final fallback.",

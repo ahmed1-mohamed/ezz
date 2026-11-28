@@ -2,6 +2,10 @@ import { useState, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/shared/context/useAuth.jsx';
+import { profileApi } from '@/shared/services/api/profileApi.js';
+import { landingApi } from '@/shared/services/api/landingApi.js';
+import { dashboardApi } from '@/shared/services/api/dashboardApi.js';
 import {
   Video,
   Mic,
@@ -46,13 +50,28 @@ function formatSessionDate(dateValue, isRtl) {
   });
 }
 
-function formatSessionTime(timeValue) {
+function isValidTimeZone(timeZone) {
+  if (!timeZone || typeof timeZone !== 'string') return false;
+  try {
+    new Intl.DateTimeFormat('en', { timeZone }).format(0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function formatSessionTime(timeValue, timeZone, language) {
   if (!timeValue) return '-';
   const str = String(timeValue).trim();
   if (/^\d{4}-\d{2}-\d{2}T/.test(str)) {
     const d = new Date(str);
     if (!isNaN(d.getTime())) {
-      return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+      return new Intl.DateTimeFormat(language === 'ar' ? 'ar-EG' : 'en-GB', {
+        timeZone,
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      }).format(d);
     }
   }
   return str;
@@ -61,12 +80,75 @@ function formatSessionTime(timeValue) {
 export default function BeforeSessionTab({ onStartSession }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
+  const language = isRtl ? 'ar' : 'en';
+  const { user } = useAuth();
+  const userId = user?.id || user?._id || 'current';
   const [searchParams] = useSearchParams();
   const querySessionId = searchParams.get('session') || searchParams.get('sessionId');
   const [offset, setOffset] = useState(0);
   const [isStarting, setIsStarting] = useState(false);
   const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
   const [isDeviceCheckOpen, setIsDeviceCheckOpen] = useState(false);
+  const profileQuery = useQuery({
+    queryKey: ['teacher-clock-profile', userId],
+    queryFn: async () => {
+      const result = await profileApi.fetchProfile();
+      return result?.success ? result.data : null;
+    },
+    enabled: Boolean(user),
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+  const profileCountry = profileQuery.data?.country || user?.country || null;
+  const profileCountryRef = profileCountry && typeof profileCountry === 'object'
+    ? profileCountry.country || profileCountry
+    : profileCountry;
+  const profileTimeZone = profileCountry && typeof profileCountry === 'object'
+    ? profileCountry.timezone || profileCountry.country?.timezone || ''
+    : '';
+  const countriesQuery = useQuery({
+    queryKey: ['teacher-clock-countries', language],
+    queryFn: async () => {
+      const result = await landingApi.fetchCountries({ limit: 500 });
+      return Array.isArray(result?.data) ? result.data : Array.isArray(result) ? result : [];
+    },
+    enabled: Boolean(user),
+    staleTime: 24 * 60 * 60 * 1000,
+    retry: false,
+  });
+  const matchedCountry = (countriesQuery.data || []).find((country) => {
+    if (!profileCountry) return false;
+    const profileId = typeof profileCountryRef === 'object' ? profileCountryRef.id || profileCountryRef._id : profileCountryRef;
+    const candidateId = country.id || country._id;
+    if (profileId && candidateId && String(profileId) === String(candidateId)) return true;
+    const profileCode = typeof profileCountryRef === 'object'
+      ? profileCountryRef.isoCode || profileCountryRef.countryCode || profileCountryRef.code
+      : (String(profileCountryRef || '').length <= 4 ? profileCountryRef : '');
+    const candidateCodes = [country.isoCode, country.countryCode, country.code].filter(Boolean);
+    if (profileCode && candidateCodes.some((code) => String(code).toLowerCase() === String(profileCode).toLowerCase())) return true;
+    const profileName = typeof profileCountryRef === 'object'
+      ? profileCountryRef.name?.[language] || profileCountryRef.name?.ar || profileCountryRef.name?.en || profileCountryRef.name
+      : profileCountryRef;
+    const names = typeof country.name === 'object'
+      ? [country.name[language], country.name.ar, country.name.en]
+      : [country.name, country.nameAr, country.nameEn];
+    return names.some((name) => name && String(name).trim().toLowerCase() === String(profileName || '').trim().toLowerCase());
+  });
+  const resolvedProfileTimeZone = profileTimeZone || matchedCountry?.timezone || '';
+  const shouldFetchResolvedTimeZone = Boolean(user) && profileQuery.isFetched && !isValidTimeZone(resolvedProfileTimeZone) && (!profileCountry || countriesQuery.isFetched);
+  const resolvedTimeZoneQuery = useQuery({
+    queryKey: ['teacher-clock-resolved-timezone', userId],
+    queryFn: () => dashboardApi.fetchTeacherStatistics(),
+    enabled: shouldFetchResolvedTimeZone,
+    staleTime: 15 * 60 * 1000,
+    retry: false,
+  });
+  const statistics = resolvedTimeZoneQuery.data?.data;
+  const serverTimeZone = statistics?.nextSession?._targetTimezone || statistics?.upcomingSessions?.[0]?._targetTimezone || statistics?._targetTimezone || '';
+  const deviceTimeZone = (() => {
+    try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch { return ''; }
+  })();
+  const timeZone = [resolvedProfileTimeZone, serverTimeZone, deviceTimeZone, 'UTC'].find(isValidTimeZone);
   const { data: sessionData, isLoading, isError, refetch } = useQuery({
     queryKey: ['teacher-session-detail-or-offset', querySessionId, offset],
     queryFn: () => {
@@ -268,7 +350,9 @@ export default function BeforeSessionTab({ onStartSession }) {
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-4 h-4 text-[#0f7a6c]" />
                     <span>
-                      {session.timeRange || `${formatSessionTime(session.startTime)}${session.endTime ? ` - ${formatSessionTime(session.endTime)}` : ''}`}
+                      {/^\d{4}-\d{2}-\d{2}T/.test(String(session.startTime || ''))
+                        ? `${formatSessionTime(session.startTime, timeZone, language)}${session.endTime ? ` - ${formatSessionTime(session.endTime, timeZone, language)}` : ''}`
+                        : session.timeRange || `${formatSessionTime(session.startTime, timeZone, language)}${session.endTime ? ` - ${formatSessionTime(session.endTime, timeZone, language)}` : ''}`}
                     </span>
                   </div>
                   {session.duration && (

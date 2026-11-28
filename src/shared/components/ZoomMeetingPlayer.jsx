@@ -33,6 +33,8 @@ export default function ZoomMeetingPlayer({
 }) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n?.language?.startsWith('ar') ?? true;
+  const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  const isSafari = /Safari/i.test(userAgent) && !/(Chrome|Chromium|CriOS|Edg|OPR)/i.test(userAgent);
   const containerRef = useRef(null);
   const iframeRef = useRef(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -45,6 +47,11 @@ export default function ZoomMeetingPlayer({
   const cleanMeetingId = String(meetingId || '').replace(/\s/g, '');
   const cleanPasscode = String(passcode || '');
   const isHost = Number(role) === 1;
+  const pipTitle = isSafari
+    ? t('teacherLive.safariPipUnavailable', 'النافذة العائمة غير متاحة على Safari حاليًا')
+    : isPipReady
+      ? (isRtl ? 'فتح الحصة في نافذة عائمة' : 'Open meeting in a floating window')
+      : (isRtl ? 'تتوفر بعد الاتصال بالحصة' : 'Available after joining the meeting');
   const embedUrl = (() => {
     if (!cleanMeetingId && !startUrl && !joinUrl) return '';
     const params = new URLSearchParams();
@@ -266,19 +273,19 @@ export default function ZoomMeetingPlayer({
             <Sliders className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">{isRtl ? 'فحص الأجهزة' : 'Check Devices'}</span>
           </button>
-          <button
-            type="button"
-            onClick={handleOpenFloatingWindow}
-            disabled={!isPipReady}
-            className="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 text-teal-200 hover:text-teal-100 border border-teal-400/30 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-45 disabled:cursor-not-allowed"
-            title={isPipReady
-              ? (isRtl ? 'فتح الحصة في نافذة عائمة' : 'Open meeting in a floating window')
-              : (isRtl ? 'تتوفر بعد الاتصال بالحصة' : 'Available after joining the meeting')}
-            aria-label={isRtl ? 'نافذة عائمة' : 'Picture-in-Picture'}
-          >
-            <PictureInPicture2 className="w-3.5 h-3.5" />
-            <span>{isRtl ? 'نافذة عائمة' : 'Picture-in-Picture'}</span>
-          </button>
+          <span className="inline-flex" title={pipTitle}>
+            <button
+              type="button"
+              onClick={handleOpenFloatingWindow}
+              disabled={isSafari || !isPipReady}
+              className="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 text-teal-200 hover:text-teal-100 border border-teal-400/30 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-45 disabled:cursor-not-allowed"
+              title={pipTitle}
+              aria-label={isRtl ? 'نافذة عائمة' : 'Picture-in-Picture'}
+            >
+              <PictureInPicture2 className="w-3.5 h-3.5" />
+              <span>{isRtl ? 'نافذة عائمة' : 'Picture-in-Picture'}</span>
+            </button>
+          </span>
           {onRefreshJoinData && (
             <button
               type="button"
